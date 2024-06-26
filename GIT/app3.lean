@@ -91,3 +91,5 @@ lemma recursive_lemma2 (G : S → S) (k : ordinal S) (neq_emp : k ≠ ∅) :
 
 end ordinal
 end HF
+
+-- watch this
