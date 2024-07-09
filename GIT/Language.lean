@@ -8,13 +8,13 @@ def HFLang : Language.{0, 0} where
   | 0 => PUnit -- We have one 0-ary function, i.e. a constant term, the empty set
   | 1 => Empty -- We have no 1-ary functions
   | 2 => PUnit -- We have one 2-ary function, i.e. a binary function, the enlargement
-  | .succ _ => Empty
+  | _ + 3 => Empty
   Relations :=
   fun
   | 0 => Empty -- We have no 0-ary relations
   | 1 => Empty -- We have no unary relations
   | 2 => PUnit -- We have one binary relation, the membership relation
-  | .succ _ => Empty -- We have no n-ary relations for n > 2
+  | _ + 3 => Empty -- We have no n-ary relations for n > 2
 
 abbrev HFLang.emptySetSymbol : HFLang.Functions 0 := PUnit.unit
 
