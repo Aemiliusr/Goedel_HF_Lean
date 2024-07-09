@@ -32,7 +32,7 @@ local notation "∈'" => HFLang.membershipSymbol
 HF1: ∀ z, z = ∅ ↔ ∀ x, ¬(x ∈ z)
 -/
 def HFAxiom1 : HFLang.Sentence :=
-∀' (&0 =' (.func ∅' Fin.elim0)) ⇔ ∀' ∼(.rel ∈' ![&1, &0])
+∀' (&0 =' (.func ∅' Fin.elim0)) ⇔ ∀' ∼(.rel ∈' ![&0, &1])
 
 /--
 ∀ z, ∀ x, ∀ y, z = enlarge x y ↔ ∀ u, u ∈ z ↔ u ∈ x ∨ u = y

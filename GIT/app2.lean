@@ -251,15 +251,16 @@ lemma exists_max_of_enlarged_set_of_ord (x y : S) (set_of_ord : ∀ k ∈ x ◁ 
     simp_all
 
 theorem exists_max_of_set_of_ord (x : S) (set_of_ord : ∀ k ∈ x, ord k) (neq_emp : x ≠ ∅) :
-    ∃ l ∈ x, ∀ k ∈ x, (k ∈ l ∨ k = l) := by
-  induction' x using HF.induction with x y hx _
-  · simp_all
-  · have x_set_of_ord : ∀ k ∈ x, ord k := by simp_rw [enlarge_iff] at set_of_ord; aesop
-    specialize hx x_set_of_ord
-    by_cases x_eq_emp : x = ∅
-    · simp_rw [x_eq_emp, enlarge_iff, set_notin_empty, false_or]
-      use y; simp_all
-    · apply exists_max_of_enlarged_set_of_ord x y <;> simp_all
+    ∃ l ∈ x, ∀ k ∈ x, (k ∈ l ∨ k = l) := by sorry
+  -- induction' x using HF.induction with x y hx _
+  -- · simp_all
+  -- · have x_set_of_ord : ∀ k ∈ x, ord k := by simp_rw [enlarge_iff] at set_of_ord; aesop
+  --   specialize hx x_set_of_ord
+  --   by_cases x_eq_emp : x = ∅
+  --   · simp_rw [x_eq_emp, enlarge_iff, set_notin_empty, false_or]
+  --     use y; simp_all
+  --   · apply exists_max_of_enlarged_set_of_ord x y <;> simp_all
+
 
 lemma exists_min_of_enlarged_set_of_ord (x y : S) (set_of_ord : ∀ k ∈ x ◁ y, ord k)
     (x_has_min : ∃ l ∈ x, ∀ k ∈ x, (l ∈ k ∨ l = k)) :
@@ -283,15 +284,15 @@ lemma exists_min_of_enlarged_set_of_ord (x y : S) (set_of_ord : ∀ k ∈ x ◁ 
     simp_all
 
 theorem exists_min_of_set_of_ord (x : S) (set_of_ord : ∀ k ∈ x, ord k) (neq_emp : x ≠ ∅) :
-    ∃ l ∈ x, ∀ k ∈ x, (l ∈ k ∨ l = k) := by
-  induction' x using HF.induction with x y hx _
-  · simp_all
-  · have x_set_of_ord : ∀ k ∈ x, ord k := by simp_rw [enlarge_iff] at set_of_ord; aesop
-    specialize hx x_set_of_ord
-    by_cases x_eq_emp : x = ∅
-    · simp_rw [x_eq_emp, enlarge_iff, set_notin_empty, false_or]
-      use y; simp_all
-    · apply exists_min_of_enlarged_set_of_ord x y <;> simp_all
+    ∃ l ∈ x, ∀ k ∈ x, (l ∈ k ∨ l = k) := by sorry
+  -- induction' x using HF.induction with x y hx _
+  -- · simp_all
+  -- · have x_set_of_ord : ∀ k ∈ x, ord k := by simp_rw [enlarge_iff] at set_of_ord; aesop
+  --   specialize hx x_set_of_ord
+  --   by_cases x_eq_emp : x = ∅
+  --   · simp_rw [x_eq_emp, enlarge_iff, set_notin_empty, false_or]
+  --     use y; simp_all
+  --   · apply exists_min_of_enlarged_set_of_ord x y <;> simp_all
 
 --- Theorem 2.7 (originally Theorem 2.8 in Swierczkowski (2003)) ---
 
@@ -449,6 +450,16 @@ lemma le_max (k : ordinal S) (neq_emp : k ≠ ∅) : ∀ l ∈ k, l ≤ max k ne
 /-- The predecessor of a non-empty ordinal k, i.e. it's largest element -/
 def predec (k : ordinal S) (neq_emp : k ≠ ∅) : ordinal S := max k neq_emp
 
+lemma mem_of_succ (k : ordinal S) : k ∈ succ k := by
+  rw [succ]
+  cases' k with k ord_k; simp only [mem]
+  rw [HF.succ, enlarge_iff]; simp
+
+lemma mem_of_succ_emp_eq_emp (k : ordinal S) : k ∈ succ ∅ ↔ k = ∅ := by
+  simp_rw [succ, mem, eq, HF.succ, enlarge_iff]
+  have k_notin_emp : k.1 ∉ (∅ : ordinal S).1 := by have := set_notin_empty k.1; aesop
+  aesop
+
 lemma succ_le_false (k : ordinal S) : ¬succ k ≤ k := by
    rw [le_iff, lt_iff, succ]
    cases' k with k ord_k; simp only [eq, neq, mem]
@@ -479,9 +490,20 @@ lemma predec_of_succ (k : ordinal S) : predec (succ k) (succ_neq_emp k) = k := b
   apply eq_succ at h
   exact h
 
+lemma predec_mem (k : ordinal S) (neq_emp : k ≠ ∅) : predec k neq_emp ∈ k := by
+  rw [predec]
+  have := (exists_max k neq_emp).choose_spec; aesop
+
 lemma predec_lt (k : ordinal S) (neq_emp : k ≠ ∅) : predec k neq_emp < k := by
-    rw [predec, lt_iff]
-    have := (exists_max k neq_emp).choose_spec; aesop
+    rw [lt_iff]
+    exact predec_mem k neq_emp
+
+lemma predec_1_eq_HF_predec (k : ordinal S) (neq_emp1 : k ≠ ∅) (neq_emp2 : k.1 ≠ ∅) :
+    (predec k neq_emp1).1 = HF.predec k.1 k.2 neq_emp2 := by
+  have h : (succ (predec k neq_emp1)).1 = HF.succ (HF.predec k.1 k.2 neq_emp2) := by rw [succ_of_predec, succ_predec_of_ord_eq_ord]
+  simp only [succ] at h
+  apply eq_succ_of_ord (predec k neq_emp1).1 (HF.predec k.1 k.2 neq_emp2) (predec k neq_emp1).2 at h
+  exact h
 
 lemma le_refl' (k : ordinal S) : k ≤ k := by simp_rw [le_iff, lt_iff]; simp
 
@@ -571,12 +593,12 @@ lemma trans' : ∀ (k l m : ordinal S), k < l → l < m → k < m := by
 /-- To turn a set into a collection, i.e. turn an HF set into  a 'Lean' set -/
 def toSetS (x : S) : Set S := {s : S | s ∈ x}
 
-lemma toSetS_finite (x : S) : Set.Finite {s : S | s ∈ x} := by
-  induction' x using HF.induction with x y hx _
-  · simp_all only [set_notin_empty ,Set.setOf_false, Set.finite_empty]
-  · simp_rw [enlarge_iff]
-    rw [show {s | s ∈ x ∨ s = y} = {s | s ∈ x} ∪ {y} by aesop]
-    aesop
+lemma toSetS_finite (x : S) : Set.Finite {s : S | s ∈ x} := by sorry
+  -- induction' x using HF.induction with x y hx _
+  -- · simp_all only [set_notin_empty ,Set.setOf_false, Set.finite_empty]
+  -- · simp_rw [enlarge_iff]
+  --   rw [show {s | s ∈ x ∨ s = y} = {s | s ∈ x} ∪ {y} by aesop]
+  --   aesop
 
 instance (x : S): Fintype (toSetS x) := Set.Finite.fintype (toSetS_finite x)
 

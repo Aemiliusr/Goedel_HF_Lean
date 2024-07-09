@@ -1,4 +1,9 @@
 import Mathlib.Tactic
+import Mathlib.ModelTheory.Syntax
+import Mathlib.ModelTheory.Semantics
+import GIT.Language
+
+open FirstOrder
 
 /-!
 # Appendix 1: Axioms and basic results of hereditarily finite set theory
@@ -47,11 +52,15 @@ instance (s) [HFprior s] : Membership s s := ⟨HFprior.mem⟩
 /-- Write ◁ instead of enlarge -/
 infixl:90 " ◁ " => HFprior.enlarging
 
+instance (s) [HFprior s] : HFLang.Structure s := by sorry
+
 /-- Define the axioms -/
 class HF (s : Type u) extends HFprior s where
   empty (z : s) : z = ∅ ↔ ∀ x, x ∉ z
   enlarge (x y z : s) : z = x ◁ y ↔ ∀ u, u ∈ z ↔ u ∈ x ∨ u = y
-  induction (P : s → Prop) (base : P ∅) (step : ∀ x y, P x → P y → P (x ◁ y)) (z : s) : P z
+  induction (P : s → Prop) (base : P ∅) (step : ∀ x y, P x → P y → P (x ◁ y)) (z : s)
+      (n : Nat) (f : Language.BoundedFormula HFLang (Fin n) 1) (t : (Fin n) → s)
+      (hP : P z ↔ f.Realize t (fun _ ↦ z)) : P z
 
 attribute [elab_as_elim] HF.induction
 
@@ -90,36 +99,37 @@ theorem enlarge_empty (z y : S) : z ∈ ∅ ◁ y ↔ z = y := by
 -- Theorem 1.2 (Extensionality Property)
 
 theorem exten_prop (z : S) : ∀ x, x = z ↔ ∀ u, u ∈ x ↔ u ∈ z := by
-  apply HF.induction  -- use HF3, i.e. start a proof by induction on the 'size' of the set x
-  -- base case: x = ∅
-  · constructor  -- split iff
-    · intro h
-      rw [h]  -- to obtain u ∈ z ↔ u ∈ z in goal
-      simp
-    · intro h
-      have hHF1 : ∀ u, u ∉ z := by  -- have the RHS of HF1 which is equivalent to z = ∅
-        intro u  -- pick u arbitrarily
-        specialize h u  -- substitute u in h
-        intro huz  -- u ∉ z is equivalent to u ∈ z → False
-        rw [← h] at huz  -- change hu to u ∈ ∅
-        have h1a := set_notin_empty u  -- substitute u for x in Theorem 1.1 (a) which leads to contradiction
-        apply h1a; exact huz
-      rw [← HF.empty z] at hHF1  -- change the RHS of HF1 to the LHS
-      rw [hHF1]
-  -- inductive step: if exten_prop(x) and exten_prop(y), then exten_prop(x ◁ y)
-  · intros x y _ _  -- pick x and y arbitrarily
-    constructor  -- split iff
-    · intro h
-      rw [h]  -- to obtain u ∈ z ↔ u ∈ z in goal
-      simp
-    · intro h
-      have hHF2 : ∀ u, u ∈ z ↔ u ∈ x ∨ u = y := by  -- have the RHS of HF2 which is equivalent to z = x ◁ y
-        intro u  -- pick u arbitrarily
-        specialize h u  -- substitute u in h
-        rw [← h]  -- substitute h; goal now equals Theorem 1.1 (b)
-        exact enlarge_iff u x y
-      rw [← HF.enlarge x y z] at hHF2  -- change the RHS of HF2 to the LHS
-      rw [hHF2]
+  sorry
+  -- apply HF.induction  -- use HF3, i.e. start a proof by induction on the 'size' of the set x
+  -- -- base case: x = ∅
+  -- · constructor  -- split iff
+  --   · intro h
+  --     rw [h]  -- to obtain u ∈ z ↔ u ∈ z in goal
+  --     simp
+  --   · intro h
+  --     have hHF1 : ∀ u, u ∉ z := by  -- have the RHS of HF1 which is equivalent to z = ∅
+  --       intro u  -- pick u arbitrarily
+  --       specialize h u  -- substitute u in h
+  --       intro huz  -- u ∉ z is equivalent to u ∈ z → False
+  --       rw [← h] at huz  -- change hu to u ∈ ∅
+  --       have h1a := set_notin_empty u  -- substitute u for x in Theorem 1.1 (a) which leads to contradiction
+  --       apply h1a; exact huz
+  --     rw [← HF.empty z] at hHF1  -- change the RHS of HF1 to the LHS
+  --     rw [hHF1]
+  -- -- inductive step: if exten_prop(x) and exten_prop(y), then exten_prop(x ◁ y)
+  -- · intros x y _ _  -- pick x and y arbitrarily
+  --   constructor  -- split iff
+  --   · intro h
+  --     rw [h]  -- to obtain u ∈ z ↔ u ∈ z in goal
+  --     simp
+  --   · intro h
+  --     have hHF2 : ∀ u, u ∈ z ↔ u ∈ x ∨ u = y := by  -- have the RHS of HF2 which is equivalent to z = x ◁ y
+  --       intro u  -- pick u arbitrarily
+  --       specialize h u  -- substitute u in h
+  --       rw [← h]  -- substitute h; goal now equals Theorem 1.1 (b)
+  --       exact enlarge_iff u x y
+  --     rw [← HF.enlarge x y z] at hHF2  -- change the RHS of HF2 to the LHS
+  --     rw [hHF2]
 
 
 -- Definition 1.3
@@ -264,6 +274,10 @@ theorem exists_union (x y : S) : ∃(z : S), ∀(u : S), (u ∈ z ↔ (u ∈ x �
     cases' hx with xUy hxUy  -- xUy is x ∪ y, which exists by hypothesis
     use xUy ◁ w  -- take z = (x ∪ y) ◁ w
     simp_rw [enlarge_iff, hxUy]; tauto
+  · sorry
+  · sorry
+  · sorry
+  · sorry
 
 /-- x ∪ y -/
 noncomputable def union (x y : S) : S := (exists_union x y).choose
@@ -274,18 +288,18 @@ lemma union_iff (x y : S) : ∀ (u : S), u ∈ union x y ↔ u ∈ x ∨ u ∈ y
 
 -- Theorem 1.6 (Existence of the union of a set of sets)
 
-theorem exists_union_set (x : S) : ∃(z : S), ∀(u : S), (u ∈ z ↔ (∃ y ∈ x, u ∈ y))  := by
-  revert x  -- to prove ∀x α(x) using HF3/induction
-  apply HF.induction
-  -- base case
-  · use ∅  -- take z = ∅
-    simp [set_notin_empty]
-  -- inductive step
-  · intros x w hx _
-    simp_rw [enlarge_iff, or_and_right, exists_or, exists_eq_left]
-    cases' hx with Ux hUx  -- Ux is ⋃ x, which exists by hypothesis
-    use union Ux w  -- take z = (⋃ x) ∪ w
-    simp_rw [union_iff]; simp_all
+theorem exists_union_set (x : S) : ∃(z : S), ∀(u : S), (u ∈ z ↔ (∃ y ∈ x, u ∈ y))  := by sorry
+  -- revert x  -- to prove ∀x α(x) using HF3/induction
+  -- apply HF.induction
+  -- -- base case
+  -- · use ∅  -- take z = ∅
+  --   simp [set_notin_empty]
+  -- -- inductive step
+  -- · intros x w hx _
+  --   simp_rw [enlarge_iff, or_and_right, exists_or, exists_eq_left]
+  --   cases' hx with Ux hUx  -- Ux is ⋃ x, which exists by hypothesis
+  --   use union Ux w  -- take z = (⋃ x) ∪ w
+  --   simp_rw [union_iff]; simp_all
 
 /-- ⋃ x -/
 noncomputable def union_set (x : S) : S := (exists_union_set x).choose
@@ -296,20 +310,20 @@ lemma union_set_iff (x : S) : ∀(u : S), (u ∈ union_set x ↔ (∃ y ∈ x, u
 
 -- Theorem 1.7 (Comprehension Scheme)
 
-theorem comp_scheme (x : S) (φ : S → Prop) : ∃ (z : S), ∀ (u : S), (u ∈ z ↔ u ∈ x ∧ φ u) := by
-  revert x -- to prove ∀x α(x) using HF3/induction
-  apply HF.induction
-  -- base case
-  · use ∅  -- take z = ∅
-    simp [set_notin_empty]
-  -- inductive step
-  · intros x y hx _
-    simp_rw [enlarge_iff]
-    cases' hx with xφ hxφ  -- xφ is {u ∈ x : φ(u)} , which exists by hypothesis
-    by_cases hφy : φ y
-    · use xφ ◁ y  -- take z = {u ∈ x : φ(u)} ◁ y
-      simp_rw [enlarge_iff]; aesop
-    · use xφ; aesop  -- take z = {u ∈ x : φ(u)}
+theorem comp_scheme (x : S) (φ : S → Prop) : ∃ (z : S), ∀ (u : S), (u ∈ z ↔ u ∈ x ∧ φ u) := by sorry
+  -- revert x -- to prove ∀x α(x) using HF3/induction
+  -- apply HF.induction
+  -- -- base case
+  -- · use ∅  -- take z = ∅
+  --   simp [set_notin_empty]
+  -- -- inductive step
+  -- · intros x y hx _
+  --   simp_rw [enlarge_iff]
+  --   cases' hx with xφ hxφ  -- xφ is {u ∈ x : φ(u)} , which exists by hypothesis
+  --   by_cases hφy : φ y
+  --   · use xφ ◁ y  -- take z = {u ∈ x : φ(u)} ◁ y
+  --     simp_rw [enlarge_iff]; aesop
+  --   · use xφ; aesop  -- take z = {u ∈ x : φ(u)}
 
 /-- {u ∈ x : φ(u)} -/
 noncomputable def pred_set (x : S) (φ : S → Prop) : S := (comp_scheme x φ).choose
@@ -340,22 +354,22 @@ lemma inter_enlarge (x y : S) : inter (x ◁ y) x = x := by
 -- Theorem 1.9 (Replacement Scheme)
 
 theorem repl_scheme (x : S) (ψ : S → S → Prop) :
-    (∀ u ∈ x, ∃! v, ψ u v) → (∃ (z : S), ∀ v, (v ∈ z ↔ ∃ u ∈ x, ψ u v)) := by
-  revert x -- to prove ∀x α(x) using HF3/induction
-  apply HF.induction
-  -- base case
-  · intro _; use ∅  -- take z = ∅
-    simp [set_notin_empty]
-  -- inductive step
-  · intros x y hx _ h
-    simp_rw [enlarge_iff] at h; have h2 := h
-    specialize h y; simp only [or_true, forall_true_left] at h
-    cases' h with vy hvy
-    have hx1 : (∀ u ∈ x, ∃! v, ψ u v) := by simp_all
-    specialize hx hx1
-    cases' hx with xψ hxψ  -- xψ is {v : ∃ u ∈ x, ψ(u,v)}, which exists by hypothesis
-    use xψ ◁ vy  -- take z = {v : ∃ u ∈ x, ψ(u,v)} ◁ vy
-    simp_rw [enlarge_iff]; aesop
+    (∀ u ∈ x, ∃! v, ψ u v) → (∃ (z : S), ∀ v, (v ∈ z ↔ ∃ u ∈ x, ψ u v)) := by sorry
+  -- revert x -- to prove ∀x α(x) using HF3/induction
+  -- apply HF.induction
+  -- -- base case
+  -- · intro _; use ∅  -- take z = ∅
+  --   simp [set_notin_empty]
+  -- -- inductive step
+  -- · intros x y hx _ h
+  --   simp_rw [enlarge_iff] at h; have h2 := h
+  --   specialize h y; simp only [or_true, forall_true_left] at h
+  --   cases' h with vy hvy
+  --   have hx1 : (∀ u ∈ x, ∃! v, ψ u v) := by simp_all
+  --   specialize hx hx1
+  --   cases' hx with xψ hxψ  -- xψ is {v : ∃ u ∈ x, ψ(u,v)}, which exists by hypothesis
+  --   use xψ ◁ vy  -- take z = {v : ∃ u ∈ x, ψ(u,v)} ◁ vy
+  --   simp_rw [enlarge_iff]; aesop
 
 /-- {v : ∃ u ∈ x, ψ(u,v)} -/
 noncomputable def repl (x : S) (ψ : S → S → Prop) (h : (∀ u ∈ x, ∃! v, ψ u v)) : S
@@ -395,22 +409,22 @@ lemma subset_enlarge (u x y Px : S) (hPx : ∀ (u : S), u ∈ Px ↔ subset_eq u
       cases' hv with hv1 hv2; rw [HF.enlarge] at hv2
       simp_rw [subset_eq, enlarge_iff, hv2]; aesop
 
-theorem exists_power (x : S) : ∃ (z : S), ∀ (u : S), u ∈ z ↔ subset_eq u x := by
-  revert x -- to prove ∀x α(x) using HF3/induction
-  apply HF.induction
-  -- base case
-  · use single ∅  -- take z = {∅}
-    simp_rw [single_iff, subset_eq, exten_prop]
-    simp [set_notin_empty]
-  -- inductive step
-  · intros x y hx _
-    cases' hx with Px hPx  -- Px is the power set P(x), which exists by hypothesis
-    have h : (∀ v ∈ Px, ∃! u, u = v ◁ y) := by  -- condition for usage replacement scheme
-      intros v _; use v ◁ y; simp_all
-    -- take z = P(x) ∪ {u : ∃ v ∈ P(x), u = v ◁ y}
-    use union (Px) (repl (Px) (fun v u ↦ u = v ◁ y) (h))
-    intro u; have hsub := subset_enlarge u x y Px  -- use the lemma
-    specialize hsub hPx; rw [hsub, union_iff, repl_iff]
+theorem exists_power (x : S) : ∃ (z : S), ∀ (u : S), u ∈ z ↔ subset_eq u x := by sorry
+  -- revert x -- to prove ∀x α(x) using HF3/induction
+  -- apply HF.induction
+  -- -- base case
+  -- · use single ∅  -- take z = {∅}
+  --   simp_rw [single_iff, subset_eq, exten_prop]
+  --   simp [set_notin_empty]
+  -- -- inductive step
+  -- · intros x y hx _
+  --   cases' hx with Px hPx  -- Px is the power set P(x), which exists by hypothesis
+  --   have h : (∀ v ∈ Px, ∃! u, u = v ◁ y) := by  -- condition for usage replacement scheme
+  --     intros v _; use v ◁ y; simp_all
+  --   -- take z = P(x) ∪ {u : ∃ v ∈ P(x), u = v ◁ y}
+  --   use union (Px) (repl (Px) (fun v u ↦ u = v ◁ y) (h))
+  --   intro u; have hsub := subset_enlarge u x y Px  -- use the lemma
+  --   specialize hsub hPx; rw [hsub, union_iff, repl_iff]
 
   /-- Power set: P(x) -/
 noncomputable def power (x : S) : S := (exists_power x).choose
@@ -427,29 +441,29 @@ def mem_min (w z : S) : Prop := w ∈ z ∧ inter w z = ∅
 
 -- Theorem 1.13 (Foundation Property)
 
-lemma found_prop_lemma (z : S) : (∀ w ∈ z, inter w z ≠ ∅) → ∀ x, x ∉ z ∧ inter x z = ∅ := by
-  intro h; apply HF.induction
-  -- base case
-  · constructor
-    · by_contra hn
-      specialize h ∅ hn; simp only [ne_eq] at h
-      simp_rw [exten_prop, inter_iff] at h; simp_all [set_notin_empty]
-    · simp_rw [exten_prop, inter_iff]; simp_all [set_notin_empty]
-  -- inductive step
-  · intros x y hx hy
-    by_contra hn; rw [not_and_or] at hn
-    simp only [not_not] at hn
-    have hxyz : (¬inter (x ◁ y) z = ∅) → False := by  -- covers both Case 1 and Case 2
-      intro hne; have hstep : inter x z ≠ ∅ → False := by simp_all
-      apply hstep
-      simp_rw [exten_prop, inter_iff, enlarge_iff] at hne; simp only [not_forall] at hne
-      cases' hne with w hw; simp [set_notin_empty] at hw
-      cases' hw with hw1 hw2; cases' hw1 with hwl hwr
-      · simp_rw [exten_prop, inter_iff] at hx; simp_all [set_notin_empty]
-      · simp_rw [exten_prop, inter_iff] at hy; simp_all
-    cases' hn with hnl hnr  -- Case 1 and Case 2
-    · specialize h (x ◁ y) hnl; simp only [ne_eq] at h ; simp_all
-    · simp_all
+lemma found_prop_lemma (z : S) : (∀ w ∈ z, inter w z ≠ ∅) → ∀ x, x ∉ z ∧ inter x z = ∅ := by sorry
+  -- intro h; apply HF.induction
+  -- -- base case
+  -- · constructor
+  --   · by_contra hn
+  --     specialize h ∅ hn; simp only [ne_eq] at h
+  --     simp_rw [exten_prop, inter_iff] at h; simp_all [set_notin_empty]
+  --   · simp_rw [exten_prop, inter_iff]; simp_all [set_notin_empty]
+  -- -- inductive step
+  -- · intros x y hx hy
+  --   by_contra hn; rw [not_and_or] at hn
+  --   simp only [not_not] at hn
+  --   have hxyz : (¬inter (x ◁ y) z = ∅) → False := by  -- covers both Case 1 and Case 2
+  --     intro hne; have hstep : inter x z ≠ ∅ → False := by simp_all
+  --     apply hstep
+  --     simp_rw [exten_prop, inter_iff, enlarge_iff] at hne; simp only [not_forall] at hne
+  --     cases' hne with w hw; simp [set_notin_empty] at hw
+  --     cases' hw with hw1 hw2; cases' hw1 with hwl hwr
+  --     · simp_rw [exten_prop, inter_iff] at hx; simp_all [set_notin_empty]
+  --     · simp_rw [exten_prop, inter_iff] at hy; simp_all
+  --   cases' hn with hnl hnr  -- Case 1 and Case 2
+  --   · specialize h (x ◁ y) hnl; simp only [ne_eq] at h ; simp_all
+  --   · simp_all
 
 theorem found_prop (z : S) : z ≠ ∅ → ∃ w, mem_min w z := by
   have h := found_prop_lemma z
