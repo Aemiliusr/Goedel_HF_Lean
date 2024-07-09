@@ -1,5 +1,15 @@
 /.lake
 /GIT/.DS_Store
 /.DS_Store
+.DS_Store
 
 
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.pdf
+*.paux
+/blueprint/web/*
+/blueprint/print/*
+lean_decls
