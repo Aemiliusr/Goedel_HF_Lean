@@ -112,7 +112,7 @@ def psi_seq2 (G : S → S) (s : S) (k : ordinal S) (k_neq_emp : k ≠ ∅) (seq 
     := s ◁ (ord_pair k.1 (G (output_of_Seq s k (predec k k_neq_emp) seq (predec_mem k k_neq_emp))))
 
 lemma psi_seq2_eq_seq (G : S → S) (s : S) (k : ordinal S) (k_neq_emp : k ≠ ∅) (seq : Seq s k)
-    (hseq : ∀ (n : ordinal S) (n_in_k : n ∈ k),
+    (_hseq : ∀ (n : ordinal S) (n_in_k : n ∈ k),
     n = ∅ ∧ output_of_Seq s k n seq n_in_k = ∅ ∨
     ∃ (n_neq_emp : n ≠ ∅), output_of_Seq s k n seq n_in_k = G (output_of_Seq s k (predec n n_neq_emp) seq (predec_mem_aux n k n_in_k n_neq_emp)))
     : Seq (psi_seq2 G s k k_neq_emp seq) (succ k) := by
@@ -126,7 +126,7 @@ lemma psi_seq2_eq_seq (G : S → S) (s : S) (k : ordinal S) (k_neq_emp : k ≠ �
       simp_rw [ord_pair, pair_iff, true_or]
   rw [Seq]; constructor
   · simp_rw [function, psi_seq2, enlarge_iff, ord_pair_equal]
-    refine ⟨by aesop, ?_⟩
+    refine ⟨by aesop, ?_⟩ -- this is the slow line
     intros u v v' h1 h2
     cases' h1 with c1 c2
     · cases' h2 with c3 c4
@@ -243,7 +243,7 @@ lemma psi_seq3_eq_seq (s : S) (k : ordinal S) (k_neq_emp : k ≠ ∅) (predec_ne
   refine ⟨?_, ⟨by assumption, ?_⟩⟩
   · rw [function] at *
     simp_rw [psi_seq3, pred_set_iff]
-    sorry
+    sorry -- aesop
   · simp_rw [HF.dom, exten_prop, pred_set_iff, union_set_iff, psi_seq3, pred_set_iff] at *
     intro u; specialize dom u
     constructor

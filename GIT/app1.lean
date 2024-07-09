@@ -52,7 +52,12 @@ instance (s) [HFprior s] : Membership s s := ⟨HFprior.mem⟩
 /-- Write ◁ instead of enlarge -/
 infixl:90 " ◁ " => HFprior.enlarging
 
-instance (s) [HFprior s] : HFLang.Structure s := by sorry
+instance (s) [HFprior s] : HFLang.Structure s where
+  funMap {n} _ h := match n with
+  | 0 => ∅
+  | 2 => h 0 ◁ h 1
+  RelMap {n} _ h := match n with
+  | 2 => h 0 ∈ h 1
 
 /-- Define the axioms -/
 class HF (s : Type u) extends HFprior s where
@@ -98,7 +103,17 @@ theorem enlarge_empty (z y : S) : z ∈ ∅ ◁ y ↔ z = y := by
 
 -- Theorem 1.2 (Extensionality Property)
 
-theorem exten_prop (z : S) : ∀ x, x = z ↔ ∀ u, u ∈ x ↔ u ∈ z := by
+theorem exten_prop (z : S) (x : S) : x = z ↔ ∀ u, u ∈ x ↔ u ∈ z := by
+  induction' x using HF.induction with x w hx _
+  · sorry -- done
+  · sorry -- done
+  · exact 1
+  · exact (&0 =' .var (.inl 0)) ⇔ ∀' (sorry ⇔ sorry)
+    -- exact &0 --∀' (&0 =' (.func ∅' Fin.elim0)) ⇔ ∀' ∼(.rel ∈' ![&0, &1])
+  · exact z
+  · sorry
+
+#exit
   sorry
   -- apply HF.induction  -- use HF3, i.e. start a proof by induction on the 'size' of the set x
   -- -- base case: x = ∅
@@ -277,7 +292,8 @@ theorem exists_union (x y : S) : ∃(z : S), ∀(u : S), (u ∈ z ↔ (u ∈ x �
   · sorry
   · sorry
   · sorry
-  · sorry
+  ·
+    sorry
 
 /-- x ∪ y -/
 noncomputable def union (x y : S) : S := (exists_union x y).choose
