@@ -243,7 +243,11 @@ lemma psi_seq3_eq_seq (s : S) (k : ordinal S) (k_neq_emp : k ≠ ∅) (predec_ne
   refine ⟨?_, ⟨by assumption, ?_⟩⟩
   · rw [function] at *
     simp_rw [psi_seq3, pred_set_iff]
-    sorry -- aesop
+    simp_all only [ne_eq, eq, and_imp, implies_true, true_and]
+    intros
+    apply func.2
+    · assumption
+    · simp_all
   · simp_rw [HF.dom, exten_prop, pred_set_iff, union_set_iff, psi_seq3, pred_set_iff] at *
     intro u; specialize dom u
     constructor
@@ -385,13 +389,14 @@ lemma recursive_lemma1 (G : S → S) (inj : Function.Injective G) (k : ordinal S
         recursive_function_on_ordinals_for_empty G inj k = ∅ := by
     have := (exists_recursive_function_on_ordinals_for_empty G inj).choose_spec
     rw [recursive_function_on_ordinals_for_empty, this]
-    aesop
+    subst eq_emp
+    simp_all only [eq, ↓reduceDIte]
 
 lemma recursive_lemma2 (G : S → S) (inj : Function.Injective G) (k : ordinal S) (neq_emp : k ≠ ∅) :
         recursive_function_on_ordinals_for_empty G inj k = G (recursive_function_on_ordinals_for_empty G inj (predec k neq_emp)) := by
     have := (exists_recursive_function_on_ordinals_for_empty G inj).choose_spec
-    rw [recursive_function_on_ordinals_for_empty]
-    sorry
+    rw [recursive_function_on_ordinals_for_empty, Function.funext_iff.1 this k]
+    simp_all only [eq, ↓reduceDIte]
 
 end ordinal
 end HF
