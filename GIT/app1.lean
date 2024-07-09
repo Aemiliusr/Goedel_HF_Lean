@@ -113,8 +113,6 @@ theorem exten_prop (z : S) (x : S) : x = z ↔ ∀ u, u ∈ x ↔ u ∈ z := by
   · exact z
   · sorry
 
-#exit
-  sorry
   -- apply HF.induction  -- use HF3, i.e. start a proof by induction on the 'size' of the set x
   -- -- base case: x = ∅
   -- · constructor  -- split iff
