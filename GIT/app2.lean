@@ -623,7 +623,7 @@ lemma wf_lemma (X : (fun x y : ℕ => x > y) ↪r fun x y : ordinal S => x < y) 
     apply mem_subset_lemma
     change X m > X n
     rwa [gt_iff_lt, X.map_rel_iff]
-  have h : IsWellFounded (ℕ) (· < ·) := instWellFoundedLTNatInstLTNat
+  have h : IsWellFounded (ℕ) (· < ·) := inferInstance
   have h2 : WellFounded fun (x : ℕ) x_1 => x < x_1 := h.1
   rw [RelEmbedding.wellFounded_iff_no_descending_seq] at h2
   have inj : Function.Injective fun (n : ℕ) => card (X n).1 := by
@@ -745,8 +745,7 @@ lemma csSup_le' (x : Set (ordinal S)) (k : ordinal S) : k ∈ upperBounds x → 
   have emp_le (l : ordinal S) := emp_le l
   have bdd_bel_up_bds : BddBelow (upperBounds x) := by rw [BddBelow, Set.Nonempty, lowerBounds]; use (∅ : ordinal S); aesop
   split_ifs
-  · apply csInf_le' <;> simp_all
-  · simp_all
+  apply csInf_le' <;> simp_all
 
 instance : ConditionallyCompleteLattice (ordinal S) where
   le_csSup := le_csSup'
