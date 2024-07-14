@@ -47,6 +47,9 @@ namespace HF
 /-- The set x is transitive -/
 def tran (x : S) : Prop := ∀ y ∈ x, subset_eq y x
 
+lemma tran_mem (x y y' : S) (tran : tran x) (y_in_x : y ∈ x) (y'_in_y : y' ∈ y) : y' ∈ x := by
+  simp_rw [HF.tran, subset_eq] at tran; tauto
+
 /-- The set x is an ordinal -/
 def ord (x : S) : Prop := tran x ∧ ∀ y ∈ x, tran y
 
@@ -64,7 +67,13 @@ theorem succ_of_ord_is_ord (x : S) (ord_x : ord x) : ord (succ x) := by
   rwa [← ord_iff_ord_succ]
 
 theorem element_of_ord_is_ord (x y : S) (ord_x : ord x) (y_in_x : y ∈ x) : ord y := by
-  simp_rw[ord] at *; aesop
+  simp_rw [ord] at *
+  simp_all only [true_and]
+  intro y_1 a
+  obtain ⟨left, right⟩ := ord_x
+  apply right; apply left
+  on_goal 2 => {exact a}
+  simp_all only
 
 theorem empty_is_ord : ord (∅ : S) := by
   rw [ord, tran]; simp [set_notin_empty]
@@ -80,7 +89,8 @@ theorem mem_min_of_ord_eq_empty (x : S) (ord_x : ord x) (neq_emp : x ≠ ∅) :
   obtain ⟨w, w_mem_min⟩ := found_prop x neq_emp; have w_eq_emp := w_mem_min
   apply mem_min_imp_emp at w_eq_emp
   cases' w_mem_min with w_in_x hwx; rw [w_eq_emp] at w_in_x
-  aesop
+  subst w_eq_emp
+  simp_all only [ne_eq, and_imp, implies_true, and_self]
 
 lemma empty_in_ord (x : S) (ord_x : ord x) (neq_emp : x ≠ ∅) : ∅ ∈ x := by have := mem_min_of_ord_eq_empty x; simp_all
 
@@ -106,7 +116,7 @@ lemma compar_of_ord_ord_aux1 (h : ∃ (k l : S), ord k ∧ ord l ∧ k ∉ l ∧
   have r0_in_k : r0 ∈ k := by aesop
   rw [ord, tran] at ord_k; cases' ord_k with tran_k _
   specialize tran_k r0 r0_in_k; simp only [tran_k, ne_eq, true_and]
-  refine ⟨element_of_ord_is_ord k0 r0 ?_ ?_, ⟨l0, ?_⟩⟩ <;> simp_all
+  refine ⟨by assumption, ⟨element_of_ord_is_ord k0 r0 ?_ ?_, ⟨l0, ?_⟩⟩⟩ <;> simp_all
 
 lemma compar_of_ord_ord_aux2 (k0 : S) (h : ∃ (l : S), ord l ∧ k0 ∉ l ∧ k0 ≠ l ∧ l ∉ k0) :
     ∃ (l0 : S), ord l0 ∧ (∀ p ∈ l0, k0 ∈ p ∨ k0 = p ∨ p ∈ k0)
@@ -128,7 +138,7 @@ lemma compar_of_ord_ord_aux2 (k0 : S) (h : ∃ (l : S), ord l ∧ k0 ∉ l ∧ k
   have q0_in_l : q0 ∈ l := by aesop
   rw [ord, tran] at ord_l; cases' ord_l with tran_l _
   specialize tran_l q0 q0_in_l; simp only [tran_l, ne_eq, true_and]
-  refine ⟨element_of_ord_is_ord l0 q0 ?_ ?_, ?_⟩ <;> simp_all
+  refine ⟨by assumption, ⟨element_of_ord_is_ord l0 q0 ?_ ?_, ?_⟩⟩ <;> simp_all
 
 lemma subset_imp_diff_has_element (x y : S) (h : subset x y) : ∃ z, z ∈ y ∧ z ∉ x := by
   rw [subset, subset_eq] at h
@@ -359,12 +369,18 @@ lemma set_in_empty_false (k : ordinal S) (k_in_emp : k ∈ (∅ : ordinal S)) : 
   apply set_notin_empty k
   exact k_in_emp
 
+@[simp] lemma set_in_empty_iff_false (k : ordinal S) : k ∈ (∅ : ordinal S) ↔ False := by
+  refine ⟨by exact set_in_empty_false k, ?_⟩
+  exact fun a ↦ False.elim a
+
 lemma set_in_set_false (k : ordinal S) (k_in_k : k ∈ k) : False := by
   cases' k with k ord_k; simp only [mem] at k_in_k
   simp_all [set_notin_set]
 
 /-- The successor of an ordinal k -/
 def succ (k : ordinal S) : ordinal S := ⟨_, succ_of_ord_is_ord _ k.2⟩
+
+@[simp] lemma succ_iff (k l: ordinal S) : k ∈ succ l ↔ k ∈ l ∨ k = l := by simp [succ, HF.succ]
 
 lemma contains_empty (k : ordinal S) (neq_emp : k ≠ ∅) : ∅ ∈ k := by
 cases' k with k ord_k; simp only [mem]
@@ -455,10 +471,10 @@ lemma mem_of_succ (k : ordinal S) : k ∈ succ k := by
   cases' k with k ord_k; simp only [mem]
   rw [HF.succ, enlarge_iff]; simp
 
-lemma mem_of_succ_emp_eq_emp (k : ordinal S) : k ∈ succ ∅ ↔ k = ∅ := by
-  simp_rw [succ, mem, eq, HF.succ, enlarge_iff]
-  have k_notin_emp : k.1 ∉ (∅ : ordinal S).1 := by have := set_notin_empty k.1; aesop
-  aesop
+@[simp] lemma mem_of_succ_emp_eq_emp (k : ordinal S) : k ∈ succ ∅ ↔ k = ∅ := by
+  refine ⟨?_, by intro h; rw [h]; exact mem_of_succ ∅⟩
+  rw [succ_iff, set_in_empty_iff_false, false_or]
+  exact fun a ↦ a
 
 lemma succ_le_false (k : ordinal S) : ¬succ k ≤ k := by
    rw [le_iff, lt_iff, succ]

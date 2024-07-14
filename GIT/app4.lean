@@ -123,7 +123,7 @@ theorem exists_ordinal_set_in_R (x : S) : ∃ (n : ordinal S), x ∈ R n := by
     · sorry
     · sorry
 
-def rank_set (x : S) : Set (ordinal S) := {n : ordinal S | x ∈ R (succ n)}
+abbrev rank_set (x : S) : Set (ordinal S) := {n : ordinal S | x ∈ R (succ n)}
 
 lemma rank_set_neq_emp (x : S) : rank_set x ≠ ∅ := by
   have := exists_ordinal_set_in_R x; cases' this with n hn
@@ -135,9 +135,26 @@ lemma rank_set_neq_emp (x : S) : rank_set x ≠ ∅ := by
     rw [le_iff]; left; exact this
   · exact hn
 
+lemma emp_in_rank_set_emp (x : S) (x_eq_emp : x = ∅) : (∅ : ordinal S) ∈ rank_set x  := by
+
+  sorry
+
 def rank (x : S) : ordinal S := min_set (rank_set x) (rank_set_neq_emp x)
 
+lemma rank_eq_emp_iff_emp (x : S) : rank x = ∅ ↔ x = ∅ := by
+  rw [rank]
+  constructor
+  · intro h
+
+    sorry
+  · intro h
+    apply emp_in_rank_set_emp at h
+    apply min_set_le (rank_set x) (rank_set_neq_emp x) ∅ at h
+    rw [le_iff, lt_iff, set_in_empty_iff_false, false_or] at h
+    assumption
+
 lemma set_subset_of_R_rank (x : S) : ∀ v ∈ x, v ∈ R (rank x) := by
+  intros v v_in_x
   sorry
 
 theorem mem_imp_rank_lt (x y : S) (x_in_y : x ∈ y) : rank x < rank y := by

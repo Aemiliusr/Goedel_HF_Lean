@@ -99,7 +99,7 @@ lemma psi_seq1_eq_seq : Seq (psi_seq1) (succ (∅ : ordinal S)) := by
     aesop
   · refine ⟨succ_neq_emp ∅, ?_⟩
     simp_rw [dom, exten_prop, pred_set_iff, union_set_iff, succ, HF.succ, enlarge_iff]; intro u
-    have in_empty_false : u ∈ (∅ : ordinal S).1 ↔ False := by have := set_notin_empty u; aesop
+    have in_empty_false : u ∈ (∅ : ordinal S).1 ↔ False := by have := set_notin_empty u; sorry
     simp_rw [in_empty_false, false_or, psi_seq1, single_iff, ord_pair_equal]
     refine ⟨by aesop, ?_⟩
     intro h; simp only [exists_eq_left, h, exists_eq_right]
@@ -275,7 +275,7 @@ lemma psi_seq3_eq_seq (s : S) (k : ordinal S) (k_neq_emp : k ≠ ∅) (predec_ne
         cases' this with single pair
         · rw [single] at h
           apply set_notin_set u; exact h
-        · have pair : HF.pair u v = single (predec k k_neq_emp).1 := by simp_all
+        · have pair : HF.pair u v = single (predec k k_neq_emp).1 := by aesop
           rw [pair_single] at pair; cases' pair with predec_eq_u _
           rw [predec_eq_u] at h
           apply set_notin_set u; exact h
