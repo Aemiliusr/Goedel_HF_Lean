@@ -1,9 +1,152 @@
-\section{Hereditarily Finite Sets: Axioms and Basic Results}
-ddddddd
+\section{The Theory of Hereditarily Finite Sets}
 
-\begin{theorem}
+\subsection{Language and axioms}
 
-    extensionality property
+The first-order theory of HF is determined by the first-order language of HF and three axioms.
+The language $\mathcal{L}$ has one binary relation symbol $\in$, one binary function symbol $\lhd$, and one constant symbol $\varnothing$.
+Informally, i.e. given an $\mathcal{L}$-structure whose domain consists of sets,  $\in$ represents membership, $x \lhd y$ is the result of
+enlarging the set $x$ by $y$ (think of $x \cup \{y\}$), and $\varnothing$ denotes the empty set.
+
+The axioms are given by the following sentences.
+
+\begin{axiom}
+    \label{ax:empty}
+    \lean{HF.empty}
+    \leanok
+    $\forall z (z=\varnothing \leftrightarrow \forall x(x \notin z))$.
+\end {axiom}
+
+\begin{axiom}
+    \label{ax:enlarge}
+    \lean{HF.enlarge}
+    \leanok
+    $\forall z (z=x \lhd y \leftrightarrow \forall u(u \in z \leftrightarrow u \in x \lor u=y))$.
+\end {axiom}
+
+\begin{axiom}
+    \label{ax:induction}
+    \lean{HF.induction}
+    \leanok
+    $(\alpha(\varnothing) \land \forall x \forall y[\alpha(x) \land \alpha(y) \rightarrow \alpha(x \lhd y)]) \rightarrow \forall x \alpha(x)$.
+\end {axiom}
+
+The assumption in Axiom 3 — the induction principle — is that $\alpha$ is an $\mathcal{L}$-formula
+and that it contains a distinguished freely occuring variable which is quantified over.
+
+\subsection{Basic results}
+
+\begin{lemma}
+    \label{lem:one}
+    \lean{HF.set_notin_empty, HF.enlarge_iff, HF.enlarge_empty}
+    \leanok
+    \uses{ax:empty, ax:enlarge}
+    \leavevmode \normalfont
+    \begin{enumerate}
+        \item $\forall x (x\notin \varnothing)$.
+        \item $\forall x \forall y \forall u (u \in x \lhd y \leftrightarrow u \in x \lor u=y)$.
+        \item $\forall y \forall z (z\in \varnothing \lhd y \leftrightarrow z = y$).
+    \end{enumerate}
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \leavevmode
+    \begin{enumerate}
+        \item Substitute $\varnothing$ in Axiom \ref{ax:empty}.
+        \item Substitute $x \lhd y$ in Axiom \ref{ax:enlarge}.
+        \item Substitute $\varnothing$ for $x$ in Lemma \ref{lem:one}.2 and use Lemma \ref{lem:one}.1.
+    \end{enumerate}
+\end{proof}
+
+\begin{theorem}[Extensionality Property]
+    \label{thm:exten_prop}
     \lean{HF.exten_prop}
-
+    \leanok
+    \uses{lem:one, ax:empty, ax:enlarge, ax:induction}
+    $\forall x \forall z (x=z \leftrightarrow \forall u (u \in x \leftrightarrow u \in z))$.
 \end{theorem}
+
+\begin{proof}
+    \leanok
+    Pick $x$ and $z$ arbitrarily and let $\alpha (x)$ be the formula $x=z \leftrightarrow \forall u (u \in x \leftrightarrow u \in z)$.
+    We apply Axiom \ref{ax:induction}.
+    \begin{itemize}
+        \item The base case — $\alpha (\varnothing)$ — follows directly from Lemma \ref{lem:one}.1 and Axiom \ref{ax:empty}.
+        \item The induction step — $\forall x \forall y[\alpha(x) \land \alpha(y) \rightarrow \alpha(x \lhd y)]$ — 
+        follows directly from Lemma \ref{lem:one}.2 and Axiom \ref{ax:enlarge}.
+    \end{itemize}
+\end{proof}
+
+\begin{notation*}
+    \label{not:single_pairs}
+    \lean{HF.single, HF.pair, HF.ord_pair}
+    \leanok
+    \leavevmode \normalfont
+    \begin{enumerate}
+        \item $\{x\} = \varnothing \lhd x$.
+        \item $\{x,y\} = \{x\} \lhd y$.
+        \item $\langle x,y\rangle = \{\{x\}, \{x,y\}\}$.
+    \end{enumerate}
+\end{notation*}
+
+\begin{lemma}
+    \label{lem:two}
+    \lean{HF.single_iff, HF.pair_iff, HF.double_pair, HF.ord_pair_equal}
+    \leanok
+    \uses{lem:one, thm:exten_prop}
+    \leavevmode \normalfont
+    \begin{enumerate}
+        \item $\forall x \forall u (u\in \{x\} \leftrightarrow u = x)$.
+        \item $\forall x \forall y \forall u (u \in \{x,y\}\leftrightarrow u=x \lor u=y)$.
+        \item $\forall x (\{x,x\} = \{x\})$.
+        \item $\forall x \forall y \forall u \forall v (\langle x,y\rangle = \langle u,v\rangle \leftrightarrow x=u \land y=v)$.
+    \end{enumerate}
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \leavevmode
+    \begin{enumerate}
+        \item This follows directly from Lemma \ref{lem:one}.3.
+        \item This follows directly from Lemma \ref{lem:one}.2 and Lemma \ref{lem:two}.1.
+        \item This follows directly from Theorem \ref{thm:exten_prop}, Lemma \ref{lem:two}.1 and Lemma \ref{lem:two}.2.
+        \item  The proof closely follows an analogous proof from ZF by \cite{enderton1977elements}.
+        Pick $x,y,u$ and $v$ arbitrarily. The $\leftarrow$ direction is trivial.
+        For the $\rightarrow$ direction, by the definition of ordered pairs, the hypothesis can be rewritten to
+        \begin{equation*}
+            \{\{x\}, \{x,y\}\} = \{\{u\}, \{u,v\}\}.
+        \end{equation*}
+        It follows that
+        \begin{equation}
+            \{x\} \in \{\{u\}, \{u,v\}\}\quad\text{and}\quad \{x,y\} \in \{\{u\}, \{u,v\}\}
+        \end{equation}
+        and similarly
+        \begin{equation}
+            \{u\} \in \{\{x\}, \{x,y\}\}\quad\text{ and }\quad \{u,v\} \in \{\{x\}, \{x,y\}\}.
+        \end{equation}
+        By Lemma \ref{lem:two}.2, (2) can be rewritten to
+        \begin{equation*}
+            (\textbf{a})\quad\{u\}=\{x\}\quad\text{or}\quad (\textbf{b})\quad\{u\}=\{x,y\}
+        \end{equation*}
+        and
+        \begin{equation*}
+            (\textbf{c})\quad\{u,v\}=\{x\}\quad\text{or}\quad (\textbf{d})\quad\{u,v\}=\{x,y\}.
+        \end{equation*}
+        Note that, by Theorem \ref{thm:exten_prop}, Lemma \ref{lem:two}.1 and Lemma \ref{lem:two}.2,
+        \begin{equation}
+        \forall x \forall y \forall z (\{x,y\} = \{z\} \leftrightarrow x = y =z).
+        \end{equation}
+        Now, consider three cases:
+        \begin{itemize}
+            \item Suppose (\textbf{b}) holds. Then, by (3), $u=x=y$. By Lemma \ref{lem:two}.3, it then follows that 
+            (\textbf{d}) can be rewritten to $\{u,v\}=\{x\}$, implying (\textbf{c}) and (\textbf{d}) are equivalent.
+            Thus, by (3), under (\textbf{b}), it must hold that $u=v=x=y$.
+            \item Suppose (\textbf{c}) holds. Then, by (3), $u=v=x$. Note that, by (1) and Lemma \ref{lem:two}.2, 
+            either $\{x,y\}=\{u\}$ or $\{x,y\}=\{u,v\}$.  By Lemma \ref{lem:two}.3, it follows that $\{u,v\}=\{u\}$ and 
+            thus these two statements are equivalent. Thus, by (3), under (\textbf{c}), it must hold that $x=y=u=v$.
+            \item Suppose (\textbf{a}) and (\textbf{d}) hold. From (\textbf{a}) we have $u=x$. 
+            From (\textbf{d}) it follows that, by Lemma \ref{lem:two}.2, $v=x$ or $v=y$. In the latter case, 
+            $u=x\land v=y$. If $v=x$, then $u=v=x$, and case (\textbf{c}) holds by (3); this case has already been considered.
+        \end{itemize}
+    \end{enumerate}
+\end{proof}

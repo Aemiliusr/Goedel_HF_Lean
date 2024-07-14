@@ -1,57 +1,58 @@
-import Mathlib.ModelTheory.Syntax
+-- import Mathlib.ModelTheory.Syntax
+-- import Mathlib.ModelTheory.Semantics
 
-open FirstOrder
+-- open FirstOrder Language BoundedFormula
 
-def HFLang : Language.{0, 0} where
-  Functions :=
-  fun
-  | 0 => PUnit -- We have one 0-ary function, i.e. a constant term, the empty set
-  | 1 => Empty -- We have no 1-ary functions
-  | 2 => PUnit -- We have one 2-ary function, i.e. a binary function, the enlargement
-  | _ + 3 => Empty
-  Relations :=
-  fun
-  | 0 => Empty -- We have no 0-ary relations
-  | 1 => Empty -- We have no unary relations
-  | 2 => PUnit -- We have one binary relation, the membership relation
-  | _ + 3 => Empty -- We have no n-ary relations for n > 2
+-- def HFLang : Language.{0, 0} where
+--   Functions :=
+--   fun
+--   | 0 => PUnit -- We have one 0-ary function, i.e. a constant term, the empty set
+--   | 1 => Empty -- We have no 1-ary functions
+--   | 2 => PUnit -- We have one 2-ary function, i.e. a binary function, the enlargement
+--   | _ + 3 => Empty
+--   Relations :=
+--   fun
+--   | 0 => Empty -- We have no 0-ary relations
+--   | 1 => Empty -- We have no unary relations
+--   | 2 => PUnit -- We have one binary relation, the membership relation
+--   | _ + 3 => Empty -- We have no n-ary relations for n > 2
 
-abbrev HFLang.emptySetSymbol : HFLang.Functions 0 := PUnit.unit
+-- abbrev HFLang.emptySetSymbol : HFLang.Functions 0 := PUnit.unit
 
-local notation "∅'" => HFLang.emptySetSymbol
+-- local notation "∅'" => HFLang.emptySetSymbol
 
-abbrev HFLang.enlargementSymbol : HFLang.Functions 2 := PUnit.unit
+-- abbrev HFLang.enlargementSymbol : HFLang.Functions 2 := PUnit.unit
 
-local notation "◁'" => HFLang.enlargementSymbol
+-- local notation "◁'" => HFLang.enlargementSymbol
 
-abbrev HFLang.membershipSymbol : HFLang.Relations 2 := PUnit.unit
+-- abbrev HFLang.membershipSymbol : HFLang.Relations 2 := PUnit.unit
 
-local notation "∈'" => HFLang.membershipSymbol
+-- local notation t " ∈' " s => HFLang.membershipSymbol.boundedFormula ![t, s]
 
-/--
-HF1: ∀ z, z = ∅ ↔ ∀ x, ¬(x ∈ z)
--/
-def HFAxiom1 : HFLang.Sentence :=
-∀' (&0 =' (.func ∅' Fin.elim0)) ⇔ ∀' ∼(.rel ∈' ![&0, &1])
+-- /--
+-- HF1: ∀ z, z = ∅ ↔ ∀ x, ¬(x ∈ z)
+-- -/
+-- def HFAxiom1 : HFLang.Sentence :=
+-- ∀' (&0 =' (.func ∅' Fin.elim0)) ⇔ ∀' ∼(.rel ∈' ![&0, &1])
 
-/--
-∀ z, ∀ x, ∀ y, z = enlarge x y ↔ ∀ u, u ∈ z ↔ u ∈ x ∨ u = y
--/
-def HFAxiom2 : HFLang.Sentence :=
-∀' ∀' ∀'
-  (&0 =' (.func ◁' ![&1, &2])) ⇔
-  ∀' (.rel ∈' ![&3, &0] ⇔ (.rel ∈' ![&3, &1] ⊔ .rel ∈' ![&3, &2]))
+-- /--
+-- ∀ z, ∀ x, ∀ y, z = enlarge x y ↔ ∀ u, u ∈ z ↔ u ∈ x ∨ u = y
+-- -/
+-- def HFAxiom2 : HFLang.Sentence :=
+-- ∀' ∀' ∀'
+--   (&0 =' (.func ◁' ![&1, &2])) ⇔
+--   ∀' (.rel ∈' ![&3, &0] ⇔ (.rel ∈' ![&3, &1] ⊔ .rel ∈' ![&3, &2]))
 
-/--
-`α` is a formula with one free variable.
+-- /--
+-- `α` is a formula with one free variable.
 
-HF3: α(∅) ∧ ∀ x y, α(x) → α(y) → α(enlarge x y)
--/
-def HFAxiom3 (α : HFLang.Formula (Fin 1)) : HFLang.Sentence :=
-α.subst ![.func ∅' Fin.elim0] ⊓
-∀' ∀'
-((α.subst ![.var 0] |>.relabel ![.inr 0]) ⊓ (α.subst ![.var 1] |>.relabel ![.inr 1]) ⟹
-  (α.subst ![ .func ◁' ![.var 0, .var 1] ] |>.relabel .inr))
+-- HF3: (α(∅) ∧ ∀ x y, α(x) → α(y) → α(enlarge x y)) → ∀ x α(x)
+-- -/
+-- def HFAxiom3 (α : HFLang.Formula (Fin 1)) : HFLang.Sentence :=
+-- (α.subst ![.func ∅' Fin.elim0] ⊓
+-- ∀' ∀'
+-- ((α.subst ![.var 0] |>.relabel ![.inr 0]) ⊓ (α.subst ![.var 1] |>.relabel ![.inr 1]) ⟹
+--   (α.subst ![ .func ◁' ![.var 0, .var 1] ] |>.relabel .inr))) ⟹ ∀' (α.subst ![.var 0] |>.relabel ![.inr 0])
 
-def HFSetTheory : HFLang.Theory :=
-{HFAxiom1, HFAxiom2} ∪ ⋃ (α : HFLang.Formula (Fin 1)), {HFAxiom3 α}
+-- def HFSetTheory : HFLang.Theory :=
+-- {HFAxiom1, HFAxiom2} ∪ ⋃ (α : HFLang.Formula (Fin 1)), {HFAxiom3 α}

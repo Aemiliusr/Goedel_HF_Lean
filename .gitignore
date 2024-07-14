@@ -13,3 +13,4 @@
 /blueprint/web/*
 /blueprint/print/*
 lean_decls
+*.bbl

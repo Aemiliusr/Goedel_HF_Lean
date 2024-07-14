@@ -1,15 +1,14 @@
 import Mathlib.Tactic
 import Mathlib.ModelTheory.Syntax
 import Mathlib.ModelTheory.Semantics
-import GIT.Language
 
-open FirstOrder
+open FirstOrder Language BoundedFormula
 
 /-!
 # Appendix 1: Axioms and basic results of hereditarily finite set theory
 
 In this file, Appendix 1 of S. Swierczkowski: 'Finite Sets and Gödel’s Incompleteness Theorems' is formalised.
-It presents the axioms and basic results of hereditarily finite set theory.
+It presents the language, axioms and basic results of hereditarily finite set theory.
 
 ## Main results
 
@@ -31,27 +30,57 @@ S. Swierczkowski. Finite Sets and Gödel’s Incompleteness Theorems. Dissertati
 mathematicae. IM PAN, 2003. URL https://books.google.co.uk/books?id=5BQZAQAAIAAJ.
 -/
 
+/-- The first-order language of HF. -/
+def HFLang : Language.{0, 0} where
+  Functions :=
+  fun
+  | 0 => PUnit -- We have one 0-ary function, i.e. a constant term, "for the empty set".
+  | 1 => Empty -- We have no 1-ary functions.
+  | 2 => PUnit -- We have one 2-ary function "for enlargement".
+  | _ + 3 => Empty -- We have no n-ary functions for n > 2.
+  Relations :=
+  fun
+  | 0 => Empty -- We have no 0-ary relations.
+  | 1 => Empty -- We have no unary relations.
+  | 2 => PUnit -- We have one binary relation for "membership"
+  | _ + 3 => Empty -- We have no n-ary relations for n > 2.
+
+/-- Empty set: constant symbol. -/
+abbrev HFLang.emptySetSymbol : HFLang.Functions 0 := PUnit.unit
+
+local notation "∅'" => HFLang.emptySetSymbol
+
+/-- Enlargement: 2-ary function symbol. -/
+abbrev HFLang.enlargementSymbol : HFLang.Functions 2 := PUnit.unit
+
+local notation "◁'" => HFLang.enlargementSymbol
+
+/-- Membership: 2-ary relation symbol. -/
+abbrev HFLang.membershipSymbol : HFLang.Relations 2 := PUnit.unit
+
+local notation t " ∈' " s => HFLang.membershipSymbol.boundedFormula ![t, s]
+
 universe u
 
-/-- Define the non-logical symbols of HF which are: -/
-
+/-- HF class -/
 class HFprior (s : Type u) where
-  /-- empty set: constant symbol -/
+  /-- Empty set: constant symbol. -/
   emptyset : s
-  /-- membership: 2-ary relation symbol -/
-  mem : s → s → Prop
-  /-- enlarging: 2-ary operation symbol -/
+  /-- Enlargement: 2-ary function symbol. -/
   enlarging : s → s → s
+  /-- Membership: 2-ary relation symbol. -/
+  mem : s → s → Prop
 
-/-- Write ∅ instead of empty -/
+/-- Write `∅` instead of `empty`. -/
 instance (s) [HFprior s] : EmptyCollection s := ⟨HFprior.emptyset⟩
 
-/-- Write ∈ instead of mem -/
+/-- Write `∈` instead of `mem`. -/
 instance (s) [HFprior s] : Membership s s := ⟨HFprior.mem⟩
 
-/-- Write ◁ instead of enlarge -/
+/-- Write `◁` instead of `enlarge`. -/
 infixl:90 " ◁ " => HFprior.enlarging
 
+@[simps]
 instance (s) [HFprior s] : HFLang.Structure s where
   funMap {n} _ h := match n with
   | 0 => ∅
@@ -59,261 +88,130 @@ instance (s) [HFprior s] : HFLang.Structure s where
   RelMap {n} _ h := match n with
   | 2 => h 0 ∈ h 1
 
-/-- Define the axioms -/
+/-- HF axioms -/
 class HF (s : Type u) extends HFprior s where
+  /-- Axiom 1 "for the empty set". -/
   empty (z : s) : z = ∅ ↔ ∀ x, x ∉ z
+  /-- Axiom 2 "for enlargement". -/
   enlarge (x y z : s) : z = x ◁ y ↔ ∀ u, u ∈ z ↔ u ∈ x ∨ u = y
-  induction (P : s → Prop) (base : P ∅) (step : ∀ x y, P x → P y → P (x ◁ y)) (z : s)
+  /-- Axiom 3: the induction principle. The addtional four goals (next to base and step)
+  ensure induction is over all formulae rather than over all predicates.  -/
+  induction (α : s → Prop) (base : α ∅) (step : ∀ x y, α x → α y → α (x ◁ y)) (z : s)
       (n : Nat) (f : Language.BoundedFormula HFLang (Fin n) 1) (t : (Fin n) → s)
-      (hP : P z ↔ f.Realize t (fun _ ↦ z)) : P z
+      (hP : α z ↔ f.Realize t (fun _ ↦ z)) : α z
 
 attribute [elab_as_elim] HF.induction
 
-variable {S : Type u} [HF S]       -- Now x : S means x is a HF set
+variable {S : Type u} [HF S]
 
 namespace HF
 
--- Theorem 1.1
+lemma set_notin_empty (x : S) : x ∉ (∅ : S) := by revert x; rw [← HF.empty ∅]
 
-theorem set_notin_empty (x : S) : x ∉ (∅ : S) := by
-  have h := HF.empty (∅ : S)  -- substitute ∅ for z in HF1
-  simp at h  -- simplify as ∅ = ∅
-  specialize h x -- substitute x in h
-  exact h
+@[simp] lemma set_in_empty_iff_false (x : S) : x ∈ (∅ : S) ↔ False := by
+  refine ⟨by exact set_notin_empty x, by simp⟩
 
-@[simp] theorem enlarge_iff (u x y : S) : u ∈ x ◁ y ↔ u ∈ x ∨ u = y := by
-  have h := HF.enlarge x y (x ◁ y)  -- substitute x ◁ y for z in HF2
-  simp at h  -- simplify as x ◁ y = x ◁ y
-  specialize h u  -- substitute u in h
-  exact h
+@[simp] lemma enlarge_iff (u x y : S) : u ∈ x ◁ y ↔ u ∈ x ∨ u = y := by
+  have := HF.enlarge x y (x ◁ y); simp_all only [true_iff]
 
-theorem enlarge_empty (z y : S) : z ∈ ∅ ◁ y ↔ z = y := by
-  have h1b := enlarge_iff z (∅ : S) y  -- substitute ∅ for x in Theorem 1.1 (b)
-  have h1a := set_notin_empty z  -- substitute z for x in Theorem 1.1 (a)
-  rw [h1b]  -- substitute h1b
-  constructor  -- split the iff
-  · intro h
-    cases' h with h1 h2  -- both hypotheses h1 and h2 imply the goal
-    · apply h1a at h1  -- h1a and h1 contradict
-      exfalso; exact h1
-    · exact h2
-  · intro h  -- this case is trivial
-    right; exact h
-
-
--- Theorem 1.2 (Extensionality Property)
+lemma enlarge_empty (z y : S) : z ∈ ∅ ◁ y ↔ z = y := by simp
 
 theorem exten_prop (z : S) (x : S) : x = z ↔ ∀ u, u ∈ x ↔ u ∈ z := by
-  induction' x using HF.induction with x w hx _
-  · sorry -- done
-  · sorry -- done
+  induction' x using HF.induction with x y _ _
+  · simp_rw [set_notin_empty, false_iff]
+    refine ⟨by intro h; rw [← h]; simp [set_notin_empty], ?_⟩
+    rw [← HF.empty]
+    exact fun a ↦ id (Eq.symm a)
+  · refine ⟨by intro h; rw [h]; simp, ?_⟩
+    have := HF.enlarge x y z; intro _
+    simp_all only [enlarge_iff, implies_true, iff_true]
   · exact 1
-  · exact (&0 =' .var (.inl 0)) ⇔ ∀' (sorry ⇔ sorry)
-    -- exact &0 --∀' (&0 =' (.func ∅' Fin.elim0)) ⇔ ∀' ∼(.rel ∈' ![&0, &1])
+  · exact (&0 =' .var (.inl 0)) ⇔ ∀' ((&1 ∈' &0) ⇔ (&1 ∈' .var (.inl 0)))
   · exact z
-  · sorry
+  · simp; rfl
 
-  -- apply HF.induction  -- use HF3, i.e. start a proof by induction on the 'size' of the set x
-  -- -- base case: x = ∅
-  -- · constructor  -- split iff
-  --   · intro h
-  --     rw [h]  -- to obtain u ∈ z ↔ u ∈ z in goal
-  --     simp
-  --   · intro h
-  --     have hHF1 : ∀ u, u ∉ z := by  -- have the RHS of HF1 which is equivalent to z = ∅
-  --       intro u  -- pick u arbitrarily
-  --       specialize h u  -- substitute u in h
-  --       intro huz  -- u ∉ z is equivalent to u ∈ z → False
-  --       rw [← h] at huz  -- change hu to u ∈ ∅
-  --       have h1a := set_notin_empty u  -- substitute u for x in Theorem 1.1 (a) which leads to contradiction
-  --       apply h1a; exact huz
-  --     rw [← HF.empty z] at hHF1  -- change the RHS of HF1 to the LHS
-  --     rw [hHF1]
-  -- -- inductive step: if exten_prop(x) and exten_prop(y), then exten_prop(x ◁ y)
-  -- · intros x y _ _  -- pick x and y arbitrarily
-  --   constructor  -- split iff
-  --   · intro h
-  --     rw [h]  -- to obtain u ∈ z ↔ u ∈ z in goal
-  --     simp
-  --   · intro h
-  --     have hHF2 : ∀ u, u ∈ z ↔ u ∈ x ∨ u = y := by  -- have the RHS of HF2 which is equivalent to z = x ◁ y
-  --       intro u  -- pick u arbitrarily
-  --       specialize h u  -- substitute u in h
-  --       rw [← h]  -- substitute h; goal now equals Theorem 1.1 (b)
-  --       exact enlarge_iff u x y
-  --     rw [← HF.enlarge x y z] at hHF2  -- change the RHS of HF2 to the LHS
-  --     rw [hHF2]
+/-- Singleton — notation in paper: {x}. -/
+abbrev single (x : S) : S := ∅ ◁ x
 
+/-- Pair — notation in paper: {x, y}. -/
+abbrev pair (x y : S) : S := (single x) ◁ y
 
--- Definition 1.3
+/-- Ordered pair — notation in paper: ⟨x,y⟩ = {{x},{x,y}}. -/
+abbrev ord_pair (x y : S) : S := pair (single x) (pair x y)
 
-/-- {x} = ∅ ◁ x -/
-def single (x : S) : S := ∅ ◁ x
-/-- {x,y} = {x} ◁ y -/
-def pair (x y : S) : S := (single x) ◁ y
-/-- {x,y,z} = {x,y} ◁ z -/
-def triple (x y z : S) : S := (pair x y) ◁ z
-/-- ⟨x,y⟩ = {{x},{x,y}} -/
-def ord_pair (x y : S) : S := pair (single x) (pair x y)
+lemma single_iff (u x : S) : u ∈ single x ↔ u = x := by exact enlarge_empty u x
 
+lemma pair_iff (u x y : S) : u ∈ pair x y ↔ u = x ∨ u = y := by simp
 
--- Theorem 1.4
+lemma double_pair (x : S) : pair x x = single x := by
+  rw [exten_prop]; simp
 
-theorem single_iff (u x : S) : u ∈ single x ↔ u = x := by
-  rw [single]  -- use definition of {x}
-  exact enlarge_empty u x  -- Theorem 1.1 (c)
+@[simp] lemma single_equal (x y : S) : single x = single y ↔ x = y := by
+  rw [exten_prop]; simp
 
-theorem pair_iff (u x y : S) : u ∈ pair x y ↔ u = x ∨ u = y := by
-  rw [pair]  -- use definition of {x,y}
-  rw [enlarge_iff u (single x) y]  -- use Theorem 1.1 (b)
-  rw [single_iff u x]  -- use Theorem 1.4 (a)
+@[simp] lemma pair_single (x y z : S) : (pair y z = single x) ↔ (x = y ∧ x = z) := by
+  refine ⟨?_, by intro h; cases' h with h1 h2; rw [← h1, ← h2]; exact double_pair x⟩
+  intro h; rw [exten_prop] at h
+  simp only [enlarge_iff, set_in_empty_iff_false, false_or] at h
+  have h' := h; specialize h y; specialize h' z
+  simp_all
 
-theorem double_pair (x : S) : pair x x = single x := by
-  rw [exten_prop (single x)]  -- use Theorem 1.2
-  intro u  -- pick u arbitrarily
-  rw [pair_iff u x x]; simp  -- use Theorem 1.4 (b) and simplify
-  rw [single_iff u x]  -- use Theorem 1.4 (a)
+@[simp] lemma single_pair (x y z : S) : (single x = pair y z) ↔ (x = y ∧ x = z) := by
+  rw [eq_comm]; simp
 
+lemma pair_equal (x y u v : S) (h : pair x y = pair u v) : (x ∈ pair u v ∧ y ∈ pair u v) := by
+  simp_rw [exten_prop, pair_iff] at h
+  simp only [enlarge_iff, set_in_empty_iff_false, false_or]
+  refine ⟨by specialize h x; simp_all, by specialize h y; simp_all⟩
 
-lemma single_equal (x y : S) : single x = single y ↔ x = y := by  -- we will use this lemma in the proof of Theorem 1.4 (d)
-  rw [exten_prop (single y)]  -- use Theorem 1.2
-  constructor  -- split the iff
-  · intro h
-    have h14a : ∀ (u : S), u = x ↔ u = y := by  -- this holds by rewriting h using Theorem 1.4 (a)
-      intro u  -- pick u arbitrarily
-      specialize h u  -- substitute u in h
-      rw [← single_iff u x]; rw [← single_iff u y]  -- use Theorem 1.4 (a) twice
-      exact h
-    specialize h14a x; simp at h14a  -- substitute x in h14a and simplify
-    exact h14a
-  · intros h u  -- this case is trivial
-    rw [h]
-
-lemma pair_single (x y z : S) : (pair y z = single x) ↔ (x = y ∧ x = z) := by  -- we will use this lemma in the proof of Theorem 1.4 (d)
-  rw [exten_prop (single x)]  -- use Theorem 1.2
-  constructor  -- split the iff
-  · intro h
-    have h14: ∀ u, u = y ∨ u = z ↔ u = x  := by  -- this holds by rewriting h using Theorem 1.4 (a) and (b)
-      intro u  -- pick u arbitrarily
-      specialize h u  -- substitute u in h
-      rw [← pair_iff u y z]; rw [← single_iff u x]  -- use Theorem 1.4 (a) and (b)
-      exact h
-    have h14' := h14  -- copy h14 for later use
-    specialize h14 y; simp at h14  -- substitute y in h14 and simplify
-    specialize h14' z; simp at h14'  -- substitute z in h14' and simplify
-    rw [h14]; rw [h14']; simp
-  · intro h
-    cases' h with h1 h2  -- split the ∧ in the hypothesis
-    intro u  -- pick u arbitrarily
-    rw [← h1]; rw[← h2]  -- subtitute x = y =z
-    rw [double_pair x]  -- use Theorem 1.4 (c)
-
-lemma pair_equal (x y u v : S) : (pair x y = pair u v) → (x ∈ pair u v ∧ y ∈ pair u v) := by  -- we will use this lemma in the proof of Theorem 1.4 (d)
-  rw [exten_prop (pair u v)]  -- use Theorem 1.2
-  intro h
-  have h14b : ∀ (w : S), (w = x ∨ w = y) ↔ (w = u ∨ w = v) := by  -- this holds by rewriting h using Theorem 1.4 (b)
-    intro w  -- pick w arbitrarily
-    specialize h w  -- substitute w in h
-    rw [← pair_iff w x y]; rw [← pair_iff w u v]  -- use Theorem 1.4 (b) twice
-    exact h
-  constructor  -- split the ∧ in the goal
-  · rw [pair_iff x u v]  -- use Theorem 1.4 (b)
-    specialize h14b x; simp at h14b  -- substitute x in h14b and simplify
-    exact h14b
-  · rw [pair_iff y u v]  -- use Theorem 1.4 (b)
-    specialize h14b y; simp at h14b  -- substitute y in h14b and simplify
-    exact h14b
-
-theorem ord_pair_equal (x y u v : S) : ord_pair x y = ord_pair u v ↔ x = u ∧ y = v := by
-  constructor  -- split the iff
-  -- this is the interesting direction
-  · intro h
-    rw [ord_pair] at h; rw [ord_pair] at h  -- use definition of ⟨x,y⟩
-    have h' : pair (single u) (pair u v) = pair (single x) (pair x y) := by rw [h]  -- have h' which is h interchanged
-    apply pair_equal (single x) (pair x y) (single u) (pair u v) at h  -- use the third lemma to rewrite h
-    apply pair_equal (single u) (pair u v) (single x) (pair x y) at h'  -- use the third lemma to rewrite h'
-    cases' h with hx hxy  -- split the ∧ in the hypothesis
-    cases' h' with hu huv  -- split the ∧ in the hypothesis
-    rw [pair_iff (single u) (single x) (pair x y)] at hu  -- use Theorem 1.4 (b) to rewrite hu
-    rw [pair_iff (pair u v) (single x) (pair x y)] at huv  -- use Theorem 1.4 (b) to rewrite huv
-    rw [pair_iff (single x) (single u) (pair u v)] at hx  -- use Theorem 1.4 (b) to rewrite hx
-    rw [pair_iff (pair x y) (single u) (pair u v)] at hxy  -- use Theorem 1.4 (b) to rewrite hy
-    -- have hu' :=  hu; have huv' := huv  -- copy hu and huv for later use
-    cases' hu with ha hb  -- split hu into two cases
-    · rw [single_equal u x] at ha  -- use the lemma: {u} = {x} ↔ u = x
-      constructor  -- split the ∧ in the goal
-      · rw [ha]  -- u = x
-      · cases' huv with hc hd  -- split huv into two cases
-        · rw [pair_single x u v] at hc  -- use the lemma: {u,v} = {x} ↔ u = v = x
-          cases' hc with hcu hcv  -- split the ∧ in the hypothesis
-          rw [← hcv] at hxy; rw [← hcu] at hxy   -- substitute v = x  and u = x in hxy
-          rw [double_pair x] at hxy; simp at hxy  -- use Theorem 1.4 (c) to rewrite hxy and simplify
-          rw [pair_single x x y] at hxy; simp at hxy  -- use the lemma: {x,y} = {x} ↔ x = y
-          rw [← hxy]; exact hcv  -- conclude u = v = x = y
-        · apply pair_equal u v x y at hd  -- use the third lemma to rewrite hd
-          cases' hd with hd1 hd2  -- split the ∧ at the hypothesis
-          rw [pair_iff u x y] at hd1  -- use Theorem 1.4 (b) to rewrite hd1
-          rw [pair_iff v x y] at hd2  -- use Theorem 1.4 (b) to rewrite hd2
-          cases' hd2 with hdx hdy -- split hd2 into two cases
-          · rw [hdx] at hxy; rw [ha] at hxy   -- substitute v = x  and u = x in hxy
-            rw [double_pair x] at hxy; simp at hxy  -- use Theorem 1.4 (c) to rewrite hxy and simplify
-            rw [pair_single x x y] at hxy; simp at hxy  -- use the lemma: {x,y} = {x} ↔ x = y
-            rw [← hxy]; rw [hdx]  -- conclude u = v = x = y
-          · rw [hdy]  -- this case is trivial
-    · have hb' : pair x y = single u := by rw [hb]  -- have hb' which is hb interchanged to apply the second lemma
-      rw [pair_single u x y] at hb'  -- use the lemma: {x,y} = {u} ↔ u = x = y
-      cases' hb' with hbx hby  -- split the ∧ in the hypothesis
-      constructor  -- split the ∧ in the goal
-      · rw [hbx]
-      · rw [← hbx] at huv; rw [← hby] at huv  -- substitute x = u  and y = u in huv
-        rw [double_pair u] at huv; simp at huv  -- use Theorem 1.4 (c) to rewrite hxy and simplify
-        rw [pair_single u u v] at huv; simp at huv  -- use the lemma: {u,v} = {u} ↔ u = v
-        rw [← huv]; rw [hby]  -- conclude u = v = x = y
-  -- this is the trivial direction
-  · intro h; rw [ord_pair]; rw [ord_pair] -- use definition of ⟨x,y⟩
-    cases' h with h1 h2  -- split the ∧ in the hypothesis
-    rw [h1]; rw [h2]
-
-
--- Theorem 1.5 (Existence of the union of two sets)
+@[simp] lemma ord_pair_equal (x y u v : S) : ord_pair x y = ord_pair u v ↔ x = u ∧ y = v := by
+  refine ⟨?_, by simp_all⟩
+  intro h; have h' := h; rw [eq_comm] at h'
+  apply pair_equal at h; cases' h with h1 h2
+  apply pair_equal at h'; cases' h' with h1' h2'
+  simp only [enlarge_iff, set_in_empty_iff_false, single_equal, pair_single, single_pair, false_or] at *
+  cases' h1' with u_eq_x h1'
+  · cases' h2' with h2' h2'
+    · cases' h2' with x_eq_u x_eq_v
+      simp_rw [← x_eq_u, ← x_eq_v, double_pair, pair_single, true_and, or_self] at h2
+      subst x_eq_u x_eq_v h2; simp_all
+    · apply pair_equal at h2'; simp_rw [u_eq_x, pair_iff, true_or, true_and] at h2'
+      cases' h2' with v_eq_x v_eq_y
+      · simp_rw [u_eq_x, v_eq_x, double_pair, pair_single, true_and, or_self] at h2
+        subst v_eq_x h2 u_eq_x; simp_all
+      · simp_all
+  · cases' h1' with u_eq_x u_eq_y
+    rw [← u_eq_x, ← u_eq_y, double_pair, pair_single] at h2'; simp_all
 
 theorem exists_union (x y : S) : ∃(z : S), ∀(u : S), (u ∈ z ↔ (u ∈ x ∨ u ∈ y))  := by
   induction' x using HF.induction with x w hx _
-  -- base case
-  · use y  -- take z = y
-    simp [set_notin_empty]
-  -- inductive step
-  · simp_rw [enlarge_iff]
-    cases' hx with xUy hxUy  -- xUy is x ∪ y, which exists by hypothesis
-    use xUy ◁ w  -- take z = (x ∪ y) ◁ w
-    simp_rw [enlarge_iff, hxUy]; tauto
-  · sorry
-  · sorry
-  · sorry
-  ·
-    sorry
+  · use y; simp
+  · cases' hx with xUy hxUy
+    use xUy ◁ w
+    simp only [enlarge_iff, hxUy]; tauto
+  · exact 1
+  · exact ∃' ∀' ((&2 ∈' &1) ⇔ ((&2 ∈' &0) ⊔ (&2 ∈' .var (.inl 0))))
+  · exact y
+  · simp; rfl
 
 /-- x ∪ y -/
 noncomputable def union (x y : S) : S := (exists_union x y).choose
 
-lemma union_iff (x y : S) : ∀ (u : S), u ∈ union x y ↔ u ∈ x ∨ u ∈ y :=
+@[simp] lemma union_iff (x y : S) : ∀ (u : S), u ∈ union x y ↔ u ∈ x ∨ u ∈ y :=
   (exists_union x y).choose_spec
-
 
 -- Theorem 1.6 (Existence of the union of a set of sets)
 
-theorem exists_union_set (x : S) : ∃(z : S), ∀(u : S), (u ∈ z ↔ (∃ y ∈ x, u ∈ y))  := by sorry
-  -- revert x  -- to prove ∀x α(x) using HF3/induction
-  -- apply HF.induction
-  -- -- base case
-  -- · use ∅  -- take z = ∅
-  --   simp [set_notin_empty]
-  -- -- inductive step
-  -- · intros x w hx _
-  --   simp_rw [enlarge_iff, or_and_right, exists_or, exists_eq_left]
-  --   cases' hx with Ux hUx  -- Ux is ⋃ x, which exists by hypothesis
-  --   use union Ux w  -- take z = (⋃ x) ∪ w
-  --   simp_rw [union_iff]; simp_all
+theorem exists_union_set (x : S) : ∃(z : S), ∀(u : S), (u ∈ z ↔ (∃ y ∈ x, u ∈ y))  := by
+  induction' x using HF.induction with x w hx _
+  · use ∅; simp
+  · cases' hx with Ux hUx
+    use union Ux w
+    simp_all only [enlarge_iff, or_and_right, exists_or, exists_eq_left, union_iff, implies_true]
+  · exact 0
+  · exact ∃' ∀' ((&2 ∈' &1) ⇔ (∃' ((&3 ∈' &0) ⊓ (&2 ∈' &3))))
+  · rename_i a; exact Fin.elim0 a
+  · simp; rfl
 
 /-- ⋃ x -/
 noncomputable def union_set (x : S) : S := (exists_union_set x).choose
@@ -396,10 +294,10 @@ lemma repl_iff (x : S) (ψ : S → S → Prop) (h : (∀ u ∈ x, ∃! v, ψ u v
 -- Definition 1.10 (Subset relation)
 
 /-- y ⊆ x -/
-def subset_eq (y x : S) : Prop := ∀ (v : S), v ∈ y → v ∈ x
+abbrev subset_eq (y x : S) : Prop := ∀ (v : S), v ∈ y → v ∈ x
 
 /-- y ⊂ x -/
-def subset (y x : S) : Prop := subset_eq y x ∧ y ≠ x
+abbrev subset (y x : S) : Prop := subset_eq y x ∧ y ≠ x
 
 
 -- Theorem 1.11 (Existence of the power set)
@@ -423,7 +321,14 @@ lemma subset_enlarge (u x y Px : S) (hPx : ∀ (u : S), u ∈ Px ↔ subset_eq u
       cases' hv with hv1 hv2; rw [HF.enlarge] at hv2
       simp_rw [subset_eq, enlarge_iff, hv2]; aesop
 
-theorem exists_power (x : S) : ∃ (z : S), ∀ (u : S), u ∈ z ↔ subset_eq u x := by sorry
+theorem exists_power (x : S) : ∃ (z : S), ∀ (u : S), u ∈ z ↔ subset_eq u x := by
+  induction' x using HF.induction with x y hx _
+  · sorry
+  · sorry
+  · exact 0
+  · exact ∃' ∀' ((&2 ∈' &1) ⇔ (∀' ((&3 ∈' &2) ⟹ (&3 ∈' &0))))
+  · rename_i a; exact Fin.elim0 a
+  · simp; rfl
   -- revert x -- to prove ∀x α(x) using HF3/induction
   -- apply HF.induction
   -- -- base case
@@ -450,7 +355,7 @@ lemma power_iff (x : S) : ∀ (u : S), u ∈ power x ↔ subset_eq u x :=
 -- Definition 1.12 (∈-minimal element)
 
 /-- w an ∈-minimal element of z: w ∈ z ∧ w ∩ z = ∅ -/
-def mem_min (w z : S) : Prop := w ∈ z ∧ inter w z = ∅
+abbrev mem_min (w z : S) : Prop := w ∈ z ∧ inter w z = ∅
 
 
 -- Theorem 1.13 (Foundation Property)
