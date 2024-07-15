@@ -14,7 +14,7 @@ It presents the language, axioms and basic results of hereditarily finite set th
 
 - `exten_prop`: Extensionality property.
 - `exists_union`: Existence of the union of two sets.
-- `exists_union_set`: Existence of the union of a set of sets.
+- `exists_unionSet`: Existence of the union of a set of sets.
 - `comp_scheme`: Comprehension scheme.
 - `repl_scheme`: Replacement scheme.
 - `exists_power`: Existence of the power set.
@@ -71,13 +71,13 @@ class HFPrior (s : Type u) where
   /-- Membership: 2-ary relation symbol. -/
   Mem : s → s → Prop
 
-/-- Write `∅` instead of `empty`. -/
+/-- Write `∅` instead of `EmptySet`. -/
 instance (s) [HFPrior s] : EmptyCollection s := ⟨HFPrior.EmptySet⟩
 
-/-- Write `∈` instead of `mem`. -/
+/-- Write `∈` instead of `Mem`. -/
 instance (s) [HFPrior s] : Membership s s := ⟨HFPrior.Mem⟩
 
-/-- Write `◁` instead of `enlarge`. -/
+/-- Write `◁` instead of `Enlarging`. -/
 infixl:90 " ◁ " => HFPrior.Enlarging
 
 @[simps]
@@ -95,7 +95,7 @@ class HF (s : Type u) extends HFPrior s where
   /-- Axiom 2 "for enlargement". -/
   enlarge (x y z : s) : z = x ◁ y ↔ ∀ u, u ∈ z ↔ u ∈ x ∨ u = y
   /-- Axiom 3: the induction principle. The addtional four goals (next to base and step)
-  ensure induction is over all formulae rather than over all predicates.  -/
+  ensure induction is over all formulae in the first-order language of HF rather than over all predicates.  -/
   induction (α : s → Prop) (base : α ∅) (step : ∀ x y, α x → α y → α (x ◁ y)) (z : s)
       (n : Nat) (f : Language.BoundedFormula HFLang (Fin n) 1) (t : (Fin n) → s)
       (hP : α z ↔ f.Realize t (fun _ ↦ z)) : α z
