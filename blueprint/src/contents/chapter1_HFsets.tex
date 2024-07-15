@@ -72,7 +72,7 @@ and that it contains a distinguished freely occuring variable which is quantifie
     We apply Axiom \ref{ax:induction}.
     \begin{itemize}
         \item The base case — $\alpha (\varnothing)$ — follows directly from Lemma \ref{lem:one}.1 and Axiom \ref{ax:empty}.
-        \item The induction step — $\forall x \forall y[\alpha(x) \land \alpha(y) \rightarrow \alpha(x \lhd y)]$ — 
+        \item The induction step — $\forall y[\alpha(x) \land \alpha(y) \rightarrow \alpha(x \lhd y)]$ — 
         follows directly from Lemma \ref{lem:one}.2 and Axiom \ref{ax:enlarge}.
     \end{itemize}
 \end{proof}
@@ -91,7 +91,7 @@ and that it contains a distinguished freely occuring variable which is quantifie
 
 \begin{lemma}
     \label{lem:two}
-    \lean{HF.single_iff, HF.pair_iff, HF.double_pair, HF.ord_pair_equal}
+    \lean{HF.single_iff, HF.pair_iff, HF.duplic_pair_eq_single, HF.ordPair_equal}
     \leanok
     \uses{lem:one, thm:exten_prop}
     \leavevmode \normalfont
@@ -150,3 +150,25 @@ and that it contains a distinguished freely occuring variable which is quantifie
         \end{itemize}
     \end{enumerate}
 \end{proof}
+
+\begin{theorem}[Existence of the union of two sets]
+    \label{thm:exists_union}
+    \lean{HF.exists_union}
+    \leanok
+    \uses{lem:one, ax:induction}
+    $\forall x \forall y \exists z \forall u (u \in z \leftrightarrow u \in x \lor u \in y)$.
+\end{theorem}
+
+\begin{proof}
+    \leanok
+    Pick $x$ and $y$ arbitrarily and let $\alpha (x)$ be the formula $\exists z \forall u (u \in z \leftrightarrow u \in x \lor u \in y)$.
+    We apply Axiom \ref{ax:induction}.
+    \begin{itemize}
+        \item For the base case — $\alpha (\varnothing)$ — take $z=y$ and use Lemma \ref{lem:one}.1.
+        \item For the induction step — $\forall w[\alpha(x) \land \alpha(w) \rightarrow \alpha(x \lhd w)]$ — 
+        pick $w$ arbitrarily and assume $\alpha(x)$, i.e. the existence of $x \cup y$. By Lemma \ref{lem:one}.2, 
+        $\alpha(x \lhd w)$ is equivalent to $\exists z \forall u (u \in z \leftrightarrow u \in x \lor u = w \lor u \in y)$.
+        Then, take $z= (x \cup y) \lhd w$ and use Lemma \ref{lem:one}.2.
+    \end{itemize}
+\end{proof}
+

@@ -63,25 +63,25 @@ local notation t " ∈' " s => HFLang.membershipSymbol.boundedFormula ![t, s]
 universe u
 
 /-- HF class -/
-class HFprior (s : Type u) where
+class HFPrior (s : Type u) where
   /-- Empty set: constant symbol. -/
-  emptyset : s
+  EmptySet : s
   /-- Enlargement: 2-ary function symbol. -/
-  enlarging : s → s → s
+  Enlarging : s → s → s
   /-- Membership: 2-ary relation symbol. -/
-  mem : s → s → Prop
+  Mem : s → s → Prop
 
 /-- Write `∅` instead of `empty`. -/
-instance (s) [HFprior s] : EmptyCollection s := ⟨HFprior.emptyset⟩
+instance (s) [HFPrior s] : EmptyCollection s := ⟨HFPrior.EmptySet⟩
 
 /-- Write `∈` instead of `mem`. -/
-instance (s) [HFprior s] : Membership s s := ⟨HFprior.mem⟩
+instance (s) [HFPrior s] : Membership s s := ⟨HFPrior.Mem⟩
 
 /-- Write `◁` instead of `enlarge`. -/
-infixl:90 " ◁ " => HFprior.enlarging
+infixl:90 " ◁ " => HFPrior.Enlarging
 
 @[simps]
-instance (s) [HFprior s] : HFLang.Structure s where
+instance (s) [HFPrior s] : HFLang.Structure s where
   funMap {n} _ h := match n with
   | 0 => ∅
   | 2 => h 0 ◁ h 1
@@ -89,7 +89,7 @@ instance (s) [HFprior s] : HFLang.Structure s where
   | 2 => h 0 ∈ h 1
 
 /-- HF axioms -/
-class HF (s : Type u) extends HFprior s where
+class HF (s : Type u) extends HFPrior s where
   /-- Axiom 1 "for the empty set". -/
   empty (z : s) : z = ∅ ↔ ∀ x, x ∉ z
   /-- Axiom 2 "for enlargement". -/
@@ -101,6 +101,8 @@ class HF (s : Type u) extends HFprior s where
       (hP : α z ↔ f.Realize t (fun _ ↦ z)) : α z
 
 attribute [elab_as_elim] HF.induction
+
+suppress_compilation
 
 variable {S : Type u} [HF S]
 
@@ -131,57 +133,57 @@ theorem exten_prop (z : S) (x : S) : x = z ↔ ∀ u, u ∈ x ↔ u ∈ z := by
   · simp; rfl
 
 /-- Singleton — notation in paper: {x}. -/
-abbrev single (x : S) : S := ∅ ◁ x
+abbrev Single (x : S) : S := ∅ ◁ x
 
 /-- Pair — notation in paper: {x, y}. -/
-abbrev pair (x y : S) : S := (single x) ◁ y
+abbrev Pair (x y : S) : S := (Single x) ◁ y
 
 /-- Ordered pair — notation in paper: ⟨x,y⟩ = {{x},{x,y}}. -/
-abbrev ord_pair (x y : S) : S := pair (single x) (pair x y)
+abbrev OrdPair (x y : S) : S := Pair (Single x) (Pair x y)
 
-lemma single_iff (u x : S) : u ∈ single x ↔ u = x := by exact enlarge_empty u x
+lemma single_iff (u x : S) : u ∈ Single x ↔ u = x := by exact enlarge_empty u x
 
-lemma pair_iff (u x y : S) : u ∈ pair x y ↔ u = x ∨ u = y := by simp
+lemma pair_iff (u x y : S) : u ∈ Pair x y ↔ u = x ∨ u = y := by simp
 
-lemma double_pair (x : S) : pair x x = single x := by
+lemma duplic_pair_eq_single (x : S) : Pair x x = Single x := by
   rw [exten_prop]; simp
 
-@[simp] lemma single_equal (x y : S) : single x = single y ↔ x = y := by
+@[simp] lemma single_eq_iff_eq (x y : S) : Single x = Single y ↔ x = y := by
   rw [exten_prop]; simp
 
-@[simp] lemma pair_single (x y z : S) : (pair y z = single x) ↔ (x = y ∧ x = z) := by
-  refine ⟨?_, by intro h; cases' h with h1 h2; rw [← h1, ← h2]; exact double_pair x⟩
+@[simp] lemma pair_eq_single_iff (x y z : S) : (Pair y z = Single x) ↔ (x = y ∧ x = z) := by
+  refine ⟨?_, by intro h; cases' h with h1 h2; rw [← h1, ← h2]; exact duplic_pair_eq_single x⟩
   intro h; rw [exten_prop] at h
   simp only [enlarge_iff, set_in_empty_iff_false, false_or] at h
   have h' := h; specialize h y; specialize h' z
   simp_all
 
-@[simp] lemma single_pair (x y z : S) : (single x = pair y z) ↔ (x = y ∧ x = z) := by
+@[simp] lemma single_eq_pair_iff (x y z : S) : (Single x = Pair y z) ↔ (x = y ∧ x = z) := by
   rw [eq_comm]; simp
 
-lemma pair_equal (x y u v : S) (h : pair x y = pair u v) : (x ∈ pair u v ∧ y ∈ pair u v) := by
+lemma pair_equal (x y u v : S) (h : Pair x y = Pair u v) : (x ∈ Pair u v ∧ y ∈ Pair u v) := by
   simp_rw [exten_prop, pair_iff] at h
   simp only [enlarge_iff, set_in_empty_iff_false, false_or]
   refine ⟨by specialize h x; simp_all, by specialize h y; simp_all⟩
 
-@[simp] lemma ord_pair_equal (x y u v : S) : ord_pair x y = ord_pair u v ↔ x = u ∧ y = v := by
+@[simp] lemma ordPair_equal (x y u v : S) : OrdPair x y = OrdPair u v ↔ x = u ∧ y = v := by
   refine ⟨?_, by simp_all⟩
   intro h; have h' := h; rw [eq_comm] at h'
   apply pair_equal at h; cases' h with h1 h2
   apply pair_equal at h'; cases' h' with h1' h2'
-  simp only [enlarge_iff, set_in_empty_iff_false, single_equal, pair_single, single_pair, false_or] at *
+  simp only [enlarge_iff, set_in_empty_iff_false, single_eq_iff_eq, pair_eq_single_iff, single_eq_pair_iff, false_or] at *
   cases' h1' with u_eq_x h1'
   · cases' h2' with h2' h2'
     · cases' h2' with x_eq_u x_eq_v
-      simp_rw [← x_eq_u, ← x_eq_v, double_pair, pair_single, true_and, or_self] at h2
+      simp_rw [← x_eq_u, ← x_eq_v, duplic_pair_eq_single, pair_eq_single_iff, true_and, or_self] at h2
       subst x_eq_u x_eq_v h2; simp_all
     · apply pair_equal at h2'; simp_rw [u_eq_x, pair_iff, true_or, true_and] at h2'
       cases' h2' with v_eq_x v_eq_y
-      · simp_rw [u_eq_x, v_eq_x, double_pair, pair_single, true_and, or_self] at h2
+      · simp_rw [u_eq_x, v_eq_x, duplic_pair_eq_single, pair_eq_single_iff, true_and, or_self] at h2
         subst v_eq_x h2 u_eq_x; simp_all
       · simp_all
   · cases' h1' with u_eq_x u_eq_y
-    rw [← u_eq_x, ← u_eq_y, double_pair, pair_single] at h2'; simp_all
+    rw [← u_eq_x, ← u_eq_y, duplic_pair_eq_single, pair_eq_single_iff] at h2'; simp_all
 
 theorem exists_union (x y : S) : ∃(z : S), ∀(u : S), (u ∈ z ↔ (u ∈ x ∨ u ∈ y))  := by
   induction' x using HF.induction with x w hx _
@@ -195,18 +197,18 @@ theorem exists_union (x y : S) : ∃(z : S), ∀(u : S), (u ∈ z ↔ (u ∈ x �
   · simp; rfl
 
 /-- x ∪ y -/
-noncomputable def union (x y : S) : S := (exists_union x y).choose
+def Union (x y : S) : S := (exists_union x y).choose
 
-@[simp] lemma union_iff (x y : S) : ∀ (u : S), u ∈ union x y ↔ u ∈ x ∨ u ∈ y :=
+@[simp] lemma union_iff (x y : S) : ∀ (u : S), u ∈ Union x y ↔ u ∈ x ∨ u ∈ y :=
   (exists_union x y).choose_spec
 
 -- Theorem 1.6 (Existence of the union of a set of sets)
 
-theorem exists_union_set (x : S) : ∃(z : S), ∀(u : S), (u ∈ z ↔ (∃ y ∈ x, u ∈ y))  := by
+theorem exists_unionSet (x : S) : ∃(z : S), ∀(u : S), (u ∈ z ↔ (∃ y ∈ x, u ∈ y))  := by
   induction' x using HF.induction with x w hx _
   · use ∅; simp
   · cases' hx with Ux hUx
-    use union Ux w
+    use Union Ux w
     simp_all only [enlarge_iff, or_and_right, exists_or, exists_eq_left, union_iff, implies_true]
   · exact 0
   · exact ∃' ∀' ((&2 ∈' &1) ⇔ (∃' ((&3 ∈' &0) ⊓ (&2 ∈' &3))))
@@ -214,10 +216,10 @@ theorem exists_union_set (x : S) : ∃(z : S), ∀(u : S), (u ∈ z ↔ (∃ y �
   · simp; rfl
 
 /-- ⋃ x -/
-noncomputable def union_set (x : S) : S := (exists_union_set x).choose
+def UnionSet (x : S) : S := (exists_unionSet x).choose
 
-lemma union_set_iff (x : S) : ∀(u : S), (u ∈ union_set x ↔ (∃ y ∈ x, u ∈ y)) :=
-  (exists_union_set x).choose_spec
+lemma unionSet_iff (x : S) : ∀(u : S), (u ∈ UnionSet x ↔ (∃ y ∈ x, u ∈ y)) :=
+  (exists_unionSet x).choose_spec
 
 
 -- Theorem 1.7 (Comprehension Scheme)
@@ -253,10 +255,10 @@ lemma inter_iff (x y : S) : ∀ (u : S), (u ∈ inter x y ↔ u ∈ x ∧ u ∈ 
   exact pred_set_iff _ _
 
 /-- ⋂ x = {u ∈ ⋃ x : ∀ v ∈ x, u ∈ v} -/
-noncomputable def inter_set (x : S) : S := pred_set (union_set x) (fun u ↦ ∀ v ∈ x, u ∈ v)
+noncomputable def inter_set (x : S) : S := pred_set (UnionSet x) (fun u ↦ ∀ v ∈ x, u ∈ v)
 
 lemma inter_set_iff (x : S) :
-    ∀ (u : S), (u ∈ inter_set x ↔ u ∈ union_set x ∧ ∀ v ∈ x, u ∈ v) := by
+    ∀ (u : S), (u ∈ inter_set x ↔ u ∈ UnionSet x ∧ ∀ v ∈ x, u ∈ v) := by
   exact pred_set_iff _ _
 
 lemma inter_enlarge (x y : S) : inter (x ◁ y) x = x := by
@@ -396,13 +398,13 @@ theorem found_prop (z : S) : z ≠ ∅ → ∃ w, mem_min w z := by
 -- Corollary 1.14
 
 theorem set_notin_set (x : S) : x ∉ x := by
-  have h := found_prop (single x)
-  have hx : single x ≠ ∅ := by
-    simp only [ne_eq]; simp_rw [single, exten_prop, enlarge_iff]
+  have h := found_prop (Single x)
+  have hx : Single x ≠ ∅ := by
+    simp only [ne_eq]; simp_rw [Single, exten_prop, enlarge_iff]
     simp_all [set_notin_empty]
   specialize h hx
   cases' h with w hw; rw [mem_min] at hw
-  simp_rw [single, exten_prop, inter_iff, enlarge_iff] at hw
+  simp_rw [Single, exten_prop, inter_iff, enlarge_iff] at hw
   simp only [set_notin_empty] at hw; aesop
 
 end HF

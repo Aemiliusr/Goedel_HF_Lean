@@ -10,15 +10,15 @@ variable {S : Type u} [HF S]
 
 namespace HF
 
-def function (x : S) : Prop := (∀ y ∈ x, ∃ z z', y = ord_pair z z')
-    ∧ (∀ u v v', ((ord_pair u v) ∈ x) → ((ord_pair u v') ∈ x) → v = v')
+def function (x : S) : Prop := (∀ y ∈ x, ∃ z z', y = OrdPair z z')
+    ∧ (∀ u v v', ((OrdPair u v) ∈ x) → ((OrdPair u v') ∈ x) → v = v')
 
-def dom (x : S) : S := pred_set (union_set (union_set x)) (fun u ↦ ∃ v, (ord_pair u v) ∈ x)
+def dom (x : S) : S := pred_set (UnionSet (UnionSet x)) (fun u ↦ ∃ v, (OrdPair u v) ∈ x)
 
 lemma exists_output_of_func (x y : S) (x_is_func : function x) (y_in_dom : y ∈ dom x) :
-        ∃! z, ord_pair y z ∈ x := by
+        ∃! z, OrdPair y z ∈ x := by
     rw [function] at x_is_func; cases' x_is_func with _ func2
-    simp_rw [dom, pred_set_iff, union_set_iff] at y_in_dom
+    simp_rw [dom, pred_set_iff, unionSet_iff] at y_in_dom
     rw [ExistsUnique]
     aesop
 
@@ -26,7 +26,7 @@ def output (x y : S) (x_is_func : function x) (y_in_dom : y ∈ dom x) : S :=
        (exists_output_of_func x y x_is_func y_in_dom).choose
 
 lemma output_iff (x y : S) (x_is_func : function x) (y_in_dom : y ∈ dom x) :
-        z = output x y x_is_func y_in_dom ↔ ord_pair y z ∈ x := by
+        z = output x y x_is_func y_in_dom ↔ OrdPair y z ∈ x := by
     have := (exists_output_of_func x y x_is_func y_in_dom).choose_spec
     cases' this with h1 h2
     specialize h2 z; aesop
@@ -54,7 +54,7 @@ lemma p_function_iff (φ : ordinal S → S → Prop) (k : ordinal S) (hφ : Func
 def Seq (s : S) (k : ordinal S) : Prop := function s ∧ k ≠ ∅ ∧ dom s = k.1
 
 lemma exists_output_of_Seq (s : S) (k l : ordinal S) (seq : Seq s k) (l_in_k : l ∈ k) :
-        ∃! z, ord_pair l.1 z ∈ s := by
+        ∃! z, OrdPair l.1 z ∈ s := by
     rw [Seq] at seq; rcases seq with ⟨s_is_func, ⟨k_neq_emp, dom_is_k⟩⟩
     rw [mem, ← dom_is_k] at l_in_k
     exact exists_output_of_func s l.1 s_is_func l_in_k
@@ -63,7 +63,7 @@ def output_of_Seq (s : S) (k l : ordinal S) (seq : Seq s k) (l_in_k : l ∈ k) :
         (exists_output_of_Seq s k l seq l_in_k).choose
 
 lemma output_of_Seq_iff (s : S) (k l : ordinal S) (seq : Seq s k) (l_in_k : l ∈ k) :
-        output_of_Seq s k l seq l_in_k = z ↔ ord_pair l.1 z ∈ s := by
+        output_of_Seq s k l seq l_in_k = z ↔ OrdPair l.1 z ∈ s := by
     have := (exists_output_of_Seq s k l seq l_in_k).choose_spec
     cases' this with h1 h2
     specialize h2 z; aesop
@@ -91,25 +91,25 @@ lemma psi_iff_not_emp (G : S → S) (k : ordinal S) (y : S) (k_neq_emp : k ≠ �
   rw [psi]
   aesop
 
-def psi_seq1 : S := single (ord_pair ∅ ∅)
+def psi_seq1 : S := Single (OrdPair ∅ ∅)
 
 lemma psi_seq1_eq_seq : Seq (psi_seq1) (succ (∅ : ordinal S)) := by
   rw [Seq]; constructor
-  · simp_rw [function, psi_seq1, single_iff, ord_pair_equal]
+  · simp_rw [function, psi_seq1, single_iff, ordPair_equal]
     aesop
   · refine ⟨succ_neq_emp ∅, ?_⟩
-    simp_rw [dom, exten_prop, pred_set_iff, union_set_iff, succ, HF.succ, enlarge_iff]; intro u
+    simp_rw [dom, exten_prop, pred_set_iff, unionSet_iff, succ, HF.succ, enlarge_iff]; intro u
     have in_empty_false : u ∈ (∅ : ordinal S).1 ↔ False := by have := set_notin_empty u; sorry
-    simp_rw [in_empty_false, false_or, psi_seq1, single_iff, ord_pair_equal]
+    simp_rw [in_empty_false, false_or, psi_seq1, single_iff, ordPair_equal]
     refine ⟨by aesop, ?_⟩
     intro h; simp only [exists_eq_left, h, exists_eq_right]
     refine ⟨?_, by aesop⟩
-    use single ∅
-    simp_rw [ord_pair, pair_iff, single_iff]
+    use Single ∅
+    simp_rw [OrdPair, pair_iff, single_iff]
     aesop
 
 def psi_seq2 (G : S → S) (s : S) (k : ordinal S) (k_neq_emp : k ≠ ∅) (seq : Seq s k) : S
-    := s ◁ (ord_pair k.1 (G (output_of_Seq s k (predec k k_neq_emp) seq (predec_mem k k_neq_emp))))
+    := s ◁ (OrdPair k.1 (G (output_of_Seq s k (predec k k_neq_emp) seq (predec_mem k k_neq_emp))))
 
 lemma psi_seq2_eq_seq (G : S → S) (s : S) (k : ordinal S) (k_neq_emp : k ≠ ∅) (seq : Seq s k)
     (_hseq : ∀ (n : ordinal S) (n_in_k : n ∈ k),
@@ -117,15 +117,15 @@ lemma psi_seq2_eq_seq (G : S → S) (s : S) (k : ordinal S) (k_neq_emp : k ≠ �
     ∃ (n_neq_emp : n ≠ ∅), output_of_Seq s k n seq n_in_k = G (output_of_Seq s k (predec n n_neq_emp) seq (predec_mem_aux n k n_in_k n_neq_emp)))
     : Seq (psi_seq2 G s k k_neq_emp seq) (succ k) := by
   have seq' := seq; rcases seq' with ⟨⟨func1, func2⟩, ⟨_, dom⟩⟩
-  simp_rw [HF.dom, exten_prop, pred_set_iff, union_set_iff] at dom
-  have arg_in_k (z z' : S) (ord_in_s : ord_pair z z' ∈ s) : z ∈ k.1 := by
+  simp_rw [HF.dom, exten_prop, pred_set_iff, unionSet_iff] at dom
+  have arg_in_k (z z' : S) (ord_in_s : OrdPair z z' ∈ s) : z ∈ k.1 := by
       specialize dom z; rw [← dom]
       refine ⟨?_, by use z'⟩
-      use single z; simp only [single_iff, and_true]
-      use ord_pair z z'; refine ⟨by assumption, ?_⟩
-      simp_rw [ord_pair, pair_iff, true_or]
+      use Single z; simp only [single_iff, and_true]
+      use OrdPair z z'; refine ⟨by assumption, ?_⟩
+      simp_rw [OrdPair, pair_iff, true_or]
   rw [Seq]; constructor
-  · simp_rw [function, psi_seq2, enlarge_iff, ord_pair_equal]
+  · simp_rw [function, psi_seq2, enlarge_iff, ordPair_equal]
     refine ⟨by aesop, ?_⟩ -- this is the slow line
     intros u v v' h1 h2
     cases' h1 with c1 c2
@@ -138,11 +138,11 @@ lemma psi_seq2_eq_seq (G : S → S) (s : S) (k : ordinal S) (k_neq_emp : k ≠ �
         exfalso; apply set_notin_set k.1; assumption
       · simp_all
   · refine ⟨by exact succ_neq_emp k, ?_⟩
-    simp_rw [HF.dom, exten_prop, pred_set_iff, union_set_iff, psi_seq2, succ, HF.succ, enlarge_iff]; intro u
+    simp_rw [HF.dom, exten_prop, pred_set_iff, unionSet_iff, psi_seq2, succ, HF.succ, enlarge_iff]; intro u
     specialize dom u
     constructor
     · intro h; rcases h with ⟨_, ⟨v, h_ord⟩⟩
-      rw [ord_pair_equal] at h_ord
+      rw [ordPair_equal] at h_ord
       cases' h_ord with h_ord u_eq_k
       · specialize arg_in_k u v h_ord; left; exact arg_in_k
       · right; cases' u_eq_k with h _; exact h
@@ -154,10 +154,10 @@ lemma psi_seq2_eq_seq (G : S → S) (s : S) (k : ordinal S) (k_neq_emp : k ≠ �
           left; assumption
         · use v; left; assumption
       · constructor
-        · use single k.1; rw [single_iff]
+        · use Single k.1; rw [single_iff]
           refine ⟨?_, by assumption⟩
-          use ord_pair (k.1) (G (output_of_Seq s k (predec k k_neq_emp) seq (predec_mem k k_neq_emp)))
-          rw [ord_pair, pair_iff]; refine ⟨?_,by left; rfl⟩
+          use OrdPair (k.1) (G (output_of_Seq s k (predec k k_neq_emp) seq (predec_mem k k_neq_emp)))
+          rw [OrdPair, pair_iff]; refine ⟨?_,by left; rfl⟩
           right; rfl
         · use G (output_of_Seq s k (predec k k_neq_emp) seq (predec_mem k k_neq_emp))
           right; rw [u_eq_k]
@@ -192,7 +192,7 @@ lemma psi_functional_succ (G : S → S) (k : ordinal S) (y : S) (psi_y : psi G k
         simp_rw [output_of_Seq_iff, psi_seq2, enlarge_iff]
         by_cases n_eq_k : n = k
         · right; have n_eq_k2: n.1 = k.1 := by aesop
-          simp_rw [n_eq_k2, ord_pair_equal, true_and, n_eq_k]
+          simp_rw [n_eq_k2, ordPair_equal, true_and, n_eq_k]
           have G_eq (x y : S) (h : x = y) : G x = G y := congrArg G h
           apply G_eq
           rw [output_of_Seq_iff, enlarge_iff]; left
@@ -214,20 +214,20 @@ lemma psi_functional_succ (G : S → S) (k : ordinal S) (y : S) (psi_y : psi G k
           specialize hseqq n n_in_k
           simp only [n_eq_emp, false_and, ne_eq, not_false_eq_true, exists_true_left, false_or, output_of_Seq_iff] at hseqq
           have this : output_of_Seq s k (predec n n_eq_emp) seq (predec_mem_aux n k n_in_k ((Iff.of_eq ((congrArg Not (eq_false n_eq_emp)).trans not_false_eq_true)).mpr True.intro)) =
-                output_of_Seq (s ◁ ord_pair (k.1) (G (output_of_Seq s k (predec k k_eq_emp) seq (predec_mem k k_eq_emp)))) (succ k) (predec n n_eq_emp) (psi_seq2_eq_seq G s k k_eq_emp seq hseq)
+                output_of_Seq (s ◁ OrdPair (k.1) (G (output_of_Seq s k (predec k k_eq_emp) seq (predec_mem k k_eq_emp)))) (succ k) (predec n n_eq_emp) (psi_seq2_eq_seq G s k k_eq_emp seq hseq)
                 (predec_mem_aux n (succ k) hn n_eq_emp) := by
             rw [output_of_Seq_iff]
             specialize hseq (predec n n_eq_emp) (predec_mem_aux n k n_in_k n_eq_emp)
             cases' hseq with hseq1 hseq2
             · simp_rw [hseq1]; have hseqq2 := hseq; specialize hseqq2 ∅ (contains_empty k k_eq_emp)
               simp only [true_and, ne_eq, not_true_eq_false, IsEmpty.exists_iff, or_false, output_of_Seq_iff] at hseqq2
-              have this : output_of_Seq (s ◁ ord_pair (k.1) (G (output_of_Seq s k (predec k k_eq_emp) seq (predec_mem k k_eq_emp)))) (succ k) ∅ (psi_seq2_eq_seq G s k k_eq_emp seq hseq)
+              have this : output_of_Seq (s ◁ OrdPair (k.1) (G (output_of_Seq s k (predec k k_eq_emp) seq (predec_mem k k_eq_emp)))) (succ k) ∅ (psi_seq2_eq_seq G s k k_eq_emp seq hseq)
                     (contains_empty (succ k) (succ_neq_emp k)) = ∅ := by
                 rw [output_of_Seq_iff, enlarge_iff]; aesop
               aesop
             · cases' hseq2 with predec_neq_emp hseq2
               rw [output_of_Seq_iff] at hseq2
-              have this : output_of_Seq (s ◁ ord_pair (k.1) (G (output_of_Seq s k (predec k k_eq_emp) seq (predec_mem k k_eq_emp)))) (succ k) (predec n n_eq_emp) (psi_seq2_eq_seq G s k k_eq_emp seq hseq)
+              have this : output_of_Seq (s ◁ OrdPair (k.1) (G (output_of_Seq s k (predec k k_eq_emp) seq (predec_mem k k_eq_emp)))) (succ k) (predec n n_eq_emp) (psi_seq2_eq_seq G s k k_eq_emp seq hseq)
                     (predec_mem_aux n (succ k) hn n_eq_emp) =
                     (G (output_of_Seq s k (predec (predec n n_eq_emp) predec_neq_emp) seq (predec_mem_aux (predec n n_eq_emp) k (predec_mem_aux n k n_in_k n_eq_emp) predec_neq_emp))) := by
                 rw [output_of_Seq_iff, enlarge_iff]; aesop
@@ -235,7 +235,7 @@ lemma psi_functional_succ (G : S → S) (k : ordinal S) (y : S) (psi_y : psi G k
           aesop
 
 def psi_seq3 (s : S) (k : ordinal S) (k_neq_emp : k ≠ ∅) : S
-    := pred_set s (fun u ↦ (single (predec k k_neq_emp).1) ∉ u)
+    := pred_set s (fun u ↦ (Single (predec k k_neq_emp).1) ∉ u)
 
 lemma psi_seq3_eq_seq (s : S) (k : ordinal S) (k_neq_emp : k ≠ ∅) (predec_neq_emp : predec k k_neq_emp ≠ ∅)
     (seq : Seq s k) : Seq (psi_seq3 s k k_neq_emp) (predec k k_neq_emp) := by
@@ -248,13 +248,13 @@ lemma psi_seq3_eq_seq (s : S) (k : ordinal S) (k_neq_emp : k ≠ ∅) (predec_ne
     apply func.2
     · assumption
     · simp_all
-  · simp_rw [HF.dom, exten_prop, pred_set_iff, union_set_iff, psi_seq3, pred_set_iff] at *
+  · simp_rw [HF.dom, exten_prop, pred_set_iff, unionSet_iff, psi_seq3, pred_set_iff] at *
     intro u; specialize dom u
     constructor
     · intro h; rcases h with ⟨⟨y, ⟨⟨y', ⟨⟨y'_in_s, h_ord⟩, y_in_y'⟩⟩, u_in_y⟩⟩, ⟨v, ⟨ord_v_in_s, h_ord_v⟩⟩⟩
-      have u_in_k : ((∃ y, (∃ y_1 ∈ s, y ∈ y_1) ∧ u ∈ y) ∧ ∃ v, ord_pair u v ∈ s) := by refine ⟨by aesop, by aesop⟩
+      have u_in_k : ((∃ y, (∃ y_1 ∈ s, y ∈ y_1) ∧ u ∈ y) ∧ ∃ v, OrdPair u v ∈ s) := by refine ⟨by aesop, by aesop⟩
       rw [dom] at u_in_k
-      have y_neq_predec : u ≠ (predec k k_neq_emp).1 := by by_contra!; apply h_ord_v; rw [← this, ord_pair, pair_iff]; left; rfl
+      have y_neq_predec : u ≠ (predec k k_neq_emp).1 := by by_contra!; apply h_ord_v; rw [← this, OrdPair, pair_iff]; left; rfl
       rw [← succ_predec_of_ord_eq_ord k.1 k.2 k_neq_emp', HF.succ, enlarge_iff, ← predec_1_eq_HF_predec k k_neq_emp k_neq_emp'] at u_in_k
       simp_all
     · intro h; have h' := h; rw [predec_1_eq_HF_predec k k_neq_emp k_neq_emp'] at h'
@@ -267,16 +267,16 @@ lemma psi_seq3_eq_seq (s : S) (k : ordinal S) (k_neq_emp : k ≠ ∅) (predec_ne
       · use y; refine ⟨?_, by assumption⟩
         use y'; refine ⟨?_, by assumption⟩
         refine ⟨by assumption, ?_⟩
-        by_contra!; rw [y'_eq_ord_pair, ord_pair, pair_iff, single_equal] at this
-        rw [y'_eq_ord_pair, ord_pair, pair_iff] at y_in_y'
+        by_contra!; rw [y'_eq_ord_pair, OrdPair, pair_iff, single_eq_iff_eq] at this
+        rw [y'_eq_ord_pair, OrdPair, pair_iff] at y_in_y'
         sorry
       · use v; refine ⟨by assumption, ?_⟩
-        by_contra!; rw [ord_pair, pair_iff, single_equal] at this
+        by_contra!; rw [OrdPair, pair_iff, single_eq_iff_eq] at this
         cases' this with single pair
         · rw [single] at h
           apply set_notin_set u; exact h
-        · have pair : HF.pair u v = single (predec k k_neq_emp).1 := by aesop
-          rw [pair_single] at pair; cases' pair with predec_eq_u _
+        · have pair : HF.Pair u v = Single (predec k k_neq_emp).1 := by aesop
+          rw [pair_eq_single_iff] at pair; cases' pair with predec_eq_u _
           rw [predec_eq_u] at h
           apply set_notin_set u; exact h
 
@@ -289,12 +289,12 @@ lemma psi_seq3_eq_seq_if_not_predec (s : S) (k l : ordinal S) (k_neq_emp : k ≠
   rw [h, output_of_Seq_iff, psi_seq3, pred_set_iff]
   rw [output_of_Seq_iff] at h; refine ⟨by assumption, ?_⟩
   by_contra!
-  rw [ord_pair, pair_iff, single_equal] at this
+  rw [OrdPair, pair_iff, single_eq_iff_eq] at this
   have predec_neq_l : (predec k k_neq_emp).1 ≠ l.1 := by
     by_contra!; rw [mem, this] at l_in_predec; apply set_notin_set l.1; assumption
   simp only [predec_neq_l, false_or] at this
-  have this : pair l.1 z = single (predec k k_neq_emp).1 := by aesop
-  rw [pair_single] at this
+  have this : Pair l.1 z = Single (predec k k_neq_emp).1 := by aesop
+  rw [pair_eq_single_iff] at this
   aesop
 
 lemma psi_functional_exists_Gy (G : S → S) (k : ordinal S) (k_neq_emp : k ≠ ∅) (y : S) (psi_y : psi G k y) :

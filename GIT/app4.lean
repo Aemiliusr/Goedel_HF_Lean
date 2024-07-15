@@ -88,7 +88,7 @@ theorem R_transitive (m : ordinal S) : tran (R m) := by
       aesop
 
 lemma exists_ordinal_set_in_R_aux (x y : S) (n m : ordinal S) (x_in_Rn : x ∈ R n) (y_in_Rm : y ∈ R m) :
-        ∀ v ∈ x ◁ y, v ∈ union (R n) (R (succ m)) := by
+        ∀ v ∈ x ◁ y, v ∈ Union (R n) (R (succ m)) := by
         simp_rw [enlarge_iff, union_iff]
         intros v h; cases' h with v_in_x v_eq_y
         · left
