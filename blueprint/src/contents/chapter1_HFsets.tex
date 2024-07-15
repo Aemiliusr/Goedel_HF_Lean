@@ -1,6 +1,6 @@
-\section{The Theory of Hereditarily Finite Sets}
+\chapter{The Theory of Hereditarily Finite Sets}
 
-\subsection{Language and axioms}
+\section{Language and axioms}
 
 The first-order theory of HF is determined by the first-order language of HF and three axioms.
 The language $\mathcal{L}$ has one binary relation symbol $\in$, one binary function symbol $\lhd$, and one constant symbol $\varnothing$.
@@ -33,14 +33,14 @@ The axioms are given by the following sentences.
 The assumption in Axiom 3 — the induction principle — is that $\alpha$ is an $\mathcal{L}$-formula
 and that it contains a distinguished freely occuring variable which is quantified over.
 
-\subsection{Basic results}
+\section{Basic results}
 
 \begin{lemma}
     \label{lem:one}
     \lean{HF.set_notin_empty, HF.enlarge_iff, HF.enlarge_empty}
     \leanok
     \uses{ax:empty, ax:enlarge}
-    \leavevmode \normalfont
+    \leavevmode
     \begin{enumerate}
         \item $\forall x (x\notin \varnothing)$.
         \item $\forall x \forall y \forall u (u \in x \lhd y \leftrightarrow u \in x \lor u=y)$.
@@ -77,24 +77,24 @@ and that it contains a distinguished freely occuring variable which is quantifie
     \end{itemize}
 \end{proof}
 
-\begin{notation}
-    \label{not:single_pairs}
+\begin{definition}
+    \label{def:single_pairs}
     \lean{HF.Single, HF.Pair, HF.OrdPair}
     \leanok
-    \leavevmode \normalfont
+    Denote by $\{x\}$, $\{x,y\}$ and $\langle x,y\rangle$ the following \textit{terms}:
     \begin{enumerate}
         \item $\{x\} = \varnothing \lhd x$.
         \item $\{x,y\} = \{x\} \lhd y$.
         \item $\langle x,y\rangle = \{\{x\}, \{x,y\}\}$.
     \end{enumerate}
-\end{notation}
+\end{definition}
 
 \begin{lemma}
     \label{lem:two}
     \lean{HF.single_iff, HF.pair_iff, HF.duplic_pair_eq_single, HF.ordPair_equal}
     \leanok
-    \uses{lem:one, thm:exten_prop}
-    \leavevmode \normalfont
+    \uses{lem:one, thm:exten_prop, def:single_pairs}
+    \leavevmode
     \begin{enumerate}
         \item $\forall x \forall u (u\in \{x\} \leftrightarrow u = x)$.
         \item $\forall x \forall y \forall u (u \in \{x,y\}\leftrightarrow u=x \lor u=y)$.
