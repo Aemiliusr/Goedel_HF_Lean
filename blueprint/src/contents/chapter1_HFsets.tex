@@ -62,7 +62,7 @@ and that it contains a distinguished freely occuring variable which is quantifie
     \label{thm:exten_prop}
     \lean{HF.exten_prop}
     \leanok
-    \uses{lem:one, ax:empty, ax:enlarge, ax:induction}
+    \uses{ax:empty, ax:enlarge, ax:induction, lem:one}
     $\forall x \forall z (x=z \leftrightarrow \forall u (u \in x \leftrightarrow u \in z))$.
 \end{theorem}
 
@@ -78,7 +78,7 @@ and that it contains a distinguished freely occuring variable which is quantifie
 \end{proof}
 
 \begin{definition}
-    \label{def:single_pairs}
+    \label{def:Single+Pair+OrdPair}
     \lean{HF.Single, HF.Pair, HF.OrdPair}
     \leanok
     Denote by $\{x\}$, $\{x,y\}$ and $\langle x,y\rangle$ the following \textit{terms}:
@@ -93,7 +93,7 @@ and that it contains a distinguished freely occuring variable which is quantifie
     \label{lem:two}
     \lean{HF.single_iff, HF.pair_iff, HF.duplic_pair_eq_single, HF.ordPair_equal}
     \leanok
-    \uses{lem:one, thm:exten_prop, def:single_pairs}
+    \uses{lem:one, thm:exten_prop, def:Single+Pair+OrdPair}
     \leavevmode
     \begin{enumerate}
         \item $\forall x \forall u (u\in \{x\} \leftrightarrow u = x)$.
@@ -155,7 +155,7 @@ and that it contains a distinguished freely occuring variable which is quantifie
     \label{thm:exists_union}
     \lean{HF.exists_union}
     \leanok
-    \uses{lem:one, ax:induction}
+    \uses{ax:induction, lem:one}
     $\forall x \forall y \exists z \forall u (u \in z \leftrightarrow u \in x \lor u \in y)$.
 \end{theorem}
 
@@ -172,3 +172,31 @@ and that it contains a distinguished freely occuring variable which is quantifie
     \end{itemize}
 \end{proof}
 
+\begin{theorem}[Existence of the union of a set of sets]
+    \label{thm:exists_unionSet}
+    \lean{HF.exists_unionSet}
+    \leanok
+    \uses{ax:induction, lem:one, thm:exists_union}
+    $\forall x \exists z \forall u (u \in z \leftrightarrow \exists (y\in x)[u \in y])$.
+\end{theorem}
+
+\begin{proof}
+    \leanok
+    Pick $x$ arbitrarily and let $\alpha (x)$ be the formula $\exists z \forall u (u \in z \leftrightarrow \exists (y\in x)[u \in y])$.
+    We apply Axiom \ref{ax:induction}.
+    \begin{itemize}
+        \item For the base case — $\alpha (\varnothing)$ — take $z=\varnothing$ and use Lemma \ref{lem:one}.1.
+        \item For the induction step — $\forall w[\alpha(x) \land \alpha(w) \rightarrow \alpha(x \lhd w)]$ — 
+        pick $w$ arbitrarily and assume $\alpha(x)$, i.e. the existence of $\bigcup x$.
+        We need to find $z$ such that
+        \begin{equation*}
+        \begin{split}
+            u \in z & \leftrightarrow \exists (y \in x \lhd w)[u \in y]\\
+            & \leftrightarrow \exists y[(y \in x \lor y = w) \land u \in y]\\
+            & \leftrightarrow \exists(y \in x)[u \in y] \lor u \in w\\
+            & \leftrightarrow u \in \bigcup x \lor u \in w,
+        \end{split}
+        \end{equation*}
+        using Lemma \ref{lem:one}.2. Thus, take $z = (\bigcup x) \cup w$.
+    \end{itemize}
+\end{proof}
