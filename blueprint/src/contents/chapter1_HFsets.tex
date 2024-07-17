@@ -90,7 +90,7 @@ and that it contains a distinguished freely occuring variable which is quantifie
 \end{definition}
 
 \begin{lemma}
-    \label{lem:single_iff+pair_iff+ordPair_equal}
+    \label{lem:single_iff+pair_iff+...+ordPair_equal}
     \lean{HF.single_iff, HF.pair_iff, HF.duplic_pair_eq_single, HF.ordPair_equal}
     \leanok
     \uses{lem:set_notin_empty+enlarge_iff+enlarge_empty, thm:exten_prop, def:Single+Pair+OrdPair}
@@ -108,8 +108,8 @@ and that it contains a distinguished freely occuring variable which is quantifie
     \leavevmode
     \begin{enumerate}
         \item This follows directly from Lemma \ref{lem:set_notin_empty+enlarge_iff+enlarge_empty}.3.
-        \item This follows directly from Lemma \ref{lem:set_notin_empty+enlarge_iff+enlarge_empty}.2 and Lemma \ref{lem:single_iff+pair_iff+ordPair_equal}.1.
-        \item This follows directly from Theorem \ref{thm:exten_prop}, Lemma \ref{lem:single_iff+pair_iff+ordPair_equal}.1 and Lemma \ref{lem:single_iff+pair_iff+ordPair_equal}.2.
+        \item This follows directly from Lemma \ref{lem:set_notin_empty+enlarge_iff+enlarge_empty}.2 and Lemma \ref{lem:single_iff+pair_iff+...+ordPair_equal}.1.
+        \item This follows directly from Theorem \ref{thm:exten_prop}, Lemma \ref{lem:single_iff+pair_iff+...+ordPair_equal}.1 and Lemma \ref{lem:single_iff+pair_iff+...+ordPair_equal}.2.
         \item  The proof closely follows an analogous proof from ZF by \cite{enderton1977elements}.
         Pick $x,y,u$ and $v$ arbitrarily. The $\leftarrow$ direction is trivial.
         For the $\rightarrow$ direction, by the definition of ordered pairs, the hypothesis can be rewritten to
@@ -124,7 +124,7 @@ and that it contains a distinguished freely occuring variable which is quantifie
         \begin{equation}
             \{u\} \in \{\{x\}, \{x,y\}\}\quad\text{ and }\quad \{u,v\} \in \{\{x\}, \{x,y\}\}.
         \end{equation}
-        By Lemma \ref{lem:single_iff+pair_iff+ordPair_equal}.2, (2) can be rewritten to
+        By Lemma \ref{lem:single_iff+pair_iff+...+ordPair_equal}.2, (2) can be rewritten to
         \begin{equation*}
             (\textbf{a})\quad\{u\}=\{x\}\quad\text{or}\quad (\textbf{b})\quad\{u\}=\{x,y\}
         \end{equation*}
@@ -132,20 +132,20 @@ and that it contains a distinguished freely occuring variable which is quantifie
         \begin{equation*}
             (\textbf{c})\quad\{u,v\}=\{x\}\quad\text{or}\quad (\textbf{d})\quad\{u,v\}=\{x,y\}.
         \end{equation*}
-        Note that, by Theorem \ref{thm:exten_prop}, Lemma \ref{lem:single_iff+pair_iff+ordPair_equal}.1 and Lemma \ref{lem:single_iff+pair_iff+ordPair_equal}.2,
+        Note that, by Theorem \ref{thm:exten_prop}, Lemma \ref{lem:single_iff+pair_iff+...+ordPair_equal}.1 and Lemma \ref{lem:single_iff+pair_iff+...+ordPair_equal}.2,
         \begin{equation}
         \forall x \forall y \forall z (\{x,y\} = \{z\} \leftrightarrow x = y =z).
         \end{equation}
         Now, consider three cases:
         \begin{itemize}
-            \item Suppose (\textbf{b}) holds. Then, by (3), $u=x=y$. By Lemma \ref{lem:single_iff+pair_iff+ordPair_equal}.3, it then follows that 
+            \item Suppose (\textbf{b}) holds. Then, by (3), $u=x=y$. By Lemma \ref{lem:single_iff+pair_iff+...+ordPair_equal}.3, it then follows that 
             (\textbf{d}) can be rewritten to $\{u,v\}=\{x\}$, implying (\textbf{c}) and (\textbf{d}) are equivalent.
             Thus, by (3), under (\textbf{b}), it must hold that $u=v=x=y$.
-            \item Suppose (\textbf{c}) holds. Then, by (3), $u=v=x$. Note that, by (1) and Lemma \ref{lem:single_iff+pair_iff+ordPair_equal}.2, 
-            either $\{x,y\}=\{u\}$ or $\{x,y\}=\{u,v\}$.  By Lemma \ref{lem:single_iff+pair_iff+ordPair_equal}.3, it follows that $\{u,v\}=\{u\}$ and 
+            \item Suppose (\textbf{c}) holds. Then, by (3), $u=v=x$. Note that, by (1) and Lemma \ref{lem:single_iff+pair_iff+...+ordPair_equal}.2, 
+            either $\{x,y\}=\{u\}$ or $\{x,y\}=\{u,v\}$.  By Lemma \ref{lem:single_iff+pair_iff+...+ordPair_equal}.3, it follows that $\{u,v\}=\{u\}$ and 
             thus these two statements are equivalent. Thus, by (3), under (\textbf{c}), it must hold that $x=y=u=v$.
             \item Suppose (\textbf{a}) and (\textbf{d}) hold. From (\textbf{a}) we have $u=x$. 
-            From (\textbf{d}) it follows that, by Lemma \ref{lem:single_iff+pair_iff+ordPair_equal}.2, $v=x$ or $v=y$. In the latter case, 
+            From (\textbf{d}) it follows that, by Lemma \ref{lem:single_iff+pair_iff+...+ordPair_equal}.2, $v=x$ or $v=y$. In the latter case, 
             $u=x\land v=y$. If $v=x$, then $u=v=x$, and case (\textbf{c}) holds by (3); this case has already been considered.
         \end{itemize}
     \end{enumerate}
@@ -236,7 +236,7 @@ and that it contains a distinguished freely occuring variable which is quantifie
 
 \begin{theorem}[Existence of the power set]
     \label{thm:exists_power}
-    \uses{ax:induction_axiom, lem:set_notin_empty+enlarge_iff+enlarge_empty, thm:exten_prop, def:Single+Pair+OrdPair, lem:single_iff+pair_iff+ordPair_equal, thm:exists_union, thm:repl_scheme, def:Subset}
+    \uses{ax:induction_axiom, lem:set_notin_empty+enlarge_iff+enlarge_empty, thm:exten_prop, def:Single+Pair+OrdPair, lem:single_iff+pair_iff+...+ordPair_equal, thm:exists_union, thm:repl_scheme, def:Subset}
     ...
 \end{theorem}
 
@@ -258,7 +258,7 @@ and that it contains a distinguished freely occuring variable which is quantifie
 
 \begin{corollary}
     \label{cor:set_notin_itself}
-    \uses{lem:set_notin_empty+enlarge_iff+enlarge_empty, thm:exten_prop, def:Single+Pair+OrdPair, lem:single_iff+pair_iff+ordPair_equal, def:Intersection, thm:found_prop}
+    \uses{lem:set_notin_empty+enlarge_iff+enlarge_empty, thm:exten_prop, def:Single+Pair+OrdPair, lem:single_iff+pair_iff+...+ordPair_equal, def:Intersection, thm:found_prop}
     ...
 \end{corollary}
 

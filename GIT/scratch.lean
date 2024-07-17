@@ -104,11 +104,11 @@ theorem comp_scheme (x : S) (φ : S → Prop) {n} (f : BoundedFormula HFLang (Fi
   · simp
     convert Iff.rfl
     rw [realize_liftAt (by norm_num), hφ]
-    convert Iff.rfl -- now aesop works
+    convert Iff.rfl
     simp_all only [Nat.reduceAdd, Fin.coe_fin_one, lt_self_iff_false, ↓reduceIte]
     ext1 x_2
     simp_all only [Matrix.cons_val_fin_one, Function.comp_apply]
-    apply Eq.refl
+    rfl
 
 /-- Subset that is defined by a formula φ — {u ∈ x : φ(u)} -/
 noncomputable def SetByFormula (x : S) (φ : S → Prop) {n} (f : BoundedFormula HFLang (Fin n) 1) (c : Fin n → S)
@@ -144,15 +144,34 @@ abbrev FirstOrder.Language.BoundedFormula.reverse {L : Language} {α : Type u'} 
     (φ : L.BoundedFormula α n) : L.BoundedFormula α n :=
   φ.mapTermRel (g := id) (fun _ t => t.reverse) (fun _ => id) (fun _ => castLE le_rfl)
 
-lemma realize_reverse {n m} {φ : BoundedFormula HFLang (Fin n) m} {v : Fin n → S} {xs : Fin m → S} :
-    (φ.reverse).Realize v xs ↔ (φ.Realize) v (xs ∘ Fin.reverse m) := by
+/-- To check statement of next lemma is correct. -/
+example {L : Language} [L.Structure S] {α : Type u'} {n : ℕ}
+    (φ : L.BoundedFormula α n) {v : α → S} {xs : Fin n → S} :
+    φ.reverse.reverse.Realize v xs ↔ φ.Realize v xs := by
   rw [reverse]
-  induction' φ with _
+  have eq1 (m : ℕ) : Fin.reverse m ∘ Fin.reverse m = id := by
+    -- definitely correct
+    sorry
+  induction' φ with _ _ _ _ _ _ _ _ _ _ _ _ _ k f ih
+  · simp [mapTermRel, Realize]
+  · simp only [Realize, Term.relabel_relabel, Sum.map_comp_map, CompTriple.comp_eq, eq1,
+    Sum.map_id_id, Term.relabel_id_eq_id, id_eq]
+  · simp [mapTermRel, Realize, Sum.elim_comp_map, eq1]
+  · simp_all only [mapTermRel, Realize, id_eq, eq1]
+  · simp only [mapTermRel, id_eq, castLE_rfl, realize_all, Nat.succ_eq_add_one, ih]
+
+@[simp] lemma realize_reverse {L : Language} [L.Structure S] {α : Type u'} {n : ℕ}
+    (φ : L.BoundedFormula α n) {v : α → S} {xs : Fin n → S} :
+    φ.reverse.Realize v xs ↔ φ.Realize v (xs ∘ Fin.reverse n) := by
+  rw [reverse]
+  induction' φ with _ _ _ _ _ _ _ _ _ _ _ _ _ k f ih
   · simp [mapTermRel, Realize]
   · simp [mapTermRel, Realize, Sum.elim_comp_map]
   · simp [mapTermRel, Realize, Sum.elim_comp_map]
   · simp_all only [mapTermRel, Realize, id_eq]
-  · sorry -- look at proof realize_liftAt
+  · simp only [mapTermRel, id_eq, castLE_rfl, realize_all, Nat.succ_eq_add_one, ih]
+    refine forall_congr' fun a => ?_
+    sorry -- looked at proof of `realize_liftAt`
 
 theorem repl_scheme (x : S) {n} (ψ : S → S → Prop) (f : BoundedFormula HFLang (Fin n) 2)
   (c : Fin n → S) (hψ : ∀ x y, ψ x y ↔ f.Realize c ![x, y]) :
@@ -162,19 +181,26 @@ theorem repl_scheme (x : S) {n} (ψ : S → S → Prop) (f : BoundedFormula HFLa
   · sorry -- done
   · exact n
   · exact ∀' ((&1 ∈' &0) ⟹ ∃' (f.liftAt 1 0 /- f &1 &2 -/ ⊓ ∀' ((f.liftAt 1 0).liftAt 1 2 /- f &1 &3 -/ ⟹ &3 =' &2)))
-    ⟹ ∃' ∀' ((&2 ∈' &1) ⇔ ∃' ((&3 ∈' &0) ⊓ (f.liftAt 2 0).reverse /- f &3 &2-/))  -- should be correct
+    ⟹ ∃' ∀' ((&2 ∈' &1) ⇔ ∃' ((&3 ∈' &0) ⊓ (f.reverse).liftAt 2 0 /- f &3 &2-/))  -- should be correct
   · rename_i a; exact c a
   · simp
     convert Iff.rfl
     · rw [realize_liftAt (by norm_num), hψ]
-      convert Iff.rfl
-      sorry
+      convert Iff.rfl using 1
+      congr! 1
+      ext i
+      fin_cases i <;> simp <;> rfl
     · rw [realize_liftAt (by norm_num), realize_liftAt (by norm_num), hψ]
-      convert Iff.rfl
-      sorry
-    · rw [realize_reverse, realize_liftAt (by norm_num), hψ]
-      convert Iff.rfl
-      sorry
+      convert Iff.rfl using 1
+      congr! 1
+      ext i
+      fin_cases i <;> simp <;> rfl
+    · rw [realize_liftAt (by norm_num),realize_reverse, hψ]
+      rename_i h a b c
+      convert Iff.rfl using 1
+      congr! 1
+      ext i
+      fin_cases i <;> simp <;> rfl
 
 lemma found_prop_lemma (x z : S) (h : ∀ w ∈ z, inter w z ≠ ∅) : x ∉ z ∧ inter x z = ∅ := by
   induction' x using HF.induction with x y hx hy
