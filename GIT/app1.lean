@@ -94,7 +94,7 @@ class HF (s : Type u) extends HFPrior s where
   empty (z : s) : z = ∅ ↔ ∀ x, x ∉ z
   /-- Axiom 2 "for enlargement". -/
   enlarge (x y z : s) : z = x ◁ y ↔ ∀ u, u ∈ z ↔ u ∈ x ∨ u = y
-  /-- Axiom 3: the induction principle. The addtional four goals (next to base and step)
+  /-- Axiom 3: the induction principle. The additional four goals (next to base and step)
   ensure induction is over all formulae in the first-order language of HF rather than over all predicates.  -/
   induction (α : s → Prop) (base : α ∅) (step : ∀ x y, α x → α y → α (x ◁ y)) (z : s)
       (n : Nat) (f : Language.BoundedFormula HFLang (Fin n) 1) (t : (Fin n) → s)
@@ -251,15 +251,13 @@ lemma pred_set_iff (x : S) (φ : S → Prop) : ∀ (u : S), (u ∈ pred_set x φ
 /-- x ∩ y = {u ∈ x : u ∈ y} -/
 noncomputable def inter (x : S) (y : S) : S := pred_set x (fun u ↦ u ∈ y)
 
-lemma inter_iff (x y : S) : ∀ (u : S), (u ∈ inter x y ↔ u ∈ x ∧ u ∈ y) := by
-  exact pred_set_iff _ _
+lemma inter_iff (x y : S) : ∀ (u : S), (u ∈ inter x y ↔ u ∈ x ∧ u ∈ y) := pred_set_iff _ _
 
 /-- ⋂ x = {u ∈ ⋃ x : ∀ v ∈ x, u ∈ v} -/
 noncomputable def inter_set (x : S) : S := pred_set (UnionSet x) (fun u ↦ ∀ v ∈ x, u ∈ v)
 
 lemma inter_set_iff (x : S) :
-    ∀ (u : S), (u ∈ inter_set x ↔ u ∈ UnionSet x ∧ ∀ v ∈ x, u ∈ v) := by
-  exact pred_set_iff _ _
+    ∀ (u : S), (u ∈ inter_set x ↔ u ∈ UnionSet x ∧ ∀ v ∈ x, u ∈ v) := pred_set_iff _ _
 
 lemma inter_enlarge (x y : S) : inter (x ◁ y) x = x := by
   simp_rw [exten_prop, inter_iff, enlarge_iff]; aesop
@@ -286,8 +284,8 @@ theorem repl_scheme (x : S) (ψ : S → S → Prop) :
   --   simp_rw [enlarge_iff]; aesop
 
 /-- {v : ∃ u ∈ x, ψ(u,v)} -/
-noncomputable def repl (x : S) (ψ : S → S → Prop) (h : (∀ u ∈ x, ∃! v, ψ u v)) : S
-    := (repl_scheme x ψ h).choose
+noncomputable def repl (x : S) (ψ : S → S → Prop) (h : (∀ u ∈ x, ∃! v, ψ u v)) : S :=
+  (repl_scheme x ψ h).choose
 
 lemma repl_iff (x : S) (ψ : S → S → Prop) (h : (∀ u ∈ x, ∃! v, ψ u v)) :
     ∀ (v : S), (v ∈ repl x ψ h ↔ ∃ u ∈ x, ψ u v) := (repl_scheme x ψ h).choose_spec
