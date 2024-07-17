@@ -4,10 +4,12 @@ import GIT.app1
 /-!
 # Appendix 2: Ordinals of hereditarily finite set theory
 
-In this file, Appendix 2 of S. Swierczkowski: 'Finite Sets and Gödel’s Incompleteness Theorems' is formalised.
+In this file, Appendix 2 of S. Swierczkowski: 'Finite Sets and Gödel’s Incompleteness Theorems' is
+formalised.
 It presents the theory on hereditarily finite ordinals.
 
-This work contains a stronger version of the original Theorem 2.7 on the ordering of ordinals. See section 'On the ordering of ordinals'.
+This work contains a stronger version of the original Theorem 2.7 on the ordering of ordinals.
+See section 'On the ordering of ordinals'.
 
 By 'set' we mean an 'HF set'; by 'collection' we mean a 'Lean set' (i.e. a set which need not be HF).
 
@@ -18,7 +20,8 @@ By 'set' we mean an 'HF set'; by 'collection' we mean a 'Lean set' (i.e. a set w
 - `HF.exists_min_of_set_of_ord`: Existence of a smallest element of a set of ordinals.
 - `HF.ordinal.lt_wf`: The binary relation < is well-founded on every collection of ordinals.
 - `HF.ordinal.exists_min_set`: Existence of a smallest element of a collection of ordinals.
-- `HF.ordinal.cond_comp_lin_ord_bot`: The ordinals, ordered by <, form a conditionally complete linear order with a bottom element.
+- `HF.ordinal.cond_comp_lin_ord_bot`: The ordinals, ordered by <, form a conditionally complete
+linear order with a bottom element.
 
 ## Notation
 
@@ -47,8 +50,8 @@ namespace HF
 /-- The set x is transitive -/
 def tran (x : S) : Prop := ∀ y ∈ x, subset_eq y x
 
-lemma tran_mem (x y y' : S) (tran : tran x) (y_in_x : y ∈ x) (y'_in_y : y' ∈ y) : y' ∈ x := by
-  simp_rw [HF.tran, subset_eq] at tran; tauto
+lemma tran_mem (x y y' : S) (tran : tran x) (y_in_x : y ∈ x) (y'_in_y : y' ∈ y) : y' ∈ x :=
+  tran y y_in_x y' y'_in_y
 
 /-- The set x is an ordinal -/
 def ord (x : S) : Prop := tran x ∧ ∀ y ∈ x, tran y
@@ -63,8 +66,7 @@ def succ (x : S) : S := x ◁ x
 lemma ord_iff_ord_succ (x : S) : ord x ↔ ord (succ x) := by
   simp_rw [ord, tran, succ, subset_eq, enlarge_iff]; aesop
 
-theorem succ_of_ord_is_ord (x : S) (ord_x : ord x) : ord (succ x) := by
-  rwa [← ord_iff_ord_succ]
+theorem succ_of_ord_is_ord (x : S) (ord_x : ord x) : ord (succ x) := (ord_iff_ord_succ x).mp ord_x
 
 theorem element_of_ord_is_ord (x y : S) (ord_x : ord x) (y_in_x : y ∈ x) : ord y := by
   simp_rw [ord] at *
@@ -92,7 +94,8 @@ theorem mem_min_of_ord_eq_empty (x : S) (ord_x : ord x) (neq_emp : x ≠ ∅) :
   subst w_eq_emp
   simp_all only [ne_eq, and_imp, implies_true, and_self]
 
-lemma empty_in_ord (x : S) (ord_x : ord x) (neq_emp : x ≠ ∅) : ∅ ∈ x := by have := mem_min_of_ord_eq_empty x; simp_all
+lemma empty_in_ord (x : S) (ord_x : ord x) (neq_emp : x ≠ ∅) : ∅ ∈ x := by
+  have := mem_min_of_ord_eq_empty x; simp_all
 
 --- Theorem 2.4 ---
 
@@ -102,7 +105,8 @@ lemma compar_of_ord_ord_aux1 (h : ∃ (k l : S), ord k ∧ ord l ∧ k ∉ l ∧
   rcases h with ⟨k, ⟨l, ⟨ord_k, ⟨ord_l, hkl⟩⟩⟩⟩
   let K := pred_set (power k) (fun k0 ↦ (ord k0 ∧ ∃ l, ord l ∧ (k0 ∉ l ∧ k0 ≠ l ∧ l ∉ k0)))
   have K_neq_emp : K ≠ ∅ := by
-    intro hK; rw [HF.empty] at hK; specialize hK k; apply hK; rw [pred_set_iff, power_iff, subset_eq]; aesop
+    intro hK; rw [HF.empty] at hK; specialize hK k; apply hK
+    rw [pred_set_iff, power_iff, subset_eq]; aesop
   obtain ⟨k0, ⟨k0_in_K, inter_k0_K⟩⟩ := found_prop K K_neq_emp
   rw [pred_set_iff] at k0_in_K
   rcases k0_in_K with ⟨k0_power_k, ⟨ord_k0, hk0⟩⟩
@@ -366,12 +370,10 @@ lemma neq (k l : ordinal S) : k ≠ l ↔ k.1 ≠ l.1 := by simp
 
 lemma set_in_empty_false (k : ordinal S) (k_in_emp : k ∈ (∅ : ordinal S)) : False := by
   cases' k with k ord_k; simp only [mem] at k_in_emp
-  apply set_notin_empty k
-  exact k_in_emp
+  exact set_notin_empty k k_in_emp
 
-@[simp] lemma set_in_empty_iff_false (k : ordinal S) : k ∈ (∅ : ordinal S) ↔ False := by
-  refine ⟨by exact set_in_empty_false k, ?_⟩
-  exact fun a ↦ False.elim a
+@[simp] lemma set_in_empty_iff_false (k : ordinal S) : k ∈ (∅ : ordinal S) ↔ False :=
+  ⟨set_in_empty_false k, fun a ↦ False.elim a⟩
 
 lemma set_in_set_false (k : ordinal S) (k_in_k : k ∈ k) : False := by
   cases' k with k ord_k; simp only [mem] at k_in_k
@@ -389,18 +391,18 @@ apply empty_in_ord <;> aesop
 lemma compar (k l : ordinal S) : k ∈ l ∨ k = l ∨ l ∈ k := by
   cases' k with k ord_k; cases' l with l ord_l
   simp only [eq, mem]
-  apply compar_of_ord_ord k l ord_k ord_l
+  exact compar_of_ord_ord k l ord_k ord_l
 
 lemma mem_antisymm (k l : ordinal S) (k_in_l : k ∈ l) (l_in_k : l ∈ k) : False := by
   cases' k with k ord_k; cases' l with l ord_l
   simp only [mem] at *
-  apply mem_antisymm_of_ord k l ord_k k_in_l l_in_k
+  exact mem_antisymm_of_ord k l ord_k k_in_l l_in_k
 
 lemma exclusive_compar (k l : ordinal S) :
     (k ∈ l ∧ (k ≠ l ∧ l ∉ k)) ∨ (k = l ∧ (k ∉ l ∧ l ∉ k)) ∨ (l ∈ k ∧ (k ∉ l ∧ k ≠ l)) := by
   cases' k with k ord_k; cases' l with l ord_l
   simp only [eq, neq, mem]
-  apply exclusive_compar_of_ord_ord k l ord_k ord_l
+  exact exclusive_compar_of_ord_ord k l ord_k ord_l
 
 /-- k ⊆ l -/
 def sbst_eq (k l : ordinal S) : Prop := ∀ (v : ordinal S), v ∈ k → v ∈ l
@@ -427,17 +429,17 @@ def sbst (k l : ordinal S) : Prop := sbst_eq k l ∧ k ≠ l
 lemma mem_iff_subset (k l : ordinal S) : k ∈ l ↔ sbst k l := by
   cases' k with k ord_k; cases' l with l ord_l
   simp only [mem, sbst_lemma]
-  apply mem_iff_subset_of_ord_ord k l ord_k ord_l
+  exact mem_iff_subset_of_ord_ord k l ord_k ord_l
 
 lemma mem_imp_succ_eq_or_succ_mem (k l : ordinal S) (l_in_k : l ∈ k) : succ l = k ∨ succ l ∈ k := by
   cases' k with k ord_k; cases' l with l ord_l
   simp only [eq, mem] at *
-  apply mem_imp_succ_eq_or_succ_mem_of_ord_ord k l ord_k ord_l l_in_k
+  exact mem_imp_succ_eq_or_succ_mem_of_ord_ord k l ord_k ord_l l_in_k
 
 lemma eq_succ (k l : ordinal S) : succ k = succ l → k = l := by
   cases' k with k ord_k; cases' l with l ord_l
   simp only [eq]
-  apply eq_succ_of_ord k l ord_k
+  exact eq_succ_of_ord k l ord_k
 
 instance : LT (ordinal S) := ⟨fun k l => (k ∈ l)⟩
 
@@ -490,7 +492,7 @@ lemma succ_of_predec (k : ordinal S) (neq_emp : k ≠ ∅) : succ (predec k neq_
   refine max_in_k.elim (by simp_all) ?_; intro succ_max_in_k
   exfalso
   have succ_le := le_max k neq_emp (succ (max k neq_emp)) succ_max_in_k
-  apply succ_le_false (max k neq_emp) succ_le
+  exact succ_le_false (max k neq_emp) succ_le
 
 lemma succ_neq_emp (k : ordinal S) : succ k ≠ ∅ := by
   cases' k with k ord_k; simp only [neq]
@@ -689,7 +691,7 @@ theorem exists_min_set (x : Set (ordinal S)) (neq_emp : x ≠ ∅) :
     exact neq_emp)
   use l
   constructor
-  · apply WellFounded.min_mem
+  · exact WellFounded.min_mem _ _ _
   · intro k k_in_x
     have := @WellFounded.not_lt_min (ordinal S) (· < ·) lt_wf.1 x (by
     contrapose! neq_emp
@@ -729,12 +731,12 @@ instance : InfSet (ordinal S) where
 lemma sInf_def (x : Set (ordinal S)) : sInf x = if neq_emp : x ≠ ∅ then min_set x neq_emp else ∅ := rfl
 
 lemma csInf_le' (x : Set (ordinal S)) (k : ordinal S) : BddBelow x → k ∈ x → sInf x ≤ k := by
-  simp [sInf_def]
+  simp only [sInf_def, ne_eq, dite_not]
   have h := min_set_le x
   aesop
 
 lemma le_csInf' (x : Set (ordinal S)) (k : ordinal S) : Set.Nonempty x → k ∈ lowerBounds x → k ≤ sInf x := by
-  simp [sInf_def]
+  simp only [sInf_def, ne_eq, dite_not]
   have h := min_set_in_set x
   aesop
 
@@ -771,8 +773,7 @@ instance : ConditionallyCompleteLattice (ordinal S) where
 
 lemma emp_min_up_bds_emp (h : upperBounds (∅ : Set (ordinal S)) ≠ ∅) : ∅ = min_set (upperBounds ∅) h := by
   apply min_set_unique
-  · intros l _
-    exact emp_le l
+  · exact fun l _ ↦ emp_le l
   · aesop
 
 lemma csSup_of_not_bddAbove' (x : Set (ordinal S)) : ¬BddAbove x → sSup x = sSup ∅ := by
