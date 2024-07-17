@@ -10,21 +10,21 @@ enlarging the set $x$ by $y$ (think of $x \cup \{y\}$), and $\varnothing$ denote
 The axioms are given by the following sentences.
 
 \begin{axiom}
-    \label{ax:empty}
+    \label{ax:empty_axiom}
     \lean{HF.empty}
     \leanok
     $\forall z (z=\varnothing \leftrightarrow \forall x(x \notin z))$.
 \end {axiom}
 
 \begin{axiom}
-    \label{ax:enlarge}
+    \label{ax:enlarge_axiom}
     \lean{HF.enlarge}
     \leanok
     $\forall z (z=x \lhd y \leftrightarrow \forall u(u \in z \leftrightarrow u \in x \lor u=y))$.
 \end {axiom}
 
 \begin{axiom}
-    \label{ax:induction}
+    \label{ax:induction_axiom}
     \lean{HF.induction}
     \leanok
     $(\alpha(\varnothing) \land \forall x \forall y[\alpha(x) \land \alpha(y) \rightarrow \alpha(x \lhd y)]) \rightarrow \forall x \alpha(x)$.
@@ -36,10 +36,10 @@ and that it contains a distinguished freely occuring variable which is quantifie
 \section{Basic results}
 
 \begin{lemma}
-    \label{lem:one}
+    \label{lem:set_notin_empty+enlarge_iff+enlarge_empty}
     \lean{HF.set_notin_empty, HF.enlarge_iff, HF.enlarge_empty}
     \leanok
-    \uses{ax:empty, ax:enlarge}
+    \uses{ax:empty_axiom, ax:enlarge_axiom}
     \leavevmode
     \begin{enumerate}
         \item $\forall x (x\notin \varnothing)$.
@@ -52,9 +52,9 @@ and that it contains a distinguished freely occuring variable which is quantifie
     \leanok
     \leavevmode
     \begin{enumerate}
-        \item Substitute $\varnothing$ in Axiom \ref{ax:empty}.
-        \item Substitute $x \lhd y$ in Axiom \ref{ax:enlarge}.
-        \item Substitute $\varnothing$ for $x$ in Lemma \ref{lem:one}.2 and use Lemma \ref{lem:one}.1.
+        \item Substitute $\varnothing$ in Axiom \ref{ax:empty_axiom}.
+        \item Substitute $x \lhd y$ in Axiom \ref{ax:enlarge_axiom}.
+        \item Substitute $\varnothing$ for $x$ in Lemma \ref{lem:set_notin_empty+enlarge_iff+enlarge_empty}.2 and use Lemma \ref{lem:set_notin_empty+enlarge_iff+enlarge_empty}.1.
     \end{enumerate}
 \end{proof}
 
@@ -62,18 +62,18 @@ and that it contains a distinguished freely occuring variable which is quantifie
     \label{thm:exten_prop}
     \lean{HF.exten_prop}
     \leanok
-    \uses{ax:empty, ax:enlarge, ax:induction, lem:one}
+    \uses{ax:empty_axiom, ax:enlarge_axiom, ax:induction_axiom, lem:set_notin_empty+enlarge_iff+enlarge_empty}
     $\forall x \forall z (x=z \leftrightarrow \forall u (u \in x \leftrightarrow u \in z))$.
 \end{theorem}
 
 \begin{proof}
     \leanok
     Pick $x$ and $z$ arbitrarily and let $\alpha (x)$ be the formula $x=z \leftrightarrow \forall u (u \in x \leftrightarrow u \in z)$.
-    We apply Axiom \ref{ax:induction}.
+    We apply Axiom \ref{ax:induction_axiom}.
     \begin{itemize}
-        \item The base case — $\alpha (\varnothing)$ — follows directly from Lemma \ref{lem:one}.1 and Axiom \ref{ax:empty}.
+        \item The base case — $\alpha (\varnothing)$ — follows directly from Lemma \ref{lem:set_notin_empty+enlarge_iff+enlarge_empty}.1 and Axiom \ref{ax:empty_axiom}.
         \item The induction step — $\forall y[\alpha(x) \land \alpha(y) \rightarrow \alpha(x \lhd y)]$ — 
-        follows directly from Lemma \ref{lem:one}.2 and Axiom \ref{ax:enlarge}.
+        follows directly from Lemma \ref{lem:set_notin_empty+enlarge_iff+enlarge_empty}.2 and Axiom \ref{ax:enlarge_axiom}.
     \end{itemize}
 \end{proof}
 
@@ -90,10 +90,10 @@ and that it contains a distinguished freely occuring variable which is quantifie
 \end{definition}
 
 \begin{lemma}
-    \label{lem:two}
+    \label{lem:single_iff+pair_iff+ordPair_equal}
     \lean{HF.single_iff, HF.pair_iff, HF.duplic_pair_eq_single, HF.ordPair_equal}
     \leanok
-    \uses{lem:one, thm:exten_prop, def:Single+Pair+OrdPair}
+    \uses{lem:set_notin_empty+enlarge_iff+enlarge_empty, thm:exten_prop, def:Single+Pair+OrdPair}
     \leavevmode
     \begin{enumerate}
         \item $\forall x \forall u (u\in \{x\} \leftrightarrow u = x)$.
@@ -107,9 +107,9 @@ and that it contains a distinguished freely occuring variable which is quantifie
     \leanok
     \leavevmode
     \begin{enumerate}
-        \item This follows directly from Lemma \ref{lem:one}.3.
-        \item This follows directly from Lemma \ref{lem:one}.2 and Lemma \ref{lem:two}.1.
-        \item This follows directly from Theorem \ref{thm:exten_prop}, Lemma \ref{lem:two}.1 and Lemma \ref{lem:two}.2.
+        \item This follows directly from Lemma \ref{lem:set_notin_empty+enlarge_iff+enlarge_empty}.3.
+        \item This follows directly from Lemma \ref{lem:set_notin_empty+enlarge_iff+enlarge_empty}.2 and Lemma \ref{lem:single_iff+pair_iff+ordPair_equal}.1.
+        \item This follows directly from Theorem \ref{thm:exten_prop}, Lemma \ref{lem:single_iff+pair_iff+ordPair_equal}.1 and Lemma \ref{lem:single_iff+pair_iff+ordPair_equal}.2.
         \item  The proof closely follows an analogous proof from ZF by \cite{enderton1977elements}.
         Pick $x,y,u$ and $v$ arbitrarily. The $\leftarrow$ direction is trivial.
         For the $\rightarrow$ direction, by the definition of ordered pairs, the hypothesis can be rewritten to
@@ -124,7 +124,7 @@ and that it contains a distinguished freely occuring variable which is quantifie
         \begin{equation}
             \{u\} \in \{\{x\}, \{x,y\}\}\quad\text{ and }\quad \{u,v\} \in \{\{x\}, \{x,y\}\}.
         \end{equation}
-        By Lemma \ref{lem:two}.2, (2) can be rewritten to
+        By Lemma \ref{lem:single_iff+pair_iff+ordPair_equal}.2, (2) can be rewritten to
         \begin{equation*}
             (\textbf{a})\quad\{u\}=\{x\}\quad\text{or}\quad (\textbf{b})\quad\{u\}=\{x,y\}
         \end{equation*}
@@ -132,20 +132,20 @@ and that it contains a distinguished freely occuring variable which is quantifie
         \begin{equation*}
             (\textbf{c})\quad\{u,v\}=\{x\}\quad\text{or}\quad (\textbf{d})\quad\{u,v\}=\{x,y\}.
         \end{equation*}
-        Note that, by Theorem \ref{thm:exten_prop}, Lemma \ref{lem:two}.1 and Lemma \ref{lem:two}.2,
+        Note that, by Theorem \ref{thm:exten_prop}, Lemma \ref{lem:single_iff+pair_iff+ordPair_equal}.1 and Lemma \ref{lem:single_iff+pair_iff+ordPair_equal}.2,
         \begin{equation}
         \forall x \forall y \forall z (\{x,y\} = \{z\} \leftrightarrow x = y =z).
         \end{equation}
         Now, consider three cases:
         \begin{itemize}
-            \item Suppose (\textbf{b}) holds. Then, by (3), $u=x=y$. By Lemma \ref{lem:two}.3, it then follows that 
+            \item Suppose (\textbf{b}) holds. Then, by (3), $u=x=y$. By Lemma \ref{lem:single_iff+pair_iff+ordPair_equal}.3, it then follows that 
             (\textbf{d}) can be rewritten to $\{u,v\}=\{x\}$, implying (\textbf{c}) and (\textbf{d}) are equivalent.
             Thus, by (3), under (\textbf{b}), it must hold that $u=v=x=y$.
-            \item Suppose (\textbf{c}) holds. Then, by (3), $u=v=x$. Note that, by (1) and Lemma \ref{lem:two}.2, 
-            either $\{x,y\}=\{u\}$ or $\{x,y\}=\{u,v\}$.  By Lemma \ref{lem:two}.3, it follows that $\{u,v\}=\{u\}$ and 
+            \item Suppose (\textbf{c}) holds. Then, by (3), $u=v=x$. Note that, by (1) and Lemma \ref{lem:single_iff+pair_iff+ordPair_equal}.2, 
+            either $\{x,y\}=\{u\}$ or $\{x,y\}=\{u,v\}$.  By Lemma \ref{lem:single_iff+pair_iff+ordPair_equal}.3, it follows that $\{u,v\}=\{u\}$ and 
             thus these two statements are equivalent. Thus, by (3), under (\textbf{c}), it must hold that $x=y=u=v$.
             \item Suppose (\textbf{a}) and (\textbf{d}) hold. From (\textbf{a}) we have $u=x$. 
-            From (\textbf{d}) it follows that, by Lemma \ref{lem:two}.2, $v=x$ or $v=y$. In the latter case, 
+            From (\textbf{d}) it follows that, by Lemma \ref{lem:single_iff+pair_iff+ordPair_equal}.2, $v=x$ or $v=y$. In the latter case, 
             $u=x\land v=y$. If $v=x$, then $u=v=x$, and case (\textbf{c}) holds by (3); this case has already been considered.
         \end{itemize}
     \end{enumerate}
@@ -155,20 +155,20 @@ and that it contains a distinguished freely occuring variable which is quantifie
     \label{thm:exists_union}
     \lean{HF.exists_union}
     \leanok
-    \uses{ax:induction, lem:one}
+    \uses{ax:induction_axiom, lem:set_notin_empty+enlarge_iff+enlarge_empty}
     $\forall x \forall y \exists z \forall u (u \in z \leftrightarrow u \in x \lor u \in y)$.
 \end{theorem}
 
 \begin{proof}
     \leanok
     Pick $x$ and $y$ arbitrarily and let $\alpha (x)$ be the formula $\exists z \forall u (u \in z \leftrightarrow u \in x \lor u \in y)$.
-    We apply Axiom \ref{ax:induction}.
+    We apply Axiom \ref{ax:induction_axiom}.
     \begin{itemize}
-        \item For the base case — $\alpha (\varnothing)$ — take $z=y$ and use Lemma \ref{lem:one}.1.
+        \item For the base case — $\alpha (\varnothing)$ — take $z=y$ and use Lemma \ref{lem:set_notin_empty+enlarge_iff+enlarge_empty}.1.
         \item For the induction step — $\forall w[\alpha(x) \land \alpha(w) \rightarrow \alpha(x \lhd w)]$ — 
-        pick $w$ arbitrarily and assume $\alpha(x)$, i.e. the existence of $x \cup y$. By Lemma \ref{lem:one}.2, 
+        pick $w$ arbitrarily and assume $\alpha(x)$, i.e. the existence of $x \cup y$. By Lemma \ref{lem:set_notin_empty+enlarge_iff+enlarge_empty}.2, 
         $\alpha(x \lhd w)$ is equivalent to $\exists z \forall u (u \in z \leftrightarrow u \in x \lor u = w \lor u \in y)$.
-        Then, take $z= (x \cup y) \lhd w$ and use Lemma \ref{lem:one}.2.
+        Then, take $z= (x \cup y) \lhd w$ and use Lemma \ref{lem:set_notin_empty+enlarge_iff+enlarge_empty}.2.
     \end{itemize}
 \end{proof}
 
@@ -176,16 +176,16 @@ and that it contains a distinguished freely occuring variable which is quantifie
     \label{thm:exists_unionSet}
     \lean{HF.exists_unionSet}
     \leanok
-    \uses{ax:induction, lem:one, thm:exists_union}
+    \uses{ax:induction_axiom, lem:set_notin_empty+enlarge_iff+enlarge_empty, thm:exists_union}
     $\forall x \exists z \forall u (u \in z \leftrightarrow \exists (y\in x)[u \in y])$.
 \end{theorem}
 
 \begin{proof}
     \leanok
     Pick $x$ arbitrarily and let $\alpha (x)$ be the formula $\exists z \forall u (u \in z \leftrightarrow \exists (y\in x)[u \in y])$.
-    We apply Axiom \ref{ax:induction}.
+    We apply Axiom \ref{ax:induction_axiom}.
     \begin{itemize}
-        \item For the base case — $\alpha (\varnothing)$ — take $z=\varnothing$ and use Lemma \ref{lem:one}.1.
+        \item For the base case — $\alpha (\varnothing)$ — take $z=\varnothing$ and use Lemma \ref{lem:set_notin_empty+enlarge_iff+enlarge_empty}.1.
         \item For the induction step — $\forall w[\alpha(x) \land \alpha(w) \rightarrow \alpha(x \lhd w)]$ — 
         pick $w$ arbitrarily and assume $\alpha(x)$, i.e. the existence of $\bigcup x$.
         We need to find $z$ such that
@@ -197,6 +197,75 @@ and that it contains a distinguished freely occuring variable which is quantifie
             & \leftrightarrow u \in \bigcup x \lor u \in w,
         \end{split}
         \end{equation*}
-        using Lemma \ref{lem:one}.2. Thus, take $z = (\bigcup x) \cup w$.
+        using Lemma \ref{lem:set_notin_empty+enlarge_iff+enlarge_empty}.2. Thus, take $z = (\bigcup x) \cup w$.
     \end{itemize}
 \end{proof}
+
+\begin{theorem}[Comprehension Scheme]
+    \label{thm:comp_scheme}
+    \uses{ax:induction_axiom, lem:set_notin_empty+enlarge_iff+enlarge_empty}
+    ...
+\end{theorem}
+
+\begin{proof}
+    \leanok
+    ...
+\end{proof}
+
+\begin{definition}
+    \label{def:Intersection}
+    \uses{thm:comp_scheme}
+    ...
+\end{definition}
+
+\begin{theorem}[Replacement Scheme]
+    \label{thm:repl_scheme}
+    \uses{ax:induction_axiom, lem:set_notin_empty+enlarge_iff+enlarge_empty}
+    ...
+\end{theorem}
+
+\begin{proof}
+    \leanok
+    ...
+\end{proof}
+
+\begin{definition}
+    \label{def:Subset}
+    ...
+\end{definition}
+
+\begin{theorem}[Existence of the power set]
+    \label{thm:exists_power}
+    \uses{ax:induction_axiom, lem:set_notin_empty+enlarge_iff+enlarge_empty, thm:exten_prop, def:Single+Pair+OrdPair, lem:single_iff+pair_iff+ordPair_equal, thm:exists_union, thm:repl_scheme, def:Subset}
+    ...
+\end{theorem}
+
+\begin{proof}
+    \leanok
+    ...
+\end{proof}
+
+\begin{theorem}[Foundation Property]
+    \label{thm:found_prop}
+    \uses{ax:induction_axiom, lem:set_notin_empty+enlarge_iff+enlarge_empty, thm:exten_prop, def:Intersection}
+    ...
+\end{theorem}
+
+\begin{proof}
+    \leanok
+    ...
+\end{proof}
+
+\begin{corollary}
+    \label{cor:set_notin_itself}
+    \uses{lem:set_notin_empty+enlarge_iff+enlarge_empty, thm:exten_prop, def:Single+Pair+OrdPair, lem:single_iff+pair_iff+ordPair_equal, def:Intersection, thm:found_prop}
+    ...
+\end{corollary}
+
+\begin{proof}
+    \leanok
+    ...
+\end{proof}
+
+
+

@@ -91,65 +91,8 @@ variable {S : Type u} [HF S]
 
 ----------------------------------------------------------------------------------------------------
 
-theorem exten_prop (z : S) (x : S) : x = z ↔ ∀ u, u ∈ x ↔ u ∈ z := by
-  induction' x using HF.induction with x y hx _
-  · sorry -- done
-  · sorry -- done
-  · exact 1 -- one free variable we're not inducting over (z)
-  · exact (&0 =' .var (.inl 0)) ⇔ ∀' ((&1 ∈' &0) ⇔ (&1 ∈' .var (.inl 0)))
-  · exact z -- the free variable we're not inducting over
-  · simp
-    simp_rw [← Fin.castSucc_zero, Fin.snoc_castSucc] -- optional, this is rfl
-    -- maybe make simp lemmas computing with snoc _ _ 0 and snoc _ _ 1
-    rfl
 
-theorem exists_union (x y : S) : ∃(z : S), ∀(u : S), (u ∈ z ↔ (u ∈ x ∨ u ∈ y))  := by
-  induction' x using HF.induction with x w hx _
-  · sorry -- done
-  · sorry -- done
-  · exact 1
-  · exact ∃' ∀' ((&2 ∈' &1) ⇔ ((&2 ∈' &0) ⊔ (&2 ∈' .var (.inl 0))))
-  · exact y
-  · simp; rfl
-
-theorem exists_unionSet (x : S) : ∃(z : S), ∀(u : S), (u ∈ z ↔ (∃ y ∈ x, u ∈ y))  := by
-  induction' x using HF.induction with x w hx _
-  · sorry -- done
-  · sorry -- done
-  · exact 0
-  · exact ∃' ∀' ((&2 ∈' &1) ⇔ (∃' ((&3 ∈' &0) ⊓ (&2 ∈' &3))))
-  · rename_i a; exact Fin.elim0 a
-  · simp; rfl
-
-/-- Raises all of the `Fin`-indexed variables of a term greater than or equal to `m` by `n'`. -/
--- def liftAtt {n : ℕ} (n' m : ℕ) : HFLang.Term (Sum α (Fin n)) → HFLang.Term (Sum α (Fin (n + n'))) :=
---   relabel (Sum.map id fun i => if ↑i < m then Fin.castAdd n' i else Fin.addNat i n')
-
-  -- try to substract instead of lift
-
-theorem repl_scheme (x : S) (ψ : S → S → Prop) {n} (f : BoundedFormula HFLang (Fin n) 2)
-  (c : Fin n → S) (hψ : ∀ x y, ψ x y ↔ f.Realize c ![x, y]) :
-    (∀ u ∈ x, ∃! v, ψ u v) → (∃ (z : S), ∀ v, (v ∈ z ↔ ∃ u ∈ x, ψ u v)) := by
-  induction' x using HF.induction with x y hx _
-  · sorry -- done
-  · sorry -- done
-  · exact n
-  · exact ∀' ((&1 ∈' &0) ⟹ ∃' (f.liftAt 1 0 /- f &1 &2 -/ ⊓ ∀' ((f.liftAt 1 0).liftAt 1 2 /- f &1 &3 -/ ⟹ &3 =' &2))) ⟹ ∃' ∀' ((&2 ∈' &1) ⇔ ∃' ((&3 ∈' &0) ⊓ (sorry) /- f &3 &2, use liftAt and mapTermRel-/))
-  · sorry
-  · sorry
-
-
-theorem repl_scheme0 (x : S) (ψ : S → S → Prop) (f : BoundedFormula HFLang (Fin 0) 2)
-  (c : Fin 0 → S) (hψ : ∀ x y, ψ x y ↔ f.Realize c ![x, y]) :
-    (∀ u ∈ x, ∃! v, ψ u v) → (∃ (z : S), ∀ v, (v ∈ z ↔ ∃ u ∈ x, ψ u v)) := by
-  induction' x using HF.induction with x y hx _
-  · sorry -- done
-  · sorry -- done
-  · exact 0
-  · exact ∀' ((&1 ∈' &0) ⟹ ∃' (f.liftAt 1 0 /- f &1 &2 -/ ⊓ ∀' ((f.liftAt 1 0).liftAt 1 2 /- f &1 &3 -/ ⟹ &3 =' &2))) ⟹ ∃' ∀' ((&2 ∈' &1) ⇔ ∃' ((&3 ∈' &0) ⊓ (sorry) /- f &3 &2, gebruik zowel liftAt en subst-/))
-  · rename_i a; exact Fin.elim0 a
-  · sorry -- need help (proof similar to previous example?)
-
+/-- Comprehension Scheme -/
 theorem comp_scheme (x : S) (φ : S → Prop) {n} (f : BoundedFormula HFLang (Fin n) 1) (c : Fin n → S)
     (hφ : ∀ x, φ x ↔ f.Realize c ![x]) : ∃ (z : S), ∀ (u : S), (u ∈ z ↔ u ∈ x ∧ φ u) := by
   induction' x using HF.induction with x w hx _
@@ -157,23 +100,81 @@ theorem comp_scheme (x : S) (φ : S → Prop) {n} (f : BoundedFormula HFLang (Fi
   · sorry -- done
   · exact n
   · exact ∃' ∀' ((&2 ∈' &1) ⇔ ((&2 ∈' &0) ⊓ (f.liftAt 2 0)))
-  · sorry
-  · sorry
+  · rename_i a; exact c a
+  · simp
+    convert Iff.rfl
+    rw [realize_liftAt (by norm_num), hφ]
+    convert Iff.rfl -- now aesop works
+    simp_all only [Nat.reduceAdd, Fin.coe_fin_one, lt_self_iff_false, ↓reduceIte]
+    ext1 x_2
+    simp_all only [Matrix.cons_val_fin_one, Function.comp_apply]
+    apply Eq.refl
 
-/-- {u ∈ x : φ(u)} -/
-noncomputable def pred_set (x : S) (φ : S → Prop) {n} (f : BoundedFormula HFLang (Fin n) 1) (c : Fin n → S)
+/-- Subset that is defined by a formula φ — {u ∈ x : φ(u)} -/
+noncomputable def SetByFormula (x : S) (φ : S → Prop) {n} (f : BoundedFormula HFLang (Fin n) 1) (c : Fin n → S)
     (hφ : ∀ x, φ x ↔ f.Realize c ![x]) : S := (comp_scheme x φ f c hφ).choose
 
-lemma pred_set_iff (x : S) (φ : S → Prop) {n} (f : BoundedFormula HFLang (Fin n) 1) (c : Fin n → S)
-    (hφ : ∀ x, φ x ↔ f.Realize c ![x]) : ∀ (u : S), (u ∈ pred_set x φ f c hφ ↔ u ∈ x ∧ φ u) :=
+lemma setByFormula_iff (x : S) (φ : S → Prop) {n} (f : BoundedFormula HFLang (Fin n) 1) (c : Fin n → S)
+    (hφ : ∀ x, φ x ↔ f.Realize c ![x]) : ∀ (u : S), (u ∈ SetByFormula x φ f c hφ ↔ u ∈ x ∧ φ u) :=
   (comp_scheme x φ f c hφ).choose_spec
 
 /-- x ∩ y = {u ∈ x : u ∈ y} -/
 noncomputable def inter (x : S) (y : S) : S := sorry
-    -- pred_set x (fun u ↦ u ∈ y) _ _ _
+    -- setByFormula x (fun u ↦ u ∈ y) _ _ _
+    -- no clue what last arguments should be
 
 lemma inter_iff (x y : S) : ∀ (u : S), (u ∈ inter x y ↔ u ∈ x ∧ u ∈ y) := by sorry
-  -- exact pred_set_iff _ _ _ _ _
+  -- exact setByFormula_iff _ _ _ _ _
+
+
+/-- Auxiliary for reversing variables of a term. -/
+abbrev Fin.reverse (n : ℕ) : Fin n → Fin n := fun x ↦ ⟨n - 1 - x.val, by
+  cases n
+  · exact x.elim0
+  · omega
+  ⟩
+
+/-- Reverses all of the Fin-indexed variables of a term. -/
+abbrev FirstOrder.Language.Term.reverse {L : Language} {α : Type u'} {n : ℕ} :
+    L.Term (α ⊕ (Fin n)) → L.Term (α ⊕ (Fin n)) :=
+  relabel (Sum.map id (Fin.reverse n))
+
+/-- Reverses all of the Fin-indexed variables of a formula. -/
+abbrev FirstOrder.Language.BoundedFormula.reverse {L : Language} {α : Type u'} {n : ℕ}
+    (φ : L.BoundedFormula α n) : L.BoundedFormula α n :=
+  φ.mapTermRel (g := id) (fun _ t => t.reverse) (fun _ => id) (fun _ => castLE le_rfl)
+
+lemma realize_reverse {n m} {φ : BoundedFormula HFLang (Fin n) m} {v : Fin n → S} {xs : Fin m → S} :
+    (φ.reverse).Realize v xs ↔ (φ.Realize) v (xs ∘ Fin.reverse m) := by
+  rw [reverse]
+  induction' φ with _
+  · simp [mapTermRel, Realize]
+  · simp [mapTermRel, Realize, Sum.elim_comp_map]
+  · simp [mapTermRel, Realize, Sum.elim_comp_map]
+  · simp_all only [mapTermRel, Realize, id_eq]
+  · sorry -- look at proof realize_liftAt
+
+theorem repl_scheme (x : S) {n} (ψ : S → S → Prop) (f : BoundedFormula HFLang (Fin n) 2)
+  (c : Fin n → S) (hψ : ∀ x y, ψ x y ↔ f.Realize c ![x, y]) :
+    (∀ u ∈ x, ∃ v, (ψ u v ∧ ∀ w, (ψ u w → w = v))) → (∃ (z : S), ∀ v, (v ∈ z ↔ ∃ u ∈ x, ψ u v)) := by
+  induction' x using HF.induction with x y hx _
+  · sorry -- done
+  · sorry -- done
+  · exact n
+  · exact ∀' ((&1 ∈' &0) ⟹ ∃' (f.liftAt 1 0 /- f &1 &2 -/ ⊓ ∀' ((f.liftAt 1 0).liftAt 1 2 /- f &1 &3 -/ ⟹ &3 =' &2)))
+    ⟹ ∃' ∀' ((&2 ∈' &1) ⇔ ∃' ((&3 ∈' &0) ⊓ (f.liftAt 2 0).reverse /- f &3 &2-/))  -- should be correct
+  · rename_i a; exact c a
+  · simp
+    convert Iff.rfl
+    · rw [realize_liftAt (by norm_num), hψ]
+      convert Iff.rfl
+      sorry
+    · rw [realize_liftAt (by norm_num), realize_liftAt (by norm_num), hψ]
+      convert Iff.rfl
+      sorry
+    · rw [realize_reverse, realize_liftAt (by norm_num), hψ]
+      convert Iff.rfl
+      sorry
 
 lemma found_prop_lemma (x z : S) (h : ∀ w ∈ z, inter w z ≠ ∅) : x ∉ z ∧ inter x z = ∅ := by
   induction' x using HF.induction with x y hx hy
@@ -190,10 +191,10 @@ lemma found_prop_lemma (x z : S) (h : ∀ w ∈ z, inter w z ≠ ∅) : x ∉ z 
 abbrev subset_eq (y x : S) : Prop := ∀ (v : S), v ∈ y → v ∈ x
 
 /-- The set x is transitive -/
-def tran (x : S) : Prop := ∀ y ∈ x, subset_eq y x
+abbrev tran (x : S) : Prop := ∀ y ∈ x, subset_eq y x
 
 /-- The set x is an ordinal -/
-def ord (x : S) : Prop := tran x ∧ ∀ y ∈ x, tran y
+abbrev ord (x : S) : Prop := tran x ∧ ∀ y ∈ x, tran y
 
 theorem exists_max_of_set_of_ord (x : S) (set_of_ord : ∀ k ∈ x, ord k) (neq_emp : x ≠ ∅) :
     ∃ l ∈ x, ∀ k ∈ x, (k ∈ l ∨ k = l) := by sorry
