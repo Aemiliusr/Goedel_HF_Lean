@@ -202,8 +202,6 @@ def Union (x y : S) : S := (exists_union x y).choose
 @[simp] lemma union_iff (x y : S) : ∀ (u : S), u ∈ Union x y ↔ u ∈ x ∨ u ∈ y :=
   (exists_union x y).choose_spec
 
--- Theorem 1.6 (Existence of the union of a set of sets)
-
 theorem exists_unionSet (x : S) : ∃(z : S), ∀(u : S), (u ∈ z ↔ (∃ y ∈ x, u ∈ y))  := by
   induction' x using HF.induction with x w hx _
   · use ∅; simp
@@ -218,51 +216,57 @@ theorem exists_unionSet (x : S) : ∃(z : S), ∀(u : S), (u ∈ z ↔ (∃ y �
 /-- ⋃ x -/
 def UnionSet (x : S) : S := (exists_unionSet x).choose
 
-lemma unionSet_iff (x : S) : ∀(u : S), (u ∈ UnionSet x ↔ (∃ y ∈ x, u ∈ y)) :=
+@[simp] lemma unionSet_iff (x : S) : ∀ (u : S), (u ∈ UnionSet x ↔ (∃ y ∈ x, u ∈ y)) :=
   (exists_unionSet x).choose_spec
 
+theorem comp_scheme (x : S) (φ : S → Prop) {n} (f : BoundedFormula HFLang (Fin n) 1) (c : Fin n → S)
+    (hφ : ∀ x, φ x ↔ f.Realize c ![x]) : ∃ (z : S), ∀ (u : S), (u ∈ z ↔ u ∈ x ∧ φ u) := by
+  induction' x using HF.induction with x y hx _
+  · use ∅; simp
+  · simp only [enlarge_iff]
+    cases' hx with xφ hxφ
+    if φ y then use xφ ◁ y; simp only [enlarge_iff]; aesop
+    else use xφ; aesop
+  · exact n
+  · exact ∃' ∀' ((&2 ∈' &1) ⇔ ((&2 ∈' &0) ⊓ (f.liftAt 2 0)))
+  · rename_i a; exact c a
+  · simp
+    convert Iff.rfl
+    rw [realize_liftAt (by norm_num), hφ]
+    convert Iff.rfl
+    simp_all only [Nat.reduceAdd, Fin.coe_fin_one, lt_self_iff_false, ↓reduceIte]
+    ext1 x_2
+    simp_all only [Matrix.cons_val_fin_one, Function.comp_apply]
+    rfl
 
--- Theorem 1.7 (Comprehension Scheme)
+/-- Subset that is defined by a formula φ — {u ∈ x : φ(u)} -/
+def SetByFormula (x : S) (φ : S → Prop) {n} (f : BoundedFormula HFLang (Fin n) 1) (c : Fin n → S)
+    (hφ : ∀ x, φ x ↔ f.Realize c ![x]) : S := (comp_scheme x φ f c hφ).choose
 
-theorem comp_scheme (x : S) (φ : S → Prop) : ∃ (z : S), ∀ (u : S), (u ∈ z ↔ u ∈ x ∧ φ u) := by sorry
-  -- revert x -- to prove ∀x α(x) using HF3/induction
-  -- apply HF.induction
-  -- -- base case
-  -- · use ∅  -- take z = ∅
-  --   simp [set_notin_empty]
-  -- -- inductive step
-  -- · intros x y hx _
-  --   simp_rw [enlarge_iff]
-  --   cases' hx with xφ hxφ  -- xφ is {u ∈ x : φ(u)} , which exists by hypothesis
-  --   by_cases hφy : φ y
-  --   · use xφ ◁ y  -- take z = {u ∈ x : φ(u)} ◁ y
-  --     simp_rw [enlarge_iff]; aesop
-  --   · use xφ; aesop  -- take z = {u ∈ x : φ(u)}
-
-/-- {u ∈ x : φ(u)} -/
-noncomputable def pred_set (x : S) (φ : S → Prop) : S := (comp_scheme x φ).choose
-
-lemma pred_set_iff (x : S) (φ : S → Prop) : ∀ (u : S), (u ∈ pred_set x φ ↔ u ∈ x ∧ φ u) :=
-  (comp_scheme x φ).choose_spec
-
-
--- Definition 1.8 (Intersection)
+@[simp] lemma setByFormula_iff (x : S) (φ : S → Prop) {n} (f : BoundedFormula HFLang (Fin n) 1) (c : Fin n → S)
+    (hφ : ∀ x, φ x ↔ f.Realize c ![x]) : ∀ (u : S), (u ∈ SetByFormula x φ f c hφ ↔ u ∈ x ∧ φ u) :=
+  (comp_scheme x φ f c hφ).choose_spec
 
 /-- x ∩ y = {u ∈ x : u ∈ y} -/
-noncomputable def inter (x : S) (y : S) : S := pred_set x (fun u ↦ u ∈ y)
+def Inter (x : S) (y : S) : S := sorry
+    -- setByFormula x (fun u ↦ u ∈ y) _ _ _
+    -- no clue what last arguments should be
 
-lemma inter_iff (x y : S) : ∀ (u : S), (u ∈ inter x y ↔ u ∈ x ∧ u ∈ y) := by
-  exact pred_set_iff _ _
+@[simp] lemma inter_iff (x y : S) : ∀ (u : S), (u ∈ Inter x y ↔ u ∈ x ∧ u ∈ y) := sorry
+  -- setByFormula_iff _ _ _ _ _
 
 /-- ⋂ x = {u ∈ ⋃ x : ∀ v ∈ x, u ∈ v} -/
-noncomputable def inter_set (x : S) : S := pred_set (UnionSet x) (fun u ↦ ∀ v ∈ x, u ∈ v)
+def InterSet (x : S) : S := sorry
+  -- SetByFormula (UnionSet x) (fun u ↦ ∀ v ∈ x, u ∈ v)
 
-lemma inter_set_iff (x : S) :
-    ∀ (u : S), (u ∈ inter_set x ↔ u ∈ UnionSet x ∧ ∀ v ∈ x, u ∈ v) := by
-  exact pred_set_iff _ _
+@[simp] lemma inter_set_iff (x : S) :
+    ∀ (u : S), (u ∈ InterSet x ↔ u ∈ UnionSet x ∧ ∀ v ∈ x, u ∈ v) := sorry
+  -- setByFormula_iff _ _ _ _ _
 
-lemma inter_enlarge (x y : S) : inter (x ◁ y) x = x := by
-  simp_rw [exten_prop, inter_iff, enlarge_iff]; aesop
+lemma inter_enlarge (x y : S) : Inter (x ◁ y) x = x := by
+  simp only [exten_prop, inter_iff, enlarge_iff, and_iff_right_iff_imp]
+  intro u a
+  simp_all only [true_or]
 
 
 -- Theorem 1.9 (Replacement Scheme)
@@ -296,34 +300,34 @@ lemma repl_iff (x : S) (ψ : S → S → Prop) (h : (∀ u ∈ x, ∃! v, ψ u v
 -- Definition 1.10 (Subset relation)
 
 /-- y ⊆ x -/
-abbrev subset_eq (y x : S) : Prop := ∀ (v : S), v ∈ y → v ∈ x
+abbrev SubsetEq (y x : S) : Prop := ∀ (v : S), v ∈ y → v ∈ x
 
 /-- y ⊂ x -/
-abbrev subset (y x : S) : Prop := subset_eq y x ∧ y ≠ x
+abbrev Subset (y x : S) : Prop := SubsetEq y x ∧ y ≠ x
 
 
 -- Theorem 1.11 (Existence of the power set)
 
-lemma subset_enlarge (u x y Px : S) (hPx : ∀ (u : S), u ∈ Px ↔ subset_eq u x) :
-    subset_eq u (x ◁ y) ↔ (u ∈ Px) ∨ (∃ v ∈ Px, u = v ◁ y) := by
+lemma subset_enlarge (u x y Px : S) (hPx : ∀ (u : S), u ∈ Px ↔ SubsetEq u x) :
+    SubsetEq u (x ◁ y) ↔ (u ∈ Px) ∨ (∃ v ∈ Px, u = v ◁ y) := by
   constructor
   · intro hu
-    simp_rw [subset_eq, enlarge_iff] at hu
+    simp_rw [SubsetEq, enlarge_iff] at hu
     by_cases hy : y ∈ u
     · right
-      use inter u x; constructor  -- the required v is u ∩ x
-      · simp_rw [hPx, subset_eq, inter_iff]; simp_all
+      use Inter u x; constructor  -- the required v is u ∩ x
+      · simp_rw [hPx, SubsetEq, inter_iff]; simp_all
       · simp_rw [HF.enlarge, inter_iff]; aesop
-    · left; rw [hPx, subset_eq]
+    · left; rw [hPx, SubsetEq]
       intros v hv; specialize hu v hv; aesop
   · intro hu; cases' hu with hul hur
-    · rw [hPx, subset_eq] at hul
-      simp_rw [subset_eq, enlarge_iff]; simp_all
+    · rw [hPx, SubsetEq] at hul
+      simp_rw [SubsetEq, enlarge_iff]; simp_all
     · cases' hur with v hv
       cases' hv with hv1 hv2; rw [HF.enlarge] at hv2
-      simp_rw [subset_eq, enlarge_iff, hv2]; aesop
+      simp_rw [SubsetEq, enlarge_iff, hv2]; aesop
 
-theorem exists_power (x : S) : ∃ (z : S), ∀ (u : S), u ∈ z ↔ subset_eq u x := by
+theorem exists_power (x : S) : ∃ (z : S), ∀ (u : S), u ∈ z ↔ SubsetEq u x := by
   induction' x using HF.induction with x y hx _
   · sorry
   · sorry
@@ -335,7 +339,7 @@ theorem exists_power (x : S) : ∃ (z : S), ∀ (u : S), u ∈ z ↔ subset_eq u
   -- apply HF.induction
   -- -- base case
   -- · use single ∅  -- take z = {∅}
-  --   simp_rw [single_iff, subset_eq, exten_prop]
+  --   simp_rw [single_iff, SubsetEq, exten_prop]
   --   simp [set_notin_empty]
   -- -- inductive step
   -- · intros x y hx _
@@ -350,19 +354,19 @@ theorem exists_power (x : S) : ∃ (z : S), ∀ (u : S), u ∈ z ↔ subset_eq u
   /-- Power set: P(x) -/
 noncomputable def power (x : S) : S := (exists_power x).choose
 
-lemma power_iff (x : S) : ∀ (u : S), u ∈ power x ↔ subset_eq u x :=
+lemma power_iff (x : S) : ∀ (u : S), u ∈ power x ↔ SubsetEq u x :=
   (exists_power x).choose_spec
 
 
 -- Definition 1.12 (∈-minimal element)
 
 /-- w an ∈-minimal element of z: w ∈ z ∧ w ∩ z = ∅ -/
-abbrev mem_min (w z : S) : Prop := w ∈ z ∧ inter w z = ∅
+abbrev mem_min (w z : S) : Prop := w ∈ z ∧ Inter w z = ∅
 
 
 -- Theorem 1.13 (Foundation Property)
 
-lemma found_prop_lemma (z : S) : (∀ w ∈ z, inter w z ≠ ∅) → ∀ x, x ∉ z ∧ inter x z = ∅ := by sorry
+lemma found_prop_lemma (z : S) : (∀ w ∈ z, Inter w z ≠ ∅) → ∀ x, x ∉ z ∧ Inter x z = ∅ := by sorry
   -- intro h; apply HF.induction
   -- -- base case
   -- · constructor
@@ -397,7 +401,7 @@ theorem found_prop (z : S) : z ≠ ∅ → ∃ w, mem_min w z := by
 
 -- Corollary 1.14
 
-theorem set_notin_set (x : S) : x ∉ x := by
+theorem set_notin_itself (x : S) : x ∉ x := by
   have h := found_prop (Single x)
   have hx : Single x ≠ ∅ := by
     simp only [ne_eq]; simp_rw [Single, exten_prop, enlarge_iff]
@@ -406,5 +410,8 @@ theorem set_notin_set (x : S) : x ∉ x := by
   cases' h with w hw; rw [mem_min] at hw
   simp_rw [Single, exten_prop, inter_iff, enlarge_iff] at hw
   simp only [set_notin_empty] at hw; aesop
+
+@[simp] lemma set_in_itself_iff_false (x : S) : x ∈ x ↔ False := by
+  refine ⟨set_notin_itself x, by simp only [false_implies]⟩
 
 end HF

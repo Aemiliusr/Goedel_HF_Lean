@@ -45,10 +45,10 @@ namespace HF
 --- Definition 2.1 ---
 
 /-- The set x is transitive -/
-def tran (x : S) : Prop := ∀ y ∈ x, subset_eq y x
+def tran (x : S) : Prop := ∀ y ∈ x, SubsetEq y x
 
 lemma tran_mem (x y y' : S) (tran : tran x) (y_in_x : y ∈ x) (y'_in_y : y' ∈ y) : y' ∈ x := by
-  simp_rw [HF.tran, subset_eq] at tran; tauto
+  simp_rw [HF.tran, SubsetEq] at tran; tauto
 
 /-- The set x is an ordinal -/
 def ord (x : S) : Prop := tran x ∧ ∀ y ∈ x, tran y
@@ -61,7 +61,7 @@ def succ (x : S) : S := x ◁ x
 --- Theorem 2.3 ---
 
 lemma ord_iff_ord_succ (x : S) : ord x ↔ ord (succ x) := by
-  simp_rw [ord, tran, succ, subset_eq, enlarge_iff]; aesop
+  simp_rw [ord, tran, succ, SubsetEq, enlarge_iff]; aesop
 
 theorem succ_of_ord_is_ord (x : S) (ord_x : ord x) : ord (succ x) := by
   rwa [← ord_iff_ord_succ]
@@ -83,7 +83,7 @@ theorem mem_min_of_ord_eq_empty (x : S) (ord_x : ord x) (neq_emp : x ≠ ∅) :
   have mem_min_imp_emp (w : S) (w_mem_min : mem_min w x) : w = ∅ := by
     simp_rw [mem_min, exten_prop, inter_iff, set_notin_empty, iff_false, not_and] at w_mem_min
     cases' w_mem_min with w_in_x hwx
-    cases' ord_x with tran_x _; simp_rw [tran, subset_eq] at tran_x
+    cases' ord_x with tran_x _; simp_rw [tran, SubsetEq] at tran_x
     specialize tran_x w w_in_x
     rw [HF.empty]; simp_all
   obtain ⟨w, w_mem_min⟩ := found_prop x neq_emp; have w_eq_emp := w_mem_min
@@ -100,48 +100,50 @@ lemma compar_of_ord_ord_aux1 (h : ∃ (k l : S), ord k ∧ ord l ∧ k ∉ l ∧
     ∃ (k0 : S), ord k0 ∧ (∀ m ∈ k0, ∀ l, ord l → (m ∈ l ∨ m = l ∨ l ∈ m))
     ∧ (∃ l, ord l ∧ (k0 ∉ l ∧ k0 ≠ l ∧ l ∉ k0)) := by
   rcases h with ⟨k, ⟨l, ⟨ord_k, ⟨ord_l, hkl⟩⟩⟩⟩
-  let K := pred_set (power k) (fun k0 ↦ (ord k0 ∧ ∃ l, ord l ∧ (k0 ∉ l ∧ k0 ≠ l ∧ l ∉ k0)))
-  have K_neq_emp : K ≠ ∅ := by
-    intro hK; rw [HF.empty] at hK; specialize hK k; apply hK; rw [pred_set_iff, power_iff, subset_eq]; aesop
-  obtain ⟨k0, ⟨k0_in_K, inter_k0_K⟩⟩ := found_prop K K_neq_emp
-  rw [pred_set_iff] at k0_in_K
-  rcases k0_in_K with ⟨k0_power_k, ⟨ord_k0, hk0⟩⟩
-  refine ⟨k0, by exact ord_k0, ⟨?_, by exact hk0⟩⟩
-  by_contra! hn
-  rcases hn with ⟨r0, ⟨r0_in_k0, ⟨l0, ⟨ord_l0, hr0l0⟩⟩⟩⟩
-  simp_rw [HF.empty, inter_iff] at inter_k0_K
-  refine inter_k0_K r0 ⟨r0_in_k0, ?_⟩
-  rw [pred_set_iff, power_iff]
-  rw [power_iff] at k0_power_k
-  have r0_in_k : r0 ∈ k := by aesop
-  rw [ord, tran] at ord_k; cases' ord_k with tran_k _
-  specialize tran_k r0 r0_in_k; simp only [tran_k, ne_eq, true_and]
-  refine ⟨by assumption, ⟨element_of_ord_is_ord k0 r0 ?_ ?_, ⟨l0, ?_⟩⟩⟩ <;> simp_all
+  sorry
+  -- let K := SetByFormula (power k) (fun k0 ↦ (ord k0 ∧ ∃ l, ord l ∧ (k0 ∉ l ∧ k0 ≠ l ∧ l ∉ k0)))
+  -- have K_neq_emp : K ≠ ∅ := by
+  --   intro hK; rw [HF.empty] at hK; specialize hK k; apply hK; rw [setByFormula_iff, power_iff, SubsetEq]; aesop
+  -- obtain ⟨k0, ⟨k0_in_K, inter_k0_K⟩⟩ := found_prop K K_neq_emp
+  -- rw [setByFormula_iff] at k0_in_K
+  -- rcases k0_in_K with ⟨k0_power_k, ⟨ord_k0, hk0⟩⟩
+  -- refine ⟨k0, by exact ord_k0, ⟨?_, by exact hk0⟩⟩
+  -- by_contra! hn
+  -- rcases hn with ⟨r0, ⟨r0_in_k0, ⟨l0, ⟨ord_l0, hr0l0⟩⟩⟩⟩
+  -- simp_rw [HF.empty, inter_iff] at inter_k0_K
+  -- refine inter_k0_K r0 ⟨r0_in_k0, ?_⟩
+  -- rw [setByFormula_iff, power_iff]
+  -- rw [power_iff] at k0_power_k
+  -- have r0_in_k : r0 ∈ k := by aesop
+  -- rw [ord, tran] at ord_k; cases' ord_k with tran_k _
+  -- specialize tran_k r0 r0_in_k; simp only [tran_k, ne_eq, true_and]
+  -- refine ⟨by assumption, ⟨element_of_ord_is_ord k0 r0 ?_ ?_, ⟨l0, ?_⟩⟩⟩ <;> simp_all
 
 lemma compar_of_ord_ord_aux2 (k0 : S) (h : ∃ (l : S), ord l ∧ k0 ∉ l ∧ k0 ≠ l ∧ l ∉ k0) :
     ∃ (l0 : S), ord l0 ∧ (∀ p ∈ l0, k0 ∈ p ∨ k0 = p ∨ p ∈ k0)
     ∧ (k0 ∉ l0 ∧ k0 ≠ l0 ∧ l0 ∉ k0) := by
   rcases h with ⟨l, ⟨ord_l, hk0l⟩⟩
-  let L := pred_set (power l) (fun l0 ↦ (ord l0 ∧ (k0 ∉ l0 ∧ k0 ≠ l0 ∧ l0 ∉ k0)))
-  have L_neq_emp : L ≠ ∅ := by
-    intro hL; rw [HF.empty] at hL; specialize hL l; apply hL; rw [pred_set_iff, power_iff, subset_eq]; aesop
-  obtain ⟨l0, ⟨l0_in_L, inter_l0_L⟩⟩ := found_prop L L_neq_emp
-  rw [pred_set_iff] at l0_in_L
-  rcases l0_in_L with ⟨l0_power_l, ⟨ord_l0, hk0l0⟩⟩
-  refine ⟨l0, by exact ord_l0, ⟨?_, by exact hk0l0⟩⟩
-  by_contra! hn
-  rcases hn with ⟨q0, ⟨q0_in_l0, hk0q0⟩⟩
-  simp_rw [HF.empty, inter_iff] at inter_l0_L
-  refine inter_l0_L q0 ⟨q0_in_l0, ?_⟩
-  rw [pred_set_iff, power_iff]
-  rw [power_iff] at l0_power_l
-  have q0_in_l : q0 ∈ l := by aesop
-  rw [ord, tran] at ord_l; cases' ord_l with tran_l _
-  specialize tran_l q0 q0_in_l; simp only [tran_l, ne_eq, true_and]
-  refine ⟨by assumption, ⟨element_of_ord_is_ord l0 q0 ?_ ?_, ?_⟩⟩ <;> simp_all
+  sorry
+  -- let L := SetByFormula (power l) (fun l0 ↦ (ord l0 ∧ (k0 ∉ l0 ∧ k0 ≠ l0 ∧ l0 ∉ k0)))
+  -- have L_neq_emp : L ≠ ∅ := by
+  --   intro hL; rw [HF.empty] at hL; specialize hL l; apply hL; rw [setByFormula_iff, power_iff, SubsetEq]; aesop
+  -- obtain ⟨l0, ⟨l0_in_L, inter_l0_L⟩⟩ := found_prop L L_neq_emp
+  -- rw [setByFormula_iff] at l0_in_L
+  -- rcases l0_in_L with ⟨l0_power_l, ⟨ord_l0, hk0l0⟩⟩
+  -- refine ⟨l0, by exact ord_l0, ⟨?_, by exact hk0l0⟩⟩
+  -- by_contra! hn
+  -- rcases hn with ⟨q0, ⟨q0_in_l0, hk0q0⟩⟩
+  -- simp_rw [HF.empty, inter_iff] at inter_l0_L
+  -- refine inter_l0_L q0 ⟨q0_in_l0, ?_⟩
+  -- rw [setByFormula_iff, power_iff]
+  -- rw [power_iff] at l0_power_l
+  -- have q0_in_l : q0 ∈ l := by aesop
+  -- rw [ord, tran] at ord_l; cases' ord_l with tran_l _
+  -- specialize tran_l q0 q0_in_l; simp only [tran_l, ne_eq, true_and]
+  -- refine ⟨by assumption, ⟨element_of_ord_is_ord l0 q0 ?_ ?_, ?_⟩⟩ <;> simp_all
 
-lemma subset_imp_diff_has_element (x y : S) (h : subset x y) : ∃ z, z ∈ y ∧ z ∉ x := by
-  rw [subset, subset_eq] at h
+lemma subset_imp_diff_has_element (x y : S) (h : Subset x y) : ∃ z, z ∈ y ∧ z ∉ x := by
+  rw [Subset, SubsetEq] at h
   cases' h with h1 h2
   by_contra! hn
   have hf : ∀ u, u ∈ x ↔ u ∈ y := by aesop
@@ -155,12 +157,12 @@ theorem compar_of_ord_ord (k l : S) (ord_k : ord k) (ord_l : ord l) :
   rcases hk with ⟨k0, ⟨ord_k0, ⟨forall_in_k0, hk0⟩⟩⟩
   have hl := compar_of_ord_ord_aux2 k0 hk0
   rcases hl with ⟨l0, ⟨ord_l0, ⟨forall_in_l0, hl0⟩⟩⟩
-  have subset_l0k0 : subset l0 k0 := by
-    rw [subset, subset_eq]
+  have subset_l0k0 : Subset l0 k0 := by
+    rw [Subset, SubsetEq]
     refine ⟨?_, by aesop⟩
     intros p p_in_l0
     specialize forall_in_l0 p p_in_l0
-    simp_rw [ord, tran, subset_eq] at ord_l0; cases' ord_l0 with tran_l0 _
+    simp_rw [ord, tran, SubsetEq] at ord_l0; cases' ord_l0 with tran_l0 _
     specialize tran_l0 p p_in_l0
     rcases forall_in_l0 with k0_in_p | k0_eq_p | p_in_k0 <;> simp_all
   obtain ⟨m, ⟨m_in_k0 , m_notin_l0⟩⟩ := subset_imp_diff_has_element l0 k0 subset_l0k0
@@ -168,7 +170,7 @@ theorem compar_of_ord_ord (k l : S) (ord_k : ord k) (ord_l : ord l) :
   simp only [m_notin_l0, false_or] at forall_in_k0
   cases' forall_in_k0 with m_eq_l0 l0_in_m
   · simp_all
-  · simp_rw [ord, tran, subset_eq] at ord_k0; cases' ord_k0 with tran_k0 _
+  · simp_rw [ord, tran, SubsetEq] at ord_k0; cases' ord_k0 with tran_k0 _
     specialize tran_k0 m m_in_k0 l0 l0_in_m
     simp_all
 
@@ -176,14 +178,14 @@ theorem compar_of_ord_ord (k l : S) (ord_k : ord k) (ord_l : ord l) :
 
 lemma mem_antisymm_of_ord (k l : S) (ord_k : ord k) (k_in_l : k ∈ l) (l_in_k : l ∈ k) : False := by
   cases' ord_k with tran_k _
-  simp_rw [tran, subset_eq] at tran_k
+  simp_rw [tran, SubsetEq] at tran_k
   specialize tran_k l l_in_k k k_in_l
-  simp_all [set_notin_set]
+  simp_all only [set_in_itself_iff_false]
 
 theorem exclusive_compar_of_ord_ord (k l : S) (ord_k : ord k) (ord_l : ord l) :
   (k ∈ l ∧ (k ≠ l ∧ l ∉ k)) ∨ (k = l ∧ (k ∉ l ∧ l ∉ k)) ∨ (l ∈ k ∧ (k ∉ l ∧ k ≠ l)) := by
   have h := compar_of_ord_ord k l; specialize h ord_k ord_l
-  have k_notin_k := set_notin_set k
+  have k_notin_k := set_notin_itself k
   by_cases k_in_l : k ∈ l
   · left; simp only [k_in_l, true_and]
     refine ⟨by aesop, ?_⟩
@@ -194,17 +196,16 @@ theorem exclusive_compar_of_ord_ord (k l : S) (ord_k : ord k) (ord_l : ord l) :
     · right; right; aesop
 
 theorem mem_iff_subset_of_ord_ord (k l : S) (ord_k : ord k) (ord_l : ord l) :
-    k ∈ l ↔ subset k l := by
+    k ∈ l ↔ Subset k l := by
   have h := compar_of_ord_ord k l; specialize h ord_k ord_l
   cases' ord_k with tran_k _; cases' ord_l with tran_l _
-  simp_rw [tran, subset_eq] at *
-  have set_notin_set (m : S) := set_notin_set m
+  simp_rw [tran, SubsetEq] at *
   constructor
   · intro k_in_l
-    rw [subset, subset_eq]
+    rw [Subset, SubsetEq]
     specialize tran_l k k_in_l
     refine ⟨by exact tran_l, by aesop⟩
-  · intro k_subset_l; rw [subset, subset_eq] at k_subset_l
+  · intro k_subset_l; rw [Subset, SubsetEq] at k_subset_l
     cases' k_subset_l with k_subseteq_l k_neq_l
     simp only [k_neq_l, false_or] at h
     cases' h with k_in_l l_in_k
@@ -220,7 +221,6 @@ theorem mem_imp_succ_eq_or_succ_mem_of_ord_ord (k l : S) (ord_k : ord k) (ord_l 
   have k_notin_succ_l : k ∉ succ l := by
     intro k_in_succ_l
     rw [succ, enlarge_iff] at k_in_succ_l
-    have set_notin_set (m : S) := set_notin_set m
     refine k_in_succ_l.elim ?_ (by aesop)
     apply mem_antisymm_of_ord l k <;> simp_all
   aesop
@@ -230,7 +230,7 @@ theorem eq_succ_of_ord (k l : S) (ord_k : ord k) :
   intro h ; simp_rw [succ, exten_prop, enlarge_iff] at h
   have h2 := h
   specialize h k; specialize h2 l
-  simp only [set_notin_set, or_true, true_iff, iff_true] at *
+  simp only [set_in_itself_iff_false, or_true, true_iff, iff_true] at *
   by_contra! k_neq_l
   simp only [k_neq_l, or_false] at h
   rw [ne_comm] at k_neq_l; simp only [k_neq_l, or_false] at h2
@@ -251,7 +251,7 @@ lemma exists_max_of_enlarged_set_of_ord (x y : S) (set_of_ord : ∀ k ∈ x ◁ 
     refine h_max_x.elim ?_ (by simp_all); intro k_in_max_x
     have ord_y : ord y := by aesop
     cases' ord_y with tran_y _
-    simp_rw [tran, subset_eq] at tran_y
+    simp_rw [tran, SubsetEq] at tran_y
     specialize tran_y max_x max_x_in_y k k_in_max_x
     left; exact tran_y
   · simp_rw [enlarge_iff, max_x_in_x, true_or, true_and]
@@ -284,7 +284,7 @@ lemma exists_min_of_enlarged_set_of_ord (x y : S) (set_of_ord : ∀ k ∈ x ◁ 
     specialize h_min_x k k_in_x
     refine h_min_x.elim ?_ (by aesop); intro min_x_in_k
     have ord_k : ord k := by aesop
-    cases' ord_k with tran_k _; simp_rw [tran, subset_eq] at tran_k
+    cases' ord_k with tran_k _; simp_rw [tran, SubsetEq] at tran_k
     specialize tran_k min_x min_x_in_k y y_in_min_x
     left; exact tran_k
   · simp_rw [enlarge_iff, min_x_in_x, true_or, true_and]
@@ -308,12 +308,12 @@ theorem exists_min_of_set_of_ord (x : S) (set_of_ord : ∀ k ∈ x, ord k) (neq_
 
 lemma succ_of_ord_notin_ord (k : S) (ord_k : ord k) : succ k ∉ k := by
   cases' ord_k with tran_k _
-  simp_rw [tran, subset_eq] at tran_k
+  simp_rw [tran, SubsetEq] at tran_k
   intro succ_k_in_k
   specialize tran_k (succ k) succ_k_in_k
   simp_rw [succ, enlarge_iff] at tran_k
   specialize tran_k k
-  simp_all [set_notin_set]
+  simp_all only [set_in_itself_iff_false, or_true, imp_false, not_true_eq_false]
 
 theorem exists_predec_of_ord (k : S) (ord_k : ord k) (neq_emp : k ≠ ∅) :
     ∃! l, succ l = k := by
@@ -331,7 +331,7 @@ theorem exists_predec_of_ord (k : S) (ord_k : ord k) (neq_emp : k ≠ ∅) :
     simp only [succ_of_ord_notin_ord max_k ord_max_k, false_or] at h_max_k
     simp_rw [exten_prop, succ, enlarge_iff] at h_max_k
     specialize h_max_k max_k
-    simp_all [set_notin_set]
+    simp_all only [ne_eq, set_in_itself_iff_false, or_true, iff_false, not_true_eq_false]
 
 --- Definition 2.8 (originally Definition 2.9 in Swierczkowski (2003)) ---
 
@@ -375,7 +375,7 @@ lemma set_in_empty_false (k : ordinal S) (k_in_emp : k ∈ (∅ : ordinal S)) : 
 
 lemma set_in_set_false (k : ordinal S) (k_in_k : k ∈ k) : False := by
   cases' k with k ord_k; simp only [mem] at k_in_k
-  simp_all [set_notin_set]
+  simp_all only [set_in_itself_iff_false]
 
 /-- The successor of an ordinal k -/
 def succ (k : ordinal S) : ordinal S := ⟨_, succ_of_ord_is_ord _ k.2⟩
@@ -405,9 +405,9 @@ lemma exclusive_compar (k l : ordinal S) :
 /-- k ⊆ l -/
 def sbst_eq (k l : ordinal S) : Prop := ∀ (v : ordinal S), v ∈ k → v ∈ l
 
-@[simp] lemma sbst_eq_lemma (k l : ordinal S) : sbst_eq k l ↔ subset_eq k.1 l.1 := by
+@[simp] lemma sbst_eq_lemma (k l : ordinal S) : sbst_eq k l ↔ SubsetEq k.1 l.1 := by
   cases' k with k ord_k; cases' l with l ord_l
-  rw [sbst_eq, subset_eq]
+  rw [sbst_eq, SubsetEq]
   simp only [mem]
   refine ⟨?_, by simp_all⟩
   intros h v v_in_k
@@ -419,9 +419,9 @@ def sbst_eq (k l : ordinal S) : Prop := ∀ (v : ordinal S), v ∈ k → v ∈ l
 /-- k ⊂ l -/
 def sbst (k l : ordinal S) : Prop := sbst_eq k l ∧ k ≠ l
 
-@[simp] lemma sbst_lemma (k l : ordinal S) : sbst k l ↔ subset k.1 l.1 := by
+@[simp] lemma sbst_lemma (k l : ordinal S) : sbst k l ↔ Subset k.1 l.1 := by
   cases' k with k ord_k; cases' l with l ord_l
-  rw [sbst, subset]
+  rw [sbst, Subset]
   simp_all
 
 lemma mem_iff_subset (k l : ordinal S) : k ∈ l ↔ sbst k l := by
@@ -481,7 +481,7 @@ lemma succ_le_false (k : ordinal S) : ¬succ k ≤ k := by
    cases' k with k ord_k; simp only [eq, neq, mem]
    simp only [succ_of_ord_notin_ord k ord_k, false_or]
    simp_rw [exten_prop, HF.succ, enlarge_iff, or_iff_left_iff_imp, forall_eq]
-   simp_all [set_notin_set]
+   simp_all only [set_in_itself_iff_false, not_false_eq_true]
 
 lemma succ_of_predec (k : ordinal S) (neq_emp : k ≠ ∅) : succ (predec k neq_emp) = k := by
   rw [predec]
@@ -528,7 +528,7 @@ lemma le_trans' (k l m : ordinal S) : k ≤ l → l ≤ m → k ≤ m := by
   intros hk hl
   cases' k with k ord_k; cases' l with l ord_l; cases' m with m ord_m
   simp only [mem, eq] at *
-  simp_rw [ord, tran, subset_eq] at *
+  simp_rw [ord, tran, SubsetEq] at *
   aesop
 
 lemma lt_iff_le_not_le' (k l : ordinal S) : k < l ↔ k ≤ l ∧ ¬l ≤ k := by
@@ -603,7 +603,7 @@ instance : Lattice (ordinal S) where
 lemma trans' : ∀ (k l m : ordinal S), k < l → l < m → k < m := by
   intros k l m
   rcases k with ⟨k, ⟨tran_k, _⟩⟩; rcases l with ⟨l, ⟨tran_l, _⟩⟩; rcases m with ⟨m, ⟨tran_m, _⟩⟩
-  simp_rw [lt_iff, mem, tran, subset_eq] at *
+  simp_rw [lt_iff, mem, tran, SubsetEq] at *
   aesop
 
 /-- To turn a set into a collection, i.e. turn an HF set into  a 'Lean' set -/
@@ -625,7 +625,7 @@ lemma mem_subset_lemma (k l : ordinal S) (k_in_l : k ∈ l) : toSetS k.1 ⊂ toS
   simp_rw [toSetS]
   rw [mem_iff_subset, sbst_lemma] at k_in_l
   have k_sbst_l := k_in_l
-  rw [subset] at k_in_l
+  rw [Subset] at k_in_l
   simp_rw [Set.ssubset_def, Set.subset_def]
   refine ⟨by aesop, ?_⟩
   simp only [Set.mem_setOf_eq, not_forall, exists_prop]

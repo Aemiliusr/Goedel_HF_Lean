@@ -119,7 +119,7 @@ lemma setByFormula_iff (x : S) (φ : S → Prop) {n} (f : BoundedFormula HFLang 
   (comp_scheme x φ f c hφ).choose_spec
 
 /-- x ∩ y = {u ∈ x : u ∈ y} -/
-noncomputable def inter (x : S) (y : S) : S := sorry
+def inter (x : S) (y : S) : S := sorry
     -- setByFormula x (fun u ↦ u ∈ y) _ _ _
     -- no clue what last arguments should be
 
@@ -160,7 +160,7 @@ abbrev FirstOrder.Language.BoundedFormula.reverse {L : Language} {α : Type u'} 
   · simp_all only [mapTermRel, Realize, id_eq]
   · simp only [mapTermRel, id_eq, castLE_rfl, realize_all, Nat.succ_eq_add_one, ih]
     refine forall_congr' fun a => ?_
-    sorry -- looked at proof of `realize_liftAt`
+    sorry -- appears to be false
 
 theorem repl_scheme (x : S) {n} (ψ : S → S → Prop) (f : BoundedFormula HFLang (Fin n) 2)
   (c : Fin n → S) (hψ : ∀ x y, ψ x y ↔ f.Realize c ![x, y]) :

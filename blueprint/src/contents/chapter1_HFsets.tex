@@ -203,67 +203,97 @@ and that it contains a distinguished freely occuring variable which is quantifie
 
 \begin{theorem}[Comprehension Scheme]
     \label{thm:comp_scheme}
+    \lean{HF.comp_scheme}
+    \leanok
     \uses{ax:induction_axiom, lem:set_notin_empty+enlarge_iff+enlarge_empty}
-    ...
+    $\forall x \exists z \forall u (u\in z \leftrightarrow (u \in x) \land \phi (u))$, for any $\mathcal{L}$-formula $\phi$ in which $z$ is not free.
 \end{theorem}
 
 \begin{proof}
     \leanok
-    ...
+    Pick $x$ arbitrarily and let $\alpha (x)$ be the formula $\exists z \forall u (u\in z \leftrightarrow (u \in x) \land \phi (u))$.
+    We apply Axiom \ref{ax:induction_axiom}.
+    \begin{itemize}
+        \item For the base case — $\alpha (\varnothing)$ — take $z=\varnothing$ and use Lemma \ref{lem:set_notin_empty+enlarge_iff+enlarge_empty}.1.
+        \item For the induction step — $\forall y[\alpha(x) \land \alpha(y) \rightarrow \alpha(x \lhd y)]$ — 
+        pick $y$ arbitrarily and assume $\alpha(x)$, i.e. the existence of $ \{u \in x : \phi (u)\}$.
+        We need to find $z$ such that
+    \begin{equation*}
+    \begin{split}
+        u \in z & \leftrightarrow (u \in x \lhd y) \land \phi (u)\\
+        & \leftrightarrow (u \in x \lor u = y) \land \phi (u),
+    \end{split}
+    \end{equation*}
+    using Lemma \ref{lem:set_notin_empty+enlarge_iff+enlarge_empty}.2.
+    Since $z$ is not free in $\phi$, take $z = \{u \in x : \phi (u)\} \lhd y$ if $\phi(y)$ 
+    and $z=\{u \in x : \phi (u)\}$ if $\neg \phi(y)$.
+    \end{itemize}
 \end{proof}
 
-\begin{definition}
-    \label{def:Intersection}
+\begin{definition}[Intersection]
+    \label{def:Inter}
+    \lean{HF.Inter, HF.InterSet}
     \uses{thm:comp_scheme}
-    ...
+    Introduce the notation:
+    \begin{enumerate}
+        \item $x \cap y = \{u \in x : u \in y\}$.
+        \item $\bigcap x = \{u \in \bigcup x : \forall (v \in x)[u \in v] \}$.
+    \end{enumerate}  
 \end{definition}
 
 \begin{theorem}[Replacement Scheme]
     \label{thm:repl_scheme}
+    \lean{HF.repl_scheme}
     \uses{ax:induction_axiom, lem:set_notin_empty+enlarge_iff+enlarge_empty}
-    ...
+    $$\forall x ([\forall (u \in x) [\exists! v] \psi (u,v)]\rightarrow \exists z \forall v [v\in z \leftrightarrow \exists(u \in x) \psi (u,v)]),$$ 
+    for any $\mathcal{L}$-formula $\psi$ in which $z$ is not free.
 \end{theorem}
 
 \begin{proof}
-    \leanok
     ...
 \end{proof}
 
-\begin{definition}
-    \label{def:Subset}
-    ...
+\begin{definition}[Subset relation]
+    \label{def:SubsetEq+Subset}
+    \lean{HF.SubsetEq, HF.Subset}
+    \leanok
+    Introduce the notation:
+    \begin{enumerate}
+        \item $y \subseteq x \leftrightarrow \forall v (v\in y \rightarrow v \in x)$.
+        \item $y \subset x \leftrightarrow y \subseteq x \land y \neq x$.
+    \end{enumerate}  
 \end{definition}
 
 \begin{theorem}[Existence of the power set]
     \label{thm:exists_power}
-    \uses{ax:induction_axiom, lem:set_notin_empty+enlarge_iff+enlarge_empty, thm:exten_prop, def:Single+Pair+OrdPair, lem:single_iff+pair_iff+...+ordPair_equal, thm:exists_union, thm:repl_scheme, def:Subset}
-    ...
+    \lean{HF.exists_power}
+    \uses{ax:induction_axiom, lem:set_notin_empty+enlarge_iff+enlarge_empty, thm:exten_prop, def:Single+Pair+OrdPair, lem:single_iff+pair_iff+...+ordPair_equal, thm:exists_union, thm:repl_scheme, def:SubsetEq+Subset}
+    $\forall x \exists z \forall u (u\in z \leftrightarrow u \subseteq x).$
 \end{theorem}
 
 \begin{proof}
-    \leanok
     ...
 \end{proof}
 
 \begin{theorem}[Foundation Property]
     \label{thm:found_prop}
-    \uses{ax:induction_axiom, lem:set_notin_empty+enlarge_iff+enlarge_empty, thm:exten_prop, def:Intersection}
-    ...
+    \lean{HF.found_prop}
+    \uses{ax:induction_axiom, lem:set_notin_empty+enlarge_iff+enlarge_empty, thm:exten_prop, def:Inter}
+    $\forall z (z\neq \varnothing \rightarrow \exists (w \in z)[w\cap z = \varnothing])$.
 \end{theorem}
 
 \begin{proof}
-    \leanok
     ...
 \end{proof}
 
 \begin{corollary}
     \label{cor:set_notin_itself}
-    \uses{lem:set_notin_empty+enlarge_iff+enlarge_empty, thm:exten_prop, def:Single+Pair+OrdPair, lem:single_iff+pair_iff+...+ordPair_equal, def:Intersection, thm:found_prop}
-    ...
+    \lean{HF.set_notin_itself}
+    \uses{lem:set_notin_empty+enlarge_iff+enlarge_empty, thm:exten_prop, def:Single+Pair+OrdPair, lem:single_iff+pair_iff+...+ordPair_equal, def:Inter, thm:found_prop}
+    $\forall x (x \notin x)$.
 \end{corollary}
 
 \begin{proof}
-    \leanok
     ...
 \end{proof}
 
