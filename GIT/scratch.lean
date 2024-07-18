@@ -126,6 +126,11 @@ noncomputable def inter (x : S) (y : S) : S := sorry
 lemma inter_iff (x y : S) : ∀ (u : S), (u ∈ inter x y ↔ u ∈ x ∧ u ∈ y) := by sorry
   -- exact setByFormula_iff _ _ _ _ _
 
+inductive FirstOrder.Language.QuantifierFreeBoundedFormula (L : Language.{u, v}) (α : Type u') : ℕ → Type max u' u v
+  | falsum {n} : QuantifierFreeBoundedFormula L α n
+  | equal {n} (t₁ t₂ : L.Term (Sum α (Fin n))) : QuantifierFreeBoundedFormula L α n
+  | rel {n l : ℕ} (R : L.Relations l) (ts : Fin l → L.Term (Sum α (Fin n))) : QuantifierFreeBoundedFormula L α n
+  | imp {n} (f₁ f₂ : QuantifierFreeBoundedFormula L α n) : QuantifierFreeBoundedFormula L α n
 
 /-- Auxiliary for reversing variables of a term. -/
 abbrev Fin.reverse (n : ℕ) : Fin n → Fin n := fun x ↦ ⟨n - 1 - x.val, by
@@ -143,22 +148,6 @@ abbrev FirstOrder.Language.Term.reverse {L : Language} {α : Type u'} {n : ℕ} 
 abbrev FirstOrder.Language.BoundedFormula.reverse {L : Language} {α : Type u'} {n : ℕ}
     (φ : L.BoundedFormula α n) : L.BoundedFormula α n :=
   φ.mapTermRel (g := id) (fun _ t => t.reverse) (fun _ => id) (fun _ => castLE le_rfl)
-
-/-- To check statement of next lemma is correct. -/
-example {L : Language} [L.Structure S] {α : Type u'} {n : ℕ}
-    (φ : L.BoundedFormula α n) {v : α → S} {xs : Fin n → S} :
-    φ.reverse.reverse.Realize v xs ↔ φ.Realize v xs := by
-  rw [reverse]
-  have eq1 (m : ℕ) : Fin.reverse m ∘ Fin.reverse m = id := by
-    -- definitely correct
-    sorry
-  induction' φ with _ _ _ _ _ _ _ _ _ _ _ _ _ k f ih
-  · simp [mapTermRel, Realize]
-  · simp only [Realize, Term.relabel_relabel, Sum.map_comp_map, CompTriple.comp_eq, eq1,
-    Sum.map_id_id, Term.relabel_id_eq_id, id_eq]
-  · simp [mapTermRel, Realize, Sum.elim_comp_map, eq1]
-  · simp_all only [mapTermRel, Realize, id_eq, eq1]
-  · simp only [mapTermRel, id_eq, castLE_rfl, realize_all, Nat.succ_eq_add_one, ih]
 
 @[simp] lemma realize_reverse {L : Language} [L.Structure S] {α : Type u'} {n : ℕ}
     (φ : L.BoundedFormula α n) {v : α → S} {xs : Fin n → S} :
