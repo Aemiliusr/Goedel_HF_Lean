@@ -256,12 +256,14 @@ def Inter (x : S) (y : S) : S :=
   setByFormula_iff _ _ _ _ _
 
 /-- ⋂ x = {u ∈ ⋃ x : ∀ v ∈ x, u ∈ v} -/
-def InterSet (x : S) : S := sorry
-  -- SetByFormula (UnionSet x) (fun u ↦ ∀ v ∈ x, u ∈ v)
+def InterSet (x : S) : S :=
+  SetByFormula (n := 1) (UnionSet x) (fun u ↦ ∀ v ∈ x, u ∈ v)
+      (∀' ((&1 ∈' (.var $ .inl 0)) ⟹ (&0 ∈' &1))) ![x] (by simp [Fin.snoc])
+
 
 @[simp] lemma inter_set_iff (x : S) :
-    ∀ (u : S), (u ∈ InterSet x ↔ u ∈ UnionSet x ∧ ∀ v ∈ x, u ∈ v) := sorry
-  -- setByFormula_iff _ _ _ _ _
+    ∀ (u : S), (u ∈ InterSet x ↔ u ∈ UnionSet x ∧ ∀ v ∈ x, u ∈ v) :=
+  setByFormula_iff _ _ _ _ _
 
 lemma inter_enlarge (x y : S) : Inter (x ◁ y) x = x := by
   simp only [exten_prop, inter_iff, enlarge_iff, and_iff_right_iff_imp]
