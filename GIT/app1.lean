@@ -248,12 +248,12 @@ def SetByFormula (x : S) (φ : S → Prop) {n} (f : BoundedFormula HFLang (Fin n
   (comp_scheme x φ f c hφ).choose_spec
 
 /-- x ∩ y = {u ∈ x : u ∈ y} -/
-def Inter (x : S) (y : S) : S := sorry
-    -- setByFormula x (fun u ↦ u ∈ y) _ _ _
-    -- no clue what last arguments should be
+def Inter (x : S) (y : S) : S :=
+    SetByFormula (n := 1) x (fun z ↦ z ∈ y)
+      ((&0 ∈' (.var $ .inl 0 : HFLang.Term (Fin 1 ⊕ Fin 1)))) (![y]) (by simp)
 
-@[simp] lemma inter_iff (x y : S) : ∀ (u : S), (u ∈ Inter x y ↔ u ∈ x ∧ u ∈ y) := sorry
-  -- setByFormula_iff _ _ _ _ _
+@[simp] lemma inter_iff (x y : S) : ∀ (u : S), (u ∈ Inter x y ↔ u ∈ x ∧ u ∈ y) :=
+  setByFormula_iff _ _ _ _ _
 
 /-- ⋂ x = {u ∈ ⋃ x : ∀ v ∈ x, u ∈ v} -/
 def InterSet (x : S) : S := sorry
