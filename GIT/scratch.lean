@@ -149,28 +149,43 @@ abbrev FirstOrder.Language.BoundedFormula.reverse {L : Language} {α : Type u'} 
     (φ : L.BoundedFormula α n) : L.BoundedFormula α n :=
   φ.mapTermRel (g := id) (fun _ t => t.reverse) (fun _ => id) (fun _ => castLE le_rfl)
 
-@[simp] lemma realize_reverse {L : Language} [L.Structure S] {α : Type u'} {n : ℕ}
-    (φ : L.BoundedFormula α n) {v : α → S} {xs : Fin n → S} :
+lemma aux1 {L : Language} {α : Type u'} {m : ℕ} (f₁ f₂ : L.BoundedFormula α m)
+    (H : (f₁ ⟹ f₂).IsQF) : f₁.IsQF := by
+  rcases H with H|H|⟨H1, H2⟩
+  · rcases H with H|H
+  · exact H1
+
+lemma aux2 {L : Language} {α : Type u'} {m : ℕ} (f₁ f₂ : L.BoundedFormula α m)
+    (H : (f₁ ⟹ f₂).IsQF) : f₂.IsQF := by
+  rcases H with H|H|⟨H1, H2⟩
+  · rcases H with H|H
+  · exact H2
+
+@[simp] lemma realize_reverse_of_isQF {L : Language} [L.Structure S] {α : Type u'} {n : ℕ}
+    (φ : L.BoundedFormula α n) (hφ : φ.IsQF) {v : α → S} (xs : Fin n → S) :
     φ.reverse.Realize v xs ↔ φ.Realize v (xs ∘ Fin.reverse n) := by
   rw [reverse]
-  induction' φ with _ _ _ _ _ _ _ _ _ _ _ _ _ k f ih
+  induction' φ with m m t₁ t₂ m l R t m f₁ f₂ ih₁ ih₂ k f _
   · simp [mapTermRel, Realize]
   · simp [mapTermRel, Realize, Sum.elim_comp_map]
   · simp [mapTermRel, Realize, Sum.elim_comp_map]
-  · simp_all only [mapTermRel, Realize, id_eq]
-  · simp only [mapTermRel, id_eq, castLE_rfl, realize_all, Nat.succ_eq_add_one, ih]
-    refine forall_congr' fun a => ?_
-    sorry -- appears to be false
+  · specialize ih₁ (aux1 f₁ f₂ hφ) xs
+    specialize ih₂ (aux2 f₁ f₂ hφ) xs
+    simp_all only [mapTermRel, Realize, id_eq]
+  · exfalso
+    exact not_all_isQF _ hφ
 
-theorem repl_scheme (x : S) {n} (ψ : S → S → Prop) (f : BoundedFormula HFLang (Fin n) 2)
-  (c : Fin n → S) (hψ : ∀ x y, ψ x y ↔ f.Realize c ![x, y]) :
+theorem repl_scheme (x : S) {n} (ψ : S → S → Prop)
+    (f : BoundedFormula HFLang (Fin n) 2)  (qf : f.IsQF)
+    (c : Fin n → S) (hψ : ∀ x y, ψ x y ↔ f.Realize c ![x, y]) :
     (∀ u ∈ x, ∃ v, (ψ u v ∧ ∀ w, (ψ u w → w = v))) → (∃ (z : S), ∀ v, (v ∈ z ↔ ∃ u ∈ x, ψ u v)) := by
   induction' x using HF.induction with x y hx _
   · sorry -- done
   · sorry -- done
   · exact n
-  · exact ∀' ((&1 ∈' &0) ⟹ ∃' (f.liftAt 1 0 /- f &1 &2 -/ ⊓ ∀' ((f.liftAt 1 0).liftAt 1 2 /- f &1 &3 -/ ⟹ &3 =' &2)))
-    ⟹ ∃' ∀' ((&2 ∈' &1) ⇔ ∃' ((&3 ∈' &0) ⊓ (f.reverse).liftAt 2 0 /- f &3 &2-/))  -- should be correct
+  · exact
+      (∀' ((&1 ∈' &0) ⟹ ∃' (f.liftAt 1 0 /- f &1 &2 -/ ⊓ ∀' ((f.liftAt 1 0).liftAt 1 2 /- f &1 &3 -/ ⟹ &3 =' &2))))
+    ⟹ ∃' ∀' ((&2 ∈' &1) ⇔ ∃' ((&3 ∈' &0) ⊓ f.reverse.liftAt 2 0 /- f &3 &2-/))  -- should be correct
   · rename_i a; exact c a
   · simp
     convert Iff.rfl
@@ -184,7 +199,7 @@ theorem repl_scheme (x : S) {n} (ψ : S → S → Prop) (f : BoundedFormula HFLa
       congr! 1
       ext i
       fin_cases i <;> simp <;> rfl
-    · rw [realize_liftAt (by norm_num),realize_reverse, hψ]
+    · rw [realize_liftAt (by norm_num), realize_reverse_of_isQF (hφ := qf), hψ]
       rename_i h a b c
       convert Iff.rfl using 1
       congr! 1
