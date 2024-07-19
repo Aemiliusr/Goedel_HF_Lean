@@ -1,6 +1,7 @@
 import Mathlib.Tactic
 import Mathlib.ModelTheory.Syntax
 import Mathlib.ModelTheory.Semantics
+import GIT.FirstOrder_reverse
 
 open FirstOrder Language BoundedFormula
 
@@ -248,31 +249,63 @@ def SetByFormula (x : S) (φ : S → Prop) {n} (f : BoundedFormula HFLang (Fin n
   (comp_scheme x φ f c hφ).choose_spec
 
 /-- x ∩ y = {u ∈ x : u ∈ y} -/
-def Inter (x : S) (y : S) : S := sorry
-    -- setByFormula x (fun u ↦ u ∈ y) _ _ _
-    -- no clue what last arguments should be
+def Inter (x : S) (y : S) : S :=
+    SetByFormula (n := 1) x (fun z ↦ z ∈ y)
+      ((&0 ∈' .var (.inl 0))) (![y]) (by simp)
 
-@[simp] lemma inter_iff (x y : S) : ∀ (u : S), (u ∈ Inter x y ↔ u ∈ x ∧ u ∈ y) := sorry
-  -- setByFormula_iff _ _ _ _ _
+@[simp] lemma inter_iff (x y : S) : ∀ (u : S), (u ∈ Inter x y ↔ u ∈ x ∧ u ∈ y) :=
+  setByFormula_iff _ _ _ _ _
 
 /-- ⋂ x = {u ∈ ⋃ x : ∀ v ∈ x, u ∈ v} -/
-def InterSet (x : S) : S := sorry
-  -- SetByFormula (UnionSet x) (fun u ↦ ∀ v ∈ x, u ∈ v)
+def InterSet (x : S) : S :=
+  SetByFormula (n := 1) (UnionSet x) (fun u ↦ ∀ v ∈ x, u ∈ v)
+      (∀' ((&1 ∈' .var (.inl 0)) ⟹ (&0 ∈' &1))) ![x] (by simp [Fin.snoc])
+
 
 @[simp] lemma inter_set_iff (x : S) :
-    ∀ (u : S), (u ∈ InterSet x ↔ u ∈ UnionSet x ∧ ∀ v ∈ x, u ∈ v) := sorry
-  -- setByFormula_iff _ _ _ _ _
+    ∀ (u : S), (u ∈ InterSet x ↔ u ∈ UnionSet x ∧ ∀ v ∈ x, u ∈ v) :=
+  setByFormula_iff _ _ _ _ _
 
 lemma inter_enlarge (x y : S) : Inter (x ◁ y) x = x := by
   simp only [exten_prop, inter_iff, enlarge_iff, and_iff_right_iff_imp]
   intro u a
   simp_all only [true_or]
 
+theorem repl_scheme (x : S) {n} (ψ : S → S → Prop)
+    (f : BoundedFormula HFLang (Fin n) 2)  (qf : f.IsQF)
+    (c : Fin n → S) (hψ : ∀ x y, ψ x y ↔ f.Realize c ![x, y]) :
+    (∀ u ∈ x, ∃ v, (ψ u v ∧ ∀ w, (ψ u w → w = v))) → (∃ (z : S), ∀ v, (v ∈ z ↔ ∃ u ∈ x, ψ u v)) := by
+  induction' x using HF.induction with x y hx _
+  · intro _; use ∅; simp
+  · sorry
+  · exact n
+  · exact
+      (∀' ((&1 ∈' &0) ⟹ ∃' (f.liftAt 1 0 /- f &1 &2 -/ ⊓ ∀' ((f.liftAt 1 0).liftAt 1 2 /- f &1 &3 -/ ⟹ &3 =' &2))))
+    ⟹ ∃' ∀' ((&2 ∈' &1) ⇔ ∃' ((&3 ∈' &0) ⊓ f.reverse.liftAt 2 0 /- f &3 &2-/))  -- should be correct
+  · rename_i a; exact c a
+  · simp only [Nat.reduceAdd, Fin.isValue, Function.comp_apply, realize_imp, realize_all,
+    Nat.succ_eq_add_one, realize_rel, instStructureHFLangOfHFPrior_RelMap, Matrix.cons_val_zero,
+    Term.realize_var, Sum.elim_inr, Matrix.cons_val_one, Matrix.head_cons, realize_ex, realize_inf,
+    realize_bdEqual, realize_iff]
+    convert Iff.rfl
+    · rw [realize_liftAt (by norm_num), hψ]
+      convert Iff.rfl using 1
+      congr! 1
+      ext i
+      fin_cases i <;> simp <;> rfl
+    · rw [realize_liftAt (by norm_num), realize_liftAt (by norm_num), hψ]
+      convert Iff.rfl using 1
+      congr! 1
+      ext i
+      fin_cases i <;> simp <;> rfl
+    · rw [realize_liftAt (by norm_num), realize_reverse_of_isQF (hφ := qf), hψ]
+      rename_i h a b c
+      convert Iff.rfl using 1
+      congr! 1
+      ext i
+      fin_cases i <;> simp <;> rfl
 
--- Theorem 1.9 (Replacement Scheme)
-
-theorem repl_scheme (x : S) (ψ : S → S → Prop) :
-    (∀ u ∈ x, ∃! v, ψ u v) → (∃ (z : S), ∀ v, (v ∈ z ↔ ∃ u ∈ x, ψ u v)) := by sorry
+  -- repl_scheme proof
   -- revert x -- to prove ∀x α(x) using HF3/induction
   -- apply HF.induction
   -- -- base case
@@ -290,11 +323,15 @@ theorem repl_scheme (x : S) (ψ : S → S → Prop) :
   --   simp_rw [enlarge_iff]; aesop
 
 /-- {v : ∃ u ∈ x, ψ(u,v)} -/
-noncomputable def repl (x : S) (ψ : S → S → Prop) (h : (∀ u ∈ x, ∃! v, ψ u v)) : S
-    := (repl_scheme x ψ h).choose
+noncomputable def repl (x : S) {n} (ψ : S → S → Prop)
+    (f : BoundedFormula HFLang (Fin n) 2)  (qf : f.IsQF)
+    (c : Fin n → S) (hψ : ∀ x y, ψ x y ↔ f.Realize c ![x, y]) (h : (∀ u ∈ x, ∃! v, ψ u v)) : S
+    := (repl_scheme x ψ f qf c hψ h).choose
 
-lemma repl_iff (x : S) (ψ : S → S → Prop) (h : (∀ u ∈ x, ∃! v, ψ u v)) :
-    ∀ (v : S), (v ∈ repl x ψ h ↔ ∃ u ∈ x, ψ u v) := (repl_scheme x ψ h).choose_spec
+lemma repl_iff (x : S) {n} (ψ : S → S → Prop)
+    (f : BoundedFormula HFLang (Fin n) 2)  (qf : f.IsQF)
+    (c : Fin n → S) (hψ : ∀ x y, ψ x y ↔ f.Realize c ![x, y]) (h : (∀ u ∈ x, ∃! v, ψ u v)) :
+    ∀ (v : S), (v ∈ repl x ψ f qf c hψ h ↔ ∃ u ∈ x, ψ u v) := (repl_scheme x ψ f qf c hψ h).choose_spec
 
 
 -- Definition 1.10 (Subset relation)
