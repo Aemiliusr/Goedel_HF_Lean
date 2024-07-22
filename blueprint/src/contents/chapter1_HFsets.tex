@@ -253,7 +253,16 @@ and that it contains a distinguished freely occuring variable which is quantifie
 
 \begin{proof}
     \leanok
-    ...
+    Pick $x$ arbitrarily and let $\alpha (x)$ be the formula $[\forall (u \in x) [\exists! v] \psi (u,v)]\rightarrow \exists z \forall v [v\in z \leftrightarrow \exists(u \in x) \psi (u,v)]$.
+    We apply Axiom \ref{ax:induction_axiom}.
+    \begin{itemize}
+        \item For the base case — $\alpha (\varnothing)$ — take $z=\varnothing$ and use Lemma \ref{lem:set_notin_empty+enlarge_iff+enlarge_empty}.1.
+        \item For the induction step — $\forall y[\alpha(x) \land \alpha(y) \rightarrow \alpha(x \lhd y)]$ — 
+        pick $y$ arbitrarily and assume $\alpha(x)$, i.e. the existence of $\{v : \exists (u\in x)\psi(u,v)\}$ provided that $\forall (u \in x) [\exists! v] \psi (u,v)$.
+        Furthermore, assume $\forall (u \in x \lhd y) [\exists! v] \psi (u,v)$, i.e. that $\forall u [(u \in x \lor u = y) \rightarrow \exists! v \psi (u,v)]$.
+        Hence, $\exists! v \psi (y,v)$; let $v_y$ be this unique $v$. Moreover, it follows that $\forall (u \in x) [\exists! v] \psi (u,v)$ and thus $\{v : \exists (u\in x)\psi(u,v)\}$ exists.
+        By Lemma \ref{lem:set_notin_empty+enlarge_iff+enlarge_empty}.2, the required $z$ is $\{v : \exists (u\in x)\psi(u,v)\} \lhd v_y$.
+    \end{itemize}
 \end{proof}
 
 \begin{definition}[Subset relation]
@@ -277,7 +286,19 @@ and that it contains a distinguished freely occuring variable which is quantifie
 
 \begin{proof}
     \leanok
-    ...
+    Pick $x$ arbitrarily and let $\alpha (x)$ be the formula $\exists z \forall u (u\in z \leftrightarrow u \subseteq x)$.
+    We apply Axiom \ref{ax:induction_axiom}.
+    \begin{itemize}
+        \item For the base case — $\alpha (\varnothing)$ — take $z=\{\varnothing\}$ and use Lemma \ref{lem:set_notin_empty+enlarge_iff+enlarge_empty}, \ref{lem:single_iff+pair_iff+...+ordPair_equal}.1 
+        and \ref{thm:exten_prop}.
+        \item For the induction step — $\forall y[\alpha(x) \land \alpha(y) \rightarrow \alpha(x \lhd y)]$ — 
+        pick $y$ arbitrarily and assume $\alpha(x)$, i.e. the existence of the power set $P(x)$.
+        One checks directly from the definitions that $$u \subseteq x \lhd y \leftrightarrow u \in P(x) \lor \exists (v \in P(x))[u=v\lhd y]. $$
+        Indeed, for the $\rightarrow$ direction, the cases $y \notin u$ and $y \in u$ correspond to the left and right cases of the disjunction, 
+        respectively, where for the right case, the required $v$ is $u \cap x$. The $\leftarrow$ direction is rather trivial.
+        Now, note that the formula $\psi(v,u): u = v \lhd y$ satisfies the condition for Theorem \ref{thm:repl_scheme}, i.e. $v \mapsto v \lhd y$ is a well-defined mapping.
+        By Theorem \ref{thm:exists_union}, it follows that the required $z$ is $P(x) \cup \{u : \exists (v \in P(x)) [u=v\lhd y]\}$.
+    \end{itemize}
 \end{proof}
 
 \begin{theorem}[Foundation Property]
@@ -301,7 +322,8 @@ and that it contains a distinguished freely occuring variable which is quantifie
 
 \begin{proof}
     \leanok
-    ...
+    Apply the foundation property to $z = \{x\}\neq \varnothing$.
+    It follows that $\exists (w \in \{x\})[w\cap \{x\} = \varnothing]$, which implies $x \cap \{x\} = \varnothing$.
 \end{proof}
 
 
