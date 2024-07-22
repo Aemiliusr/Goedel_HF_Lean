@@ -173,8 +173,8 @@ and that it contains a distinguished freely occuring variable which is quantifie
 \end{proof}
 
 \begin{theorem}[Existence of the union of a set of sets]
-    \label{thm:exists_unionSet}
-    \lean{HF.exists_unionSet}
+    \label{thm:exists_unionOfSet}
+    \lean{HF.exists_unionOfSet}
     \leanok
     \uses{ax:induction_axiom, lem:set_notin_empty+enlarge_iff+enlarge_empty, thm:exists_union}
     $\forall x \exists z \forall u (u \in z \leftrightarrow \exists (y\in x)[u \in y])$.
@@ -234,7 +234,7 @@ and that it contains a distinguished freely occuring variable which is quantifie
     \label{def:Inter}
     \lean{HF.Inter, HF.InterSet}
     \leanok
-    \uses{thm:comp_scheme}
+    \uses{thm:exists_unionOfSet, thm:comp_scheme}
     Introduce the notation:
     \begin{enumerate}
         \item $x \cap y = \{u \in x : u \in y\}$.
@@ -245,12 +245,14 @@ and that it contains a distinguished freely occuring variable which is quantifie
 \begin{theorem}[Replacement Scheme]
     \label{thm:repl_scheme}
     \lean{HF.repl_scheme}
+    \leanok
     \uses{ax:induction_axiom, lem:set_notin_empty+enlarge_iff+enlarge_empty}
     $$\forall x ([\forall (u \in x) [\exists! v] \psi (u,v)]\rightarrow \exists z \forall v [v\in z \leftrightarrow \exists(u \in x) \psi (u,v)]),$$ 
     for any $\mathcal{L}$-formula $\psi$ in which $z$ is not free.
 \end{theorem}
 
 \begin{proof}
+    \leanok
     ...
 \end{proof}
 
@@ -266,13 +268,15 @@ and that it contains a distinguished freely occuring variable which is quantifie
 \end{definition}
 
 \begin{theorem}[Existence of the power set]
-    \label{thm:exists_power}
-    \lean{HF.exists_power}
+    \label{thm:exists_powerSet}
+    \lean{HF.exists_powerSet}
+    \leanok
     \uses{ax:induction_axiom, lem:set_notin_empty+enlarge_iff+enlarge_empty, thm:exten_prop, def:Single+Pair+OrdPair, lem:single_iff+pair_iff+...+ordPair_equal, thm:exists_union, thm:repl_scheme, def:SubsetEq+Subset}
     $\forall x \exists z \forall u (u\in z \leftrightarrow u \subseteq x).$
 \end{theorem}
 
 \begin{proof}
+    \leanok
     ...
 \end{proof}
 
@@ -290,11 +294,13 @@ and that it contains a distinguished freely occuring variable which is quantifie
 \begin{corollary}
     \label{cor:set_notin_itself}
     \lean{HF.set_notin_itself}
+    \leanok
     \uses{lem:set_notin_empty+enlarge_iff+enlarge_empty, thm:exten_prop, def:Single+Pair+OrdPair, lem:single_iff+pair_iff+...+ordPair_equal, def:Inter, thm:found_prop}
     $\forall x (x \notin x)$.
 \end{corollary}
 
 \begin{proof}
+    \leanok
     ...
 \end{proof}
 

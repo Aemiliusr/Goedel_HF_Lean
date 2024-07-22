@@ -79,9 +79,9 @@ theorem empty_is_ord : ord (∅ : S) := by
   rw [ord, tran]; simp [set_notin_empty]
 
 theorem mem_min_of_ord_eq_empty (x : S) (ord_x : ord x) (neq_emp : x ≠ ∅) :
-    (∀ w, mem_min w x → w = ∅) ∧ ∅ ∈ x := by
-  have mem_min_imp_emp (w : S) (w_mem_min : mem_min w x) : w = ∅ := by
-    simp_rw [mem_min, exten_prop, inter_iff, set_notin_empty, iff_false, not_and] at w_mem_min
+    (∀ w, (w ∈ x ∧ Inter w x = ∅) → w = ∅) ∧ ∅ ∈ x := by
+  have mem_min_imp_emp (w : S) (w_mem_min : w ∈ x ∧ Inter w x = ∅) : w = ∅ := by
+    simp_rw [exten_prop, inter_iff, set_notin_empty, iff_false, not_and] at w_mem_min
     cases' w_mem_min with w_in_x hwx
     cases' ord_x with tran_x _; simp_rw [tran, SubsetEq] at tran_x
     specialize tran_x w w_in_x
@@ -92,7 +92,7 @@ theorem mem_min_of_ord_eq_empty (x : S) (ord_x : ord x) (neq_emp : x ≠ ∅) :
   subst w_eq_emp
   simp_all only [ne_eq, and_imp, implies_true, and_self]
 
-lemma empty_in_ord (x : S) (ord_x : ord x) (neq_emp : x ≠ ∅) : ∅ ∈ x := by have := mem_min_of_ord_eq_empty x; simp_all
+lemma empty_in_ord (x : S) (ord_x : ord x) (neq_emp : x ≠ ∅) : ∅ ∈ x := by simp_all [mem_min_of_ord_eq_empty x]
 
 --- Theorem 2.4 ---
 
@@ -604,7 +604,12 @@ lemma trans' : ∀ (k l m : ordinal S), k < l → l < m → k < m := by
   intros k l m
   rcases k with ⟨k, ⟨tran_k, _⟩⟩; rcases l with ⟨l, ⟨tran_l, _⟩⟩; rcases m with ⟨m, ⟨tran_m, _⟩⟩
   simp_rw [lt_iff, mem, tran, SubsetEq] at *
-  aesop
+  rename_i inst right right_1 right_2
+  intro a a_1
+  apply tran_m
+  on_goal 2 => {exact a
+  }
+  · simp_all only
 
 /-- To turn a set into a collection, i.e. turn an HF set into  a 'Lean' set -/
 def toSetS (x : S) : Set S := {s : S | s ∈ x}

@@ -12,28 +12,28 @@ variable {S : Type u} [HF S]
 namespace HF
 namespace ordinal
 
-lemma power_injective : Function.Injective (power : S → S) := by
+lemma power_injective : Function.Injective (PowerSet : S → S) := by
   rw [Function.Injective]
   intros s s' power_eq
-  simp_rw [exten_prop, power_iff, SubsetEq] at power_eq
+  simp_rw [exten_prop, powerSet_iff, SubsetEq] at power_eq
   have power_eq' := power_eq
   specialize power_eq s; simp only [imp_self, implies_true, true_iff] at power_eq
   specialize power_eq' s'; simp only [imp_self, implies_true, iff_true] at power_eq'
   rw [exten_prop]
   aesop
 
-def R : ordinal S → S := recursive_function_on_ordinals_for_empty power power_injective
+def R : ordinal S → S := recursive_function_on_ordinals_for_empty PowerSet power_injective
 
 lemma R_emp_eq_emp (k : ordinal S) (eq_emp : k = ∅) : R k = ∅ := by
-    exact recursive_lemma1 power power_injective k eq_emp
+    exact recursive_lemma1 PowerSet power_injective k eq_emp
 
-lemma R_ord_eq_power (k : ordinal S) (neq_emp : k ≠ ∅) : R k = power (R (predec k neq_emp)) := by
-    exact recursive_lemma2 power power_injective k neq_emp
+lemma R_ord_eq_power (k : ordinal S) (neq_emp : k ≠ ∅) : R k = PowerSet (R (predec k neq_emp)) := by
+    exact recursive_lemma2 PowerSet power_injective k neq_emp
 
 lemma predec_R_subseteq_imp_R_subseteq (k l : ordinal S) (k_neq_emp : k ≠ ∅) (l_neq_emp : l ≠ ∅)
     (predec_subseteq : ∀ v ∈ R (predec k k_neq_emp), v ∈ R (predec l l_neq_emp)) : ∀ v ∈ R k, v ∈ R l := by
   rw [R_ord_eq_power k k_neq_emp]; rw [R_ord_eq_power l l_neq_emp]
-  simp_rw [power_iff, SubsetEq]
+  simp_rw [powerSet_iff, SubsetEq]
   aesop
 
 theorem le_imp_R_subseteq (m n : ordinal S) (n_le_m : n ≤ m) : ∀ v ∈ (R n), v ∈ (R m)  := by
@@ -84,7 +84,7 @@ theorem R_transitive (m : ordinal S) : tran (R m) := by
     · simp_rw [R_emp_eq_emp m eq_emp, set_notin_empty] at *
     · have predec_le : predec m eq_emp ≤ m := by have := predec_lt m eq_emp; rw [le_iff]; simp_all
       have R_subset := le_imp_R_subseteq m (predec m eq_emp) (predec_le)
-      simp_rw [R_ord_eq_power m eq_emp, power_iff, SubsetEq, power_iff, SubsetEq] at *
+      simp_rw [R_ord_eq_power m eq_emp, powerSet_iff, SubsetEq, powerSet_iff, SubsetEq] at *
       aesop
 
 lemma exists_ordinal_set_in_R_aux (x y : S) (n m : ordinal S) (x_in_Rn : x ∈ R n) (y_in_Rm : y ∈ R m) :
@@ -96,13 +96,13 @@ lemma exists_ordinal_set_in_R_aux (x y : S) (n m : ordinal S) (x_in_Rn : x ∈ R
           specialize x_in_Rn v v_in_x
           exact x_in_Rn
         · right
-          rw [R_ord_eq_power (succ m) (succ_neq_emp m), power_iff, SubsetEq, predec_of_succ, v_eq_y]
+          rw [R_ord_eq_power (succ m) (succ_neq_emp m), powerSet_iff, SubsetEq, predec_of_succ, v_eq_y]
           apply R_transitive at y_in_Rm; rwa [SubsetEq] at y_in_Rm
 
 theorem exists_ordinal_set_in_R (x : S) : ∃ (n : ordinal S), x ∈ R n := by
     induction' x using HF.induction with x y hx hy
     · use succ ∅
-      simp [R_ord_eq_power (succ ∅) (succ_neq_emp ∅), power_iff, SubsetEq, predec_of_succ, R_emp_eq_emp]
+      simp [R_ord_eq_power (succ ∅) (succ_neq_emp ∅), powerSet_iff, SubsetEq, predec_of_succ, R_emp_eq_emp]
     · cases' hx with n x_in_Rn; cases' hy with m y_in_Rm
       have h := exists_ordinal_set_in_R_aux x y n m x_in_Rn y_in_Rm
       simp_rw [union_iff] at h
@@ -110,13 +110,13 @@ theorem exists_ordinal_set_in_R (x : S) : ∃ (n : ordinal S), x ∈ R n := by
       · apply le_imp_R_subseteq (succ m) n at n_le_succ_m
         have xy_subseteq_Rsuccm : ∀ v ∈ x ◁ y, v ∈ R (succ m) := by intros v v_in_xy; specialize h v v_in_xy; aesop
         use succ (succ m)
-        rw [R_ord_eq_power (succ (succ m)) (succ_neq_emp (succ m)), power_iff, SubsetEq, predec_of_succ]
+        rw [R_ord_eq_power (succ (succ m)) (succ_neq_emp (succ m)), powerSet_iff, SubsetEq, predec_of_succ]
         exact xy_subseteq_Rsuccm
       · have succ_m_le_n : succ m ≤ n := by simp [le_iff, lt_iff] at *; have := exclusive_compar (succ m) n; aesop
         apply le_imp_R_subseteq n (succ m) at succ_m_le_n
         have xy_subseteq_Rn : ∀ v ∈ x ◁ y, v ∈ R n := by intros v v_in_xy; specialize h v v_in_xy; aesop
         use succ n
-        rw [R_ord_eq_power (succ n) (succ_neq_emp n), power_iff, SubsetEq, predec_of_succ]
+        rw [R_ord_eq_power (succ n) (succ_neq_emp n), powerSet_iff, SubsetEq, predec_of_succ]
         exact xy_subseteq_Rn
     · sorry
     · sorry

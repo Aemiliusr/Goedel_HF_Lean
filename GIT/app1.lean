@@ -15,10 +15,10 @@ It presents the language, axioms and basic results of hereditarily finite set th
 
 - `exten_prop`: Extensionality property.
 - `exists_union`: Existence of the union of two sets.
-- `exists_unionSet`: Existence of the union of a set of sets.
+- `exists_unionOfSet`: Existence of the union of a set of sets.
 - `comp_scheme`: Comprehension scheme.
 - `repl_scheme`: Replacement scheme.
-- `exists_power`: Existence of the power set.
+- `exists_powerSet`: Existence of the power set.
 - `found_prop`: Foundation property.
 
 ## Notation
@@ -54,7 +54,7 @@ local notation "∅'" => HFLang.emptySetSymbol
 /-- Enlargement: 2-ary function symbol. -/
 abbrev HFLang.enlargementSymbol : HFLang.Functions 2 := PUnit.unit
 
-local notation "◁'" => HFLang.enlargementSymbol
+local notation " ◁' " => HFLang.enlargementSymbol
 
 /-- Membership: 2-ary relation symbol. -/
 abbrev HFLang.membershipSymbol : HFLang.Relations 2 := PUnit.unit
@@ -203,7 +203,7 @@ def Union (x y : S) : S := (exists_union x y).choose
 @[simp] lemma union_iff (x y : S) : ∀ (u : S), u ∈ Union x y ↔ u ∈ x ∨ u ∈ y :=
   (exists_union x y).choose_spec
 
-theorem exists_unionSet (x : S) : ∃(z : S), ∀(u : S), (u ∈ z ↔ (∃ y ∈ x, u ∈ y))  := by
+theorem exists_unionOfSet (x : S) : ∃(z : S), ∀(u : S), (u ∈ z ↔ (∃ y ∈ x, u ∈ y))  := by
   induction' x using HF.induction with x w hx _
   · use ∅; simp
   · cases' hx with Ux hUx
@@ -215,10 +215,10 @@ theorem exists_unionSet (x : S) : ∃(z : S), ∀(u : S), (u ∈ z ↔ (∃ y �
   · simp; rfl
 
 /-- ⋃ x -/
-def UnionSet (x : S) : S := (exists_unionSet x).choose
+def UnionOfSet (x : S) : S := (exists_unionOfSet x).choose
 
-@[simp] lemma unionSet_iff (x : S) : ∀ (u : S), (u ∈ UnionSet x ↔ (∃ y ∈ x, u ∈ y)) :=
-  (exists_unionSet x).choose_spec
+@[simp] lemma unionOfSet_iff (x : S) : ∀ (u : S), (u ∈ UnionOfSet x ↔ (∃ y ∈ x, u ∈ y)) :=
+  (exists_unionOfSet x).choose_spec
 
 theorem comp_scheme (x : S) (φ : S → Prop) {n} (f : BoundedFormula HFLang (Fin n) 1) (c : Fin n → S)
     (hφ : ∀ x, φ x ↔ f.Realize c ![x]) : ∃ (z : S), ∀ (u : S), (u ∈ z ↔ u ∈ x ∧ φ u) := by
@@ -240,7 +240,7 @@ theorem comp_scheme (x : S) (φ : S → Prop) {n} (f : BoundedFormula HFLang (Fi
     simp_all only [Matrix.cons_val_fin_one, Function.comp_apply]
     rfl
 
-/-- Subset that is defined by a formula φ — {u ∈ x : φ(u)} -/
+/-- Any definable (defined through a formula φ) sublass of a set x is a set — {u ∈ x : φ(u)} -/
 def SetByFormula (x : S) (φ : S → Prop) {n} (f : BoundedFormula HFLang (Fin n) 1) (c : Fin n → S)
     (hφ : ∀ x, φ x ↔ f.Realize c ![x]) : S := (comp_scheme x φ f c hφ).choose
 
@@ -258,12 +258,12 @@ def Inter (x : S) (y : S) : S :=
 
 /-- ⋂ x = {u ∈ ⋃ x : ∀ v ∈ x, u ∈ v} -/
 def InterSet (x : S) : S :=
-  SetByFormula (n := 1) (UnionSet x) (fun u ↦ ∀ v ∈ x, u ∈ v)
+  SetByFormula (n := 1) (UnionOfSet x) (fun u ↦ ∀ v ∈ x, u ∈ v)
       (∀' ((&1 ∈' .var (.inl 0)) ⟹ (&0 ∈' &1))) ![x] (by simp [Fin.snoc])
 
 
 @[simp] lemma inter_set_iff (x : S) :
-    ∀ (u : S), (u ∈ InterSet x ↔ u ∈ UnionSet x ∧ ∀ v ∈ x, u ∈ v) :=
+    ∀ (u : S), (u ∈ InterSet x ↔ u ∈ UnionOfSet x ∧ ∀ v ∈ x, u ∈ v) :=
   setByFormula_iff _ _ _ _ _
 
 lemma inter_enlarge (x y : S) : Inter (x ◁ y) x = x := by
@@ -277,11 +277,27 @@ theorem repl_scheme (x : S) {n} (ψ : S → S → Prop)
     (∀ u ∈ x, ∃ v, (ψ u v ∧ ∀ w, (ψ u w → w = v))) → (∃ (z : S), ∀ v, (v ∈ z ↔ ∃ u ∈ x, ψ u v)) := by
   induction' x using HF.induction with x y hx _
   · intro _; use ∅; simp
-  · sorry
+  · simp only [enlarge_iff]; intro h
+    have : (∀ u ∈ x, ∃ v, ψ u v ∧ ∀ (w : S), ψ u w → w = v) := by intro u a_1; simp_all only [true_or]
+    specialize hx this
+    cases' hx with xψ hxψ
+    specialize h y
+    simp only [or_true, true_implies] at h
+    rcases h with ⟨vy, ⟨ψvy, vy_uniq⟩⟩
+    use xψ ◁ vy; simp only [enlarge_iff, hxψ]
+    intro v
+    constructor
+    · intro h; cases' h with h1 h2
+      · cases' h1 with u hu; use u; simp_all only [true_or, and_self]
+      · use y; simp_all only [or_true, and_self]
+    · intro h; rcases h with ⟨u, ⟨hu ,ψuv⟩⟩
+      cases' hu with u_in_x u_eq_y
+      · left; use u
+      · right; subst u; exact vy_uniq v ψuv
   · exact n
   · exact
-      (∀' ((&1 ∈' &0) ⟹ ∃' (f.liftAt 1 0 /- f &1 &2 -/ ⊓ ∀' ((f.liftAt 1 0).liftAt 1 2 /- f &1 &3 -/ ⟹ &3 =' &2))))
-    ⟹ ∃' ∀' ((&2 ∈' &1) ⇔ ∃' ((&3 ∈' &0) ⊓ f.reverse.liftAt 2 0 /- f &3 &2-/))  -- should be correct
+      (∀' ((&1 ∈' &0) ⟹ ∃' (f.liftAt 1 0 ⊓ ∀' ((f.liftAt 1 0).liftAt 1 2 ⟹ &3 =' &2))))
+    ⟹ ∃' ∀' ((&2 ∈' &1) ⇔ ∃' ((&3 ∈' &0) ⊓ f.reverse.liftAt 2 0))
   · rename_i a; exact c a
   · simp only [Nat.reduceAdd, Fin.isValue, Function.comp_apply, realize_imp, realize_all,
     Nat.succ_eq_add_one, realize_rel, instStructureHFLangOfHFPrior_RelMap, Matrix.cons_val_zero,
@@ -299,42 +315,22 @@ theorem repl_scheme (x : S) {n} (ψ : S → S → Prop)
       ext i
       fin_cases i <;> simp <;> rfl
     · rw [realize_liftAt (by norm_num), realize_reverse_of_isQF (hφ := qf), hψ]
-      rename_i h a b c
+      rename_i _ a b c
       convert Iff.rfl using 1
       congr! 1
       ext i
       fin_cases i <;> simp <;> rfl
 
-  -- repl_scheme proof
-  -- revert x -- to prove ∀x α(x) using HF3/induction
-  -- apply HF.induction
-  -- -- base case
-  -- · intro _; use ∅  -- take z = ∅
-  --   simp [set_notin_empty]
-  -- -- inductive step
-  -- · intros x y hx _ h
-  --   simp_rw [enlarge_iff] at h; have h2 := h
-  --   specialize h y; simp only [or_true, forall_true_left] at h
-  --   cases' h with vy hvy
-  --   have hx1 : (∀ u ∈ x, ∃! v, ψ u v) := by simp_all
-  --   specialize hx hx1
-  --   cases' hx with xψ hxψ  -- xψ is {v : ∃ u ∈ x, ψ(u,v)}, which exists by hypothesis
-  --   use xψ ◁ vy  -- take z = {v : ∃ u ∈ x, ψ(u,v)} ◁ vy
-  --   simp_rw [enlarge_iff]; aesop
-
-/-- {v : ∃ u ∈ x, ψ(u,v)} -/
-noncomputable def repl (x : S) {n} (ψ : S → S → Prop)
+/-- The image of any set x under any definable mapping ψ is a set – {v : ∃ u ∈ x, ψ(u,v)} -/
+def SetByImage (x : S) {n} (ψ : S → S → Prop)
     (f : BoundedFormula HFLang (Fin n) 2)  (qf : f.IsQF)
     (c : Fin n → S) (hψ : ∀ x y, ψ x y ↔ f.Realize c ![x, y]) (h : (∀ u ∈ x, ∃! v, ψ u v)) : S
     := (repl_scheme x ψ f qf c hψ h).choose
 
-lemma repl_iff (x : S) {n} (ψ : S → S → Prop)
+@[simp] lemma setByImage_iff (x : S) {n} (ψ : S → S → Prop)
     (f : BoundedFormula HFLang (Fin n) 2)  (qf : f.IsQF)
     (c : Fin n → S) (hψ : ∀ x y, ψ x y ↔ f.Realize c ![x, y]) (h : (∀ u ∈ x, ∃! v, ψ u v)) :
-    ∀ (v : S), (v ∈ repl x ψ f qf c hψ h ↔ ∃ u ∈ x, ψ u v) := (repl_scheme x ψ f qf c hψ h).choose_spec
-
-
--- Definition 1.10 (Subset relation)
+    ∀ (v : S), (v ∈ SetByImage x ψ f qf c hψ h ↔ ∃ u ∈ x, ψ u v) := (repl_scheme x ψ f qf c hψ h).choose_spec
 
 /-- y ⊆ x -/
 abbrev SubsetEq (y x : S) : Prop := ∀ (v : S), v ∈ y → v ∈ x
@@ -342,68 +338,41 @@ abbrev SubsetEq (y x : S) : Prop := ∀ (v : S), v ∈ y → v ∈ x
 /-- y ⊂ x -/
 abbrev Subset (y x : S) : Prop := SubsetEq y x ∧ y ≠ x
 
-
--- Theorem 1.11 (Existence of the power set)
-
-lemma subset_enlarge (u x y Px : S) (hPx : ∀ (u : S), u ∈ Px ↔ SubsetEq u x) :
+lemma exists_powerSet_aux (u x y Px : S) (hPx : ∀ (u : S), u ∈ Px ↔ SubsetEq u x) :
     SubsetEq u (x ◁ y) ↔ (u ∈ Px) ∨ (∃ v ∈ Px, u = v ◁ y) := by
-  constructor
-  · intro hu
-    simp_rw [SubsetEq, enlarge_iff] at hu
-    by_cases hy : y ∈ u
-    · right
-      use Inter u x; constructor  -- the required v is u ∩ x
-      · simp_rw [hPx, SubsetEq, inter_iff]; simp_all
-      · simp_rw [HF.enlarge, inter_iff]; aesop
-    · left; rw [hPx, SubsetEq]
-      intros v hv; specialize hu v hv; aesop
-  · intro hu; cases' hu with hul hur
-    · rw [hPx, SubsetEq] at hul
-      simp_rw [SubsetEq, enlarge_iff]; simp_all
-    · cases' hur with v hv
-      cases' hv with hv1 hv2; rw [HF.enlarge] at hv2
-      simp_rw [SubsetEq, enlarge_iff, hv2]; aesop
+  simp_rw [SubsetEq] at *
+  refine ⟨?_, by aesop⟩
+  intro hu; simp only [enlarge_iff] at hu
+  by_cases y_in_u : y ∈ u
+  · right; use Inter u x
+    refine ⟨by simp_all, by simp only [enlarge, inter_iff]; aesop⟩
+  · left; rw [hPx]
+    intros v hv; specialize hu v hv; aesop
 
-theorem exists_power (x : S) : ∃ (z : S), ∀ (u : S), u ∈ z ↔ SubsetEq u x := by
+theorem exists_powerSet (x : S) : ∃ (z : S), ∀ (u : S), u ∈ z ↔ SubsetEq u x := by
   induction' x using HF.induction with x y hx _
-  · sorry
-  · sorry
+  · use Single ∅
+    simp [SubsetEq, exten_prop]
+  · cases' hx with Px hPx
+    have : (∀ v ∈ Px, ∃! u, u = v ◁ y) := by intros v _; use v ◁ y; simp_all
+    let z := SetByImage (n := 1) Px (fun v u ↦ u = v ◁ y) (&1 =' (.func ◁' ![&0, .var (.inl 0)]))
+        (by refine IsAtomic.isQF ?_; exact IsAtomic.equal ((var ∘ Sum.inr) 1) (func ◁' ![(var ∘ Sum.inr) 0, var (Sum.inl 0)]))
+        (![y]) (by simp) this
+    use Union Px z
+    intro u
+    rw [exists_powerSet_aux u x y Px hPx, union_iff, setByImage_iff]
   · exact 0
   · exact ∃' ∀' ((&2 ∈' &1) ⇔ (∀' ((&3 ∈' &2) ⟹ (&3 ∈' &0))))
   · rename_i a; exact Fin.elim0 a
   · simp; rfl
-  -- revert x -- to prove ∀x α(x) using HF3/induction
-  -- apply HF.induction
-  -- -- base case
-  -- · use single ∅  -- take z = {∅}
-  --   simp_rw [single_iff, SubsetEq, exten_prop]
-  --   simp [set_notin_empty]
-  -- -- inductive step
-  -- · intros x y hx _
-  --   cases' hx with Px hPx  -- Px is the power set P(x), which exists by hypothesis
-  --   have h : (∀ v ∈ Px, ∃! u, u = v ◁ y) := by  -- condition for usage replacement scheme
-  --     intros v _; use v ◁ y; simp_all
-  --   -- take z = P(x) ∪ {u : ∃ v ∈ P(x), u = v ◁ y}
-  --   use union (Px) (repl (Px) (fun v u ↦ u = v ◁ y) (h))
-  --   intro u; have hsub := subset_enlarge u x y Px  -- use the lemma
-  --   specialize hsub hPx; rw [hsub, union_iff, repl_iff]
 
-  /-- Power set: P(x) -/
-noncomputable def power (x : S) : S := (exists_power x).choose
+  /-- Power set -/
+def PowerSet (x : S) : S := (exists_powerSet x).choose
 
-lemma power_iff (x : S) : ∀ (u : S), u ∈ power x ↔ SubsetEq u x :=
-  (exists_power x).choose_spec
+lemma powerSet_iff (x : S) : ∀ (u : S), u ∈ PowerSet x ↔ SubsetEq u x :=
+  (exists_powerSet x).choose_spec
 
-
--- Definition 1.12 (∈-minimal element)
-
-/-- w an ∈-minimal element of z: w ∈ z ∧ w ∩ z = ∅ -/
-abbrev mem_min (w z : S) : Prop := w ∈ z ∧ Inter w z = ∅
-
-
--- Theorem 1.13 (Foundation Property)
-
-lemma found_prop_lemma (z : S) : (∀ w ∈ z, Inter w z ≠ ∅) → ∀ x, x ∉ z ∧ Inter x z = ∅ := by sorry
+lemma found_prop_aux (z : S) : (∀ w ∈ z, Inter w z ≠ ∅) → ∀ x, x ∉ z ∧ Inter x z = ∅ := by sorry
   -- intro h; apply HF.induction
   -- -- base case
   -- · constructor
@@ -427,26 +396,15 @@ lemma found_prop_lemma (z : S) : (∀ w ∈ z, Inter w z ≠ ∅) → ∀ x, x �
   --   · specialize h (x ◁ y) hnl; simp only [ne_eq] at h ; simp_all
   --   · simp_all
 
-theorem found_prop (z : S) : z ≠ ∅ → ∃ w, mem_min w z := by
-  have h := found_prop_lemma z
-  rw [not_imp_comm, not_exists]; intro h2
-  simp_rw [mem_min] at h2; simp only [not_and] at h2
-  simp only [ne_eq] at h
-  specialize h h2; rw [exten_prop]
-  simp_all [set_notin_empty]
-
-
--- Corollary 1.14
+theorem found_prop (z : S) : z ≠ ∅ → ∃ w, w ∈ z ∧ Inter w z = ∅ := by
+  rw [not_imp_comm, not_exists, exten_prop]
+  intro h; simp only [not_and] at h
+  simp_all [found_prop_aux z h]
 
 theorem set_notin_itself (x : S) : x ∉ x := by
-  have h := found_prop (Single x)
-  have hx : Single x ≠ ∅ := by
-    simp only [ne_eq]; simp_rw [Single, exten_prop, enlarge_iff]
-    simp_all [set_notin_empty]
-  specialize h hx
-  cases' h with w hw; rw [mem_min] at hw
-  simp_rw [Single, exten_prop, inter_iff, enlarge_iff] at hw
-  simp only [set_notin_empty] at hw; aesop
+  obtain ⟨w, hw⟩ := found_prop (Single x) (by simp_rw [ne_eq, exten_prop]; simp_all)
+  simp_rw [exten_prop, inter_iff, single_iff, set_in_empty_iff_false] at hw
+  aesop
 
 @[simp] lemma set_in_itself_iff_false (x : S) : x ∈ x ↔ False := by
   refine ⟨set_notin_itself x, by simp only [false_implies]⟩
