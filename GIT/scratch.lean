@@ -105,8 +105,7 @@ def FirstOrder.Language.BoundedFormula.reverse_aux {L : Language} {α : Type u'}
   | d, imp φ₁ φ₂ => (φ₁.reverse_aux d).imp (φ₂.reverse_aux d)
   | d, all φ => ((add_assoc n d 1 ▸ φ).reverse_aux (d + 1)).all
 
-variable {L : Language} {α : Type u'} in
-def FirstOrder.Language.BoundedFormula.reverse {n : ℕ} :
+def FirstOrder.Language.BoundedFormula.reverse {L : Language} {α : Type u'} {n : ℕ} :
     L.BoundedFormula α n → L.BoundedFormula α n :=
   FirstOrder.Language.BoundedFormula.reverse_aux 0
 
@@ -116,9 +115,9 @@ lemma realize_reverse {L : Language} {α : Type u'} {n : ℕ} [L.Structure S]
     φ.reverse.Realize v xs ↔ φ.Realize v (xs ∘ @Fin.rev n) := by
   unfold reverse reverse_aux
   induction' φ with m m t₁ t₂ m l R t m f₁ f₂ ih₁ ih₂ k f _
-  · simp [mapTermRel, Realize]
-  · simp [mapTermRel, Realize, Sum.elim_comp_map]
-  · simp [mapTermRel, Realize, Sum.elim_comp_map]
+  · simp [Realize]
+  · simp [Realize, Sum.elim_comp_map]
+  · simp [Realize, Sum.elim_comp_map]
   · sorry
   · sorry
 
