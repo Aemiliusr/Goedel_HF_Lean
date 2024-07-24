@@ -197,7 +197,7 @@ theorem exists_union (x y : S) : ∃(z : S), ∀(u : S), (u ∈ z ↔ (u ∈ x �
   · exact y
   · simp; rfl
 
-/-- x ∪ y -/
+/-- x ∪ y. Defined through z ∈ x ∪ y ↔ (z ∈ x ∨ z ∈ y). -/
 def Union (x y : S) : S := (exists_union x y).choose
 
 @[simp] lemma union_iff (x y : S) : ∀ (u : S), u ∈ Union x y ↔ u ∈ x ∨ u ∈ y :=
@@ -214,7 +214,7 @@ theorem exists_unionOfSet (x : S) : ∃(z : S), ∀(u : S), (u ∈ z ↔ (∃ y 
   · rename_i a; exact Fin.elim0 a
   · simp; rfl
 
-/-- ⋃ x -/
+/-- ⋃ x. Defined through z ∈ ⋃ x ↔ (∃ y ∈ x, z ∈ y). -/
 def UnionOfSet (x : S) : S := (exists_unionOfSet x).choose
 
 @[simp] lemma unionOfSet_iff (x : S) : ∀ (u : S), (u ∈ UnionOfSet x ↔ (∃ y ∈ x, u ∈ y)) :=
@@ -270,6 +270,10 @@ lemma inter_enlarge (x y : S) : Inter (x ◁ y) x = x := by
   simp only [exten_prop, inter_iff, enlarge_iff, and_iff_right_iff_imp]
   intro u a
   simp_all only [true_or]
+
+lemma inter_eq_emp_iff_no_el (x y : S) : Inter x y = ∅ ↔ ∀ u ∈ x, u ∉ y := by simp [exten_prop]
+
+lemma inter_neq_emp_iff_exists_el (x y : S) : Inter x y ≠ ∅ ↔ ∃ u ∈ x, u ∈ y := by simp [exten_prop]
 
 theorem repl_scheme (x : S) {n} (ψ : S → S → Prop)
     (f : BoundedFormula HFLang (Fin n) 2)  (qf : f.IsQF)
@@ -366,40 +370,36 @@ theorem exists_powerSet (x : S) : ∃ (z : S), ∀ (u : S), u ∈ z ↔ SubsetEq
   · rename_i a; exact Fin.elim0 a
   · simp; rfl
 
-  /-- Power set -/
+/-- Power set. Defined through u ∈ PowerSet x ↔ SubsetEq u x. -/
 def PowerSet (x : S) : S := (exists_powerSet x).choose
 
 lemma powerSet_iff (x : S) : ∀ (u : S), u ∈ PowerSet x ↔ SubsetEq u x :=
   (exists_powerSet x).choose_spec
 
-lemma found_prop_aux (z : S) : (∀ w ∈ z, Inter w z ≠ ∅) → ∀ x, x ∉ z ∧ Inter x z = ∅ := by sorry
-  -- intro h; apply HF.induction
-  -- -- base case
-  -- · constructor
-  --   · by_contra hn
-  --     specialize h ∅ hn; simp only [ne_eq] at h
-  --     simp_rw [exten_prop, inter_iff] at h; simp_all [set_notin_empty]
-  --   · simp_rw [exten_prop, inter_iff]; simp_all [set_notin_empty]
-  -- -- inductive step
-  -- · intros x y hx hy
-  --   by_contra hn; rw [not_and_or] at hn
-  --   simp only [not_not] at hn
-  --   have hxyz : (¬inter (x ◁ y) z = ∅) → False := by  -- covers both Case 1 and Case 2
-  --     intro hne; have hstep : inter x z ≠ ∅ → False := by simp_all
-  --     apply hstep
-  --     simp_rw [exten_prop, inter_iff, enlarge_iff] at hne; simp only [not_forall] at hne
-  --     cases' hne with w hw; simp [set_notin_empty] at hw
-  --     cases' hw with hw1 hw2; cases' hw1 with hwl hwr
-  --     · simp_rw [exten_prop, inter_iff] at hx; simp_all [set_notin_empty]
-  --     · simp_rw [exten_prop, inter_iff] at hy; simp_all
-  --   cases' hn with hnl hnr  -- Case 1 and Case 2
-  --   · specialize h (x ◁ y) hnl; simp only [ne_eq] at h ; simp_all
-  --   · simp_all
+lemma found_prop_aux (x z : S) (h : ∀ w ∈ z, Inter w z ≠ ∅) : x ∉ z ∧ Inter x z = ∅ := by
+  rw [inter_eq_emp_iff_no_el]; simp_rw [inter_neq_emp_iff_exists_el] at h
+  revert h
+  induction' x using HF.induction with x y hx hy
+  · intro h
+    refine ⟨?_, by simp_all⟩
+    by_contra hn
+    specialize h ∅ hn; simp_all
+  · intro h; specialize hx h; specialize hy h
+    rcases hx with ⟨_, hx2⟩; rcases hy with ⟨hy1, hy2⟩
+    refine ⟨?_, by simp only [enlarge_iff]; aesop⟩
+    by_contra hn; specialize h (x ◁ y) hn
+    simp only [enlarge_iff] at h
+    rcases h with ⟨u, ⟨h, _⟩⟩
+    cases' h with _ _ <;> simp_all only
+  · exact 1
+  · exact (∀' ((&1 ∈' .var (.inl 0)) ⟹ (∃' ((&2 ∈' &1) ⊓ (&2 ∈' .var (.inl 0)))))) ⟹ ((∼(&0 ∈' .var (.inl 0))) ⊓ (∀' ((&1 ∈' &0) ⟹ ∼(&1 ∈' .var (.inl 0)))))
+  · exact z
+  · simp; rfl
 
 theorem found_prop (z : S) : z ≠ ∅ → ∃ w, w ∈ z ∧ Inter w z = ∅ := by
   rw [not_imp_comm, not_exists, exten_prop]
   intro h; simp only [not_and] at h
-  simp_all [found_prop_aux z h]
+  intro u; simp_all [found_prop_aux u z h]
 
 theorem set_notin_itself (x : S) : x ∉ x := by
   obtain ⟨w, hw⟩ := found_prop (Single x) (by simp_rw [ne_eq, exten_prop]; simp_all)

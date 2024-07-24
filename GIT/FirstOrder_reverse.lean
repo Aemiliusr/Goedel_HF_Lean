@@ -4,17 +4,10 @@ import Mathlib.ModelTheory.Semantics
 
 open FirstOrder Language BoundedFormula
 
-/-- Auxiliary for reversing variables of a term. -/
-abbrev Fin.reverse (n : ℕ) : Fin n → Fin n := fun x ↦ ⟨n - 1 - x.val, by
-  cases n
-  · exact x.elim0
-  · omega
-  ⟩
-
 /-- Reverses all of the Fin-indexed variables of a term. -/
 abbrev FirstOrder.Language.Term.reverse {L : Language} {α : Type u'} {n : ℕ} :
     L.Term (α ⊕ (Fin n)) → L.Term (α ⊕ (Fin n)) :=
-  relabel (Sum.map id (Fin.reverse n))
+  relabel (Sum.map id (@Fin.rev n))
 
 /-- Reverses all of the Fin-indexed variables of a formula. -/
 abbrev FirstOrder.Language.BoundedFormula.reverse {L : Language} {α : Type u'} {n : ℕ}
@@ -35,7 +28,7 @@ lemma aux2 {L : Language} {α : Type u'} {m : ℕ} (f₁ f₂ : L.BoundedFormula
 
 @[simp] lemma realize_reverse_of_isQF {L : Language} [L.Structure S] {α : Type u'} {n : ℕ}
     (φ : L.BoundedFormula α n) (hφ : φ.IsQF) {v : α → S} (xs : Fin n → S) :
-    φ.reverse.Realize v xs ↔ φ.Realize v (xs ∘ Fin.reverse n) := by
+    φ.reverse.Realize v xs ↔ φ.Realize v (xs ∘ @Fin.rev n) := by
   rw [reverse]
   induction' φ with m m t₁ t₂ m l R t m f₁ f₂ ih₁ ih₂ k f _
   · simp [mapTermRel, Realize]

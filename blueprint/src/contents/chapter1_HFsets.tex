@@ -245,7 +245,7 @@ and that it contains a distinguished freely occuring variable which is quantifie
 \begin{theorem}[Replacement Scheme]
     \label{thm:repl_scheme}
     \lean{HF.repl_scheme}
-    \leanok
+    %\leanok
     \uses{ax:induction_axiom, lem:set_notin_empty+enlarge_iff+enlarge_empty}
     $$\forall x ([\forall (u \in x) [\exists! v] \psi (u,v)]\rightarrow \exists z \forall v [v\in z \leftrightarrow \exists(u \in x) \psi (u,v)]),$$ 
     for any $\mathcal{L}$-formula $\psi$ in which $z$ is not free.
@@ -304,12 +304,27 @@ and that it contains a distinguished freely occuring variable which is quantifie
 \begin{theorem}[Foundation Property]
     \label{thm:found_prop}
     \lean{HF.found_prop}
+    \leanok
     \uses{ax:induction_axiom, lem:set_notin_empty+enlarge_iff+enlarge_empty, thm:exten_prop, def:Inter}
     $\forall z (z\neq \varnothing \rightarrow \exists (w \in z)[w\cap z = \varnothing])$.
 \end{theorem}
 
 \begin{proof}
-    ...
+    \leanok
+    Pick z arbitrarily. 
+    We need to show that $\forall (w \in z)[w \cap z \neq \varnothing] \rightarrow z = \varnothing$, 
+    which follows if $\forall (w \in z)[w \cap z \neq \varnothing] \rightarrow \forall x \alpha(x)$, 
+    where $\alpha(x)$ is the formula $(x \notin z) \land (x \cap z = \varnothing)$.
+    Thus, assume $\forall (w \in z)[w \cap z \neq \varnothing]$ and pick $x$ arbitrarily.
+    We apply Axiom \ref{ax:induction_axiom}.
+    \begin{itemize}
+        \item For the base case — $\alpha (\varnothing)$ — the assumption immediately implies that $\varnothing \notin z$, 
+        as otherwise $\varnothing \cap z \neq \varnothing$.
+        \item For the induction step — $\forall y[\alpha(x) \land \alpha(y) \rightarrow \alpha(x \lhd y)]$ — pick $y$ arbitrarily and assume $\alpha(x)$ and $\alpha(y)$.
+        Suppose, for a contradiction, that $\neg \alpha (x \lhd y)$, i.e. that $(x \lhd y) \cap z \neq \varnothing \lor (x \lhd y) \in z$. 
+        As $y \notin z$ by $\alpha(y)$, the first case implies $x \cap z \neq \varnothing$, which contradicts $\alpha(x)$. 
+        By the assumption, the second case implies $(x \lhd y) \cap z \neq \varnothing$, which is the first case.
+    \end{itemize}
 \end{proof}
 
 \begin{corollary}
