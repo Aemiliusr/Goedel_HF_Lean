@@ -114,6 +114,11 @@ lemma set_notin_empty (x : S) : x ∉ (∅ : S) := by revert x; rw [← HF.empty
 @[simp] lemma set_in_empty_iff_false (x : S) : x ∈ (∅ : S) ↔ False := by
   refine ⟨by exact set_notin_empty x, by simp⟩
 
+lemma set_neq_empty_iff_exists_mem (x : S) : x ≠ ∅ ↔ ∃ y, y ∈ x := by
+  rw [ne_eq, HF.empty]
+  push_neg
+  rfl
+
 @[simp] lemma enlarge_iff (u x y : S) : u ∈ x ◁ y ↔ u ∈ x ∨ u = y := by
   have := HF.enlarge x y (x ◁ y); simp_all only [true_iff]
 
@@ -271,10 +276,6 @@ lemma inter_enlarge (x y : S) : Inter (x ◁ y) x = x := by
   intro u a
   simp_all only [true_or]
 
-lemma inter_eq_emp_iff_no_el (x y : S) : Inter x y = ∅ ↔ ∀ u ∈ x, u ∉ y := by simp [exten_prop]
-
-lemma inter_neq_emp_iff_exists_el (x y : S) : Inter x y ≠ ∅ ↔ ∃ u ∈ x, u ∈ y := by simp [exten_prop]
-
 theorem repl_scheme (x : S) {n} (ψ : S → S → Prop)
     (f : BoundedFormula HFLang (Fin n) 2)  (qf : f.IsQF)
     (c : Fin n → S) (hψ : ∀ x y, ψ x y ↔ f.Realize c ![x, y]) :
@@ -342,6 +343,12 @@ abbrev SubsetEq (y x : S) : Prop := ∀ (v : S), v ∈ y → v ∈ x
 /-- y ⊂ x -/
 abbrev Subset (y x : S) : Prop := SubsetEq y x ∧ y ≠ x
 
+lemma exists_set_notin_inter_if_subset (x y : S) (h : Subset x y) : ∃ z, z ∈ y ∧ z ∉ x := by
+  unfold Subset SubsetEq at h
+  by_contra! hn
+  have hf (u : S) : u ∈ x ↔ u ∈ y := by apply Iff.intro <;> intro a <;> simp_all only
+  simp_all [exten_prop]
+
 lemma exists_powerSet_aux (u x y Px : S) (hPx : ∀ (u : S), u ∈ Px ↔ SubsetEq u x) :
     SubsetEq u (x ◁ y) ↔ (u ∈ Px) ∨ (∃ v ∈ Px, u = v ◁ y) := by
   simp_rw [SubsetEq] at *
@@ -377,7 +384,8 @@ lemma powerSet_iff (x : S) : ∀ (u : S), u ∈ PowerSet x ↔ SubsetEq u x :=
   (exists_powerSet x).choose_spec
 
 lemma found_prop_aux (x z : S) (h : ∀ w ∈ z, Inter w z ≠ ∅) : x ∉ z ∧ Inter x z = ∅ := by
-  rw [inter_eq_emp_iff_no_el]; simp_rw [inter_neq_emp_iff_exists_el] at h
+  simp only [ne_eq, exten_prop, inter_iff, set_in_empty_iff_false, iff_false, not_and, not_forall,
+    Classical.not_imp, not_not] at *
   revert h
   induction' x using HF.induction with x y hx hy
   · intro h
@@ -408,5 +416,10 @@ theorem set_notin_itself (x : S) : x ∉ x := by
 
 @[simp] lemma set_in_itself_iff_false (x : S) : x ∈ x ↔ False := by
   refine ⟨set_notin_itself x, by simp only [false_implies]⟩
+
+lemma neq_if_mem (x y : S) (h : x ∈ y) : x ≠ y := by
+  by_contra!
+  subst x
+  rwa [← set_in_itself_iff_false y]
 
 end HF

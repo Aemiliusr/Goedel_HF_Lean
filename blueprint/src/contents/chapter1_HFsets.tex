@@ -341,5 +341,138 @@ and that it contains a distinguished freely occuring variable which is quantifie
     It follows that $\exists (w \in \{x\})[w\cap \{x\} = \varnothing]$, which implies $x \cap \{x\} = \varnothing$.
 \end{proof}
 
+\section{Ordinals}
 
+\begin{definition}
+    \label{def:IsTrans+IsOrd}
+    \leanok
+    \uses{def:SubsetEq+Subset}
+    We say that $x$ is \textit{transitive} if every element of $x$ is a subset of $x$. 
+    We call $x$ an \textit{ordinal} if $x$ is transitive and every element of $x$ is transitive, abbreviated by $\text{Ord}(x)$.
 
+    Ordinals will be mostly denoted by $k$, $l$, $m$, $n$, $p$, $q$, $r$.
+\end{definition}
+
+\begin{definition}
+    \label{def:Succ}
+    \leanok
+    The \textit{successor} of $x$ is defined as $x \lhd x$, abbreviated by $\text{succ}(x)$.
+\end{definition}
+
+\begin{lemma}
+    \label{lem:succ_isOrd_if_isOrd+mem_of_ord_isOrd+...+empty_in_ord}
+    \leanok
+    \uses{ax:empty_axiom, lem:set_notin_empty+enlarge_iff+enlarge_empty, thm:exten_prop, def:Inter, thm:found_prop, def:IsTrans+IsOrd, def:Succ}
+    \leavevmode
+    \begin{enumerate}
+        \item $\forall k(\text{Ord}(k) \rightarrow \text{Ord}(\text{succ}(k)))$.
+        \item $\forall k \forall l(\text{Ord}(k) \land l \in k \rightarrow \text{Ord}(l))$.
+        \item $\text{Ord}(\varnothing)$.
+        \item $\forall k \forall l ((\text{Ord}(k) \land (k \neq \varnothing) \land (l \cap k = \varnothing))\rightarrow(l \in k \leftrightarrow l = \varnothing))$.
+    \end{enumerate}
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \leavevmode
+    The proofs of 1, 2 and 3 are immediate from Definitions \ref{def:IsTrans+IsOrd} and \ref{def:Succ}.
+    For 4, pick $k$ a non-empty ordinal, $l$ such that $l \cap k = \varnothing$, and suppose $l \in k$.
+    As $k$ is an ordinal, $l \subseteq k$, and as $l \cap k = \varnothing$, it follows that $l=\varnothing$.
+    Conversely, as $k \neq \varnothing$, by Theorem \ref{thm:found_prop} there must exist such an $l \in k$ satisfying $l \cap k = \varnothing$.
+    Hence, $\varnothing \in k$.
+\end{proof}
+
+\begin{theorem}[Comparability of ordinals]
+    \label{thm:compar_of_ord_ord}
+    \leanok
+    \uses{ax:empty_axiom, lem:set_notin_empty+enlarge_iff+enlarge_empty, thm:comp_scheme, def:Inter, def:SubsetEq+Subset, thm:exists_powerSet,
+    thm:found_prop, cor:set_notin_itself, def:IsTrans+IsOrd, lem:succ_isOrd_if_isOrd+mem_of_ord_isOrd+...+empty_in_ord}
+    Let $k,l$ be ordinals. Then, $k \in l \lor k = l \lor l \in k$.
+\end{theorem}
+
+\setcounter{equation}{0}
+\begin{proof}
+    Denote the formula $k \in l \lor k = l \lor l \in k$ by $\beta (k,l)$. 
+    Suppose, for a contradiction, there exist ordinals $k$ and $l$ such that $\neg \beta (k,l)$, i.e. $k \notin l \land k \neq l \land l \notin k$. 
+    We claim there exists an ordinal $k_0$ that satisfies
+    \begin{equation}\label{eq:1}
+    \forall(m \in k_0)[\forall l \beta(m,l)] \land \exists l \neg \beta(k_0,l),
+    \end{equation}
+    where $\forall$ and $\exists$ range over ordinals. 
+    Indeed, if there exist ordinals $k$ and $l$ such that $\neg \beta (k,l)$, then 
+    $$K := \{m \subseteq k : \text{Ord}(m) \land \exists l (\text{Ord}(l) \land \neg \beta (m,l))\} \neq \varnothing.$$
+    By Theorem \ref{thm:found_prop}, there exists $k_0 \in K$ such that $k_0 \cap K = \varnothing$. 
+    We claim this $k_0$ satisfies (\ref{eq:1}). 
+    Clearly, $\exists l \neg \beta(k_0,l)$. 
+    Now suppose, for a contradiction, there exist ordinals $r_0 \in k_0$ and $l_0$ such that $\neg \beta (r_0,l_0)$. 
+    Then, as $k_0 \subseteq k$, $r_0 \in k$, and thus $r_0 \subseteq k$. 
+    Moreover, $r_0 \in K$, which contradicts $k_0 \cap K = \varnothing$. 
+    
+    We claim further that, having selected $k_0$ that satisfies (\ref{eq:1}), there exists an ordinal $l_0$ that satisfies 
+    \begin{equation}\label{eq:2}
+    \forall(p \in l_0)\beta(k_0,p) \land \neg \beta(k_0,l_0),
+    \end{equation}
+    where $\forall$ ranges over ordinals. 
+    Indeed, if there exists an ordinal $l$ such that $\neg \beta (k_0,l)$, then 
+    $$L := \{p \subseteq l : \text{Ord}(p) \land \neg \beta (k_0, p)\} \neq \varnothing.$$
+    By Theorem \ref{thm:found_prop}, there exists $l_0 \in L$ such that $l_0 \cap L = \varnothing$. 
+    We claim this $l_0$ satisfies (\ref{eq:2}). Clearly, $\neg \beta(k_0,l_0)$. 
+    Now suppose, for a contradiction, there exists an ordinal $q_0 \in l_0$ such that $\neg \beta (k_0, q_0)$. 
+    Then, as $l_0 \subseteq l$, $q_0 \in l$, and thus $q_0 \subseteq l$. 
+    Moreover, $q_0 \in L$, which contradicts $l_0 \cap L = \varnothing$. 
+    
+    We now claim that $l_0 \subset k_0$. Indeed, suppose $p \in l_0$. 
+    Then $\beta (k_0, p)$, by (\ref{eq:2}), i.e. $k_0 \in p \lor k_0 = p \lor p \in k_0$. 
+    But both $k_0 \in p$ and $k_0 = p$ contradict $\neg \beta(k_0,l_0)$ in (\ref{eq:2}), as $p \in l_0$ is assumed. 
+    Thus $p \in k_0$, and $l_0 \subseteq k_0$ follows. 
+    Since $l_0 = k_0$ also contradicts $\neg \beta(k_0,l_0)$ in (\ref{eq:2}), we get $l_0 \subset k_0$. \\
+    
+    Let $m \in k_0 \setminus l_0$. Then $\beta(m, l_0)$, by (\ref{eq:1}), i.e.
+    $$m \in l_0 \lor m = l_0 \lor l_0 \in m.$$
+    It follows immediately that $m \in l_0$ is impossible. 
+    But both $m=l_0$ and $l_0 \in m$ contradict $\neg \beta(k_0,l_0)$ in (\ref{eq:2}), as $m \in k_0$.
+\end{proof}
+
+\begin{lemma}
+    \label{lem:four}
+    \leanok
+    \uses{lem:set_notin_empty+enlarge_iff+enlarge_empty, thm:exten_prop, def:SubsetEq+Subset, cor:set_notin_itself, def:IsTrans+IsOrd, def:Succ,
+    lem:succ_isOrd_if_isOrd+mem_of_ord_isOrd+...+empty_in_ord, thm:compar_of_ord_ord}
+    Let $k,l$ be ordinals. Then,
+    \begin{enumerate}
+        \item Exactly one of $k\in l$, $k=l$, $l \in k$ occurs.
+        \item $k\in l \leftrightarrow k \subset l$.
+        \item $l \in k \rightarrow (\text{succ}(l)=k \lor \text{succ}(l)\in k)$.
+        \item $(\text{succ}(k) = \text{succ}(l) )\rightarrow k = l$.
+    \end{enumerate}
+\end{lemma}
+
+\begin{proof}
+    \leanok
+    \leavevmode
+    \begin{enumerate}
+        \item Any two of the three mentioned possibilities contradict Corollary \ref{cor:set_notin_itself}. 
+        At least one possibility occurs by Theorem \ref{thm:compar_of_ord_ord}.
+        \item The $\rightarrow$ direction follows by the transitivity of $l$ and Corollary \ref{cor:set_notin_itself}. 
+        Suppose $k \subset l$. Then $k \in l \lor l \in k$ by Theorem \ref{thm:compar_of_ord_ord}. 
+        But $l \in k$ yields $l \in l$, contradicting Corollary \ref{cor:set_notin_itself}.
+        \item By Theorem \ref{thm:compar_of_ord_ord}, we have to exclude $k \in \text{succ}(l)$, i.e. we have to show that neither $k\in l$ nor $k=l$ can occur. 
+        This is indeed so because each of these possibilities, together with $l\in k$, leads to $l \in l$.
+        \item Suppose, for a contradiction, that $k \neq l$. 
+        Then $\text{succ}(k) = k \lhd k = l \lhd l = \text{succ}(l)$ implies $k \in l$ and $l \in k$, yielding again $l \in l$.
+    \end{enumerate}
+\end{proof}
+
+\begin{lemma}
+    \label{lem:exists_max_of_set_of_ord+exists_min_of_set_of_ord}
+    \uses{ax:induction_axiom, lem:set_notin_empty+enlarge_iff+enlarge_empty, def:IsTrans+IsOrd, thm:compar_of_ord_ord}
+    If $x$ is a non-empty set of ordinals, then $x$ has a smallest and a largest element, i.e.
+    \begin{equation*}
+    \exists(l \in x) \forall (k \in x) [l \in k \lor l = k]\quad\text{and}\quad\exists(l \in x) \forall (k \in x) [k \in l \lor k = l].
+    \end{equation*}
+\end{lemma}
+
+%\begin{proof}
+    %Let $\alpha (x)$ be the formula $\exists z \forall u (u\in z \leftrightarrow u \subseteq x)$.
+    %We apply Axiom \ref{ax:induction_axiom}.
+%\end{proof}

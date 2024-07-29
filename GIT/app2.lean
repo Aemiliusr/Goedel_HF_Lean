@@ -185,7 +185,6 @@ lemma mem_antisymm_of_ord (k l : S) (ord_k : ord k) (k_in_l : k ∈ l) (l_in_k :
 theorem exclusive_compar_of_ord_ord (k l : S) (ord_k : ord k) (ord_l : ord l) :
   (k ∈ l ∧ (k ≠ l ∧ l ∉ k)) ∨ (k = l ∧ (k ∉ l ∧ l ∉ k)) ∨ (l ∈ k ∧ (k ∉ l ∧ k ≠ l)) := by
   have h := compar_of_ord_ord k l; specialize h ord_k ord_l
-  have k_notin_k := set_notin_itself k
   by_cases k_in_l : k ∈ l
   · left; simp only [k_in_l, true_and]
     refine ⟨by aesop, ?_⟩
