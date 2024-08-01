@@ -11,21 +11,21 @@ The axioms are given by the following sentences.
 
 \begin{axiom}
     \label{ax:empty_axiom}
-    \lean{HF.empty}
+    %\lean{}
     \leanok
     $\forall z (z=\varnothing \leftrightarrow \forall x(x \notin z))$.
 \end {axiom}
 
 \begin{axiom}
     \label{ax:enlarge_axiom}
-    \lean{HF.enlarge}
+    %\lean{}
     \leanok
     $\forall z (z=x \lhd y \leftrightarrow \forall u(u \in z \leftrightarrow u \in x \lor u=y))$.
 \end {axiom}
 
 \begin{axiom}
     \label{ax:induction_axiom}
-    \lean{HF.induction}
+    %\lean{}
     \leanok
     $(\alpha(\varnothing) \land \forall x \forall y[\alpha(x) \land \alpha(y) \rightarrow \alpha(x \lhd y)]) \rightarrow \forall x \alpha(x)$.
 \end {axiom}
@@ -37,7 +37,7 @@ and that it contains a distinguished freely occuring variable which is quantifie
 
 \begin{lemma}
     \label{lem:set_notin_empty+enlarge_iff+enlarge_empty}
-    \lean{HF.set_notin_empty, HF.enlarge_iff, HF.enlarge_empty}
+    %\lean{}
     \leanok
     \uses{ax:empty_axiom, ax:enlarge_axiom}
     \leavevmode
@@ -60,7 +60,7 @@ and that it contains a distinguished freely occuring variable which is quantifie
 
 \begin{theorem}[Extensionality Property]
     \label{thm:exten_prop}
-    \lean{HF.exten_prop}
+    %\lean{}
     \leanok
     \uses{ax:empty_axiom, ax:enlarge_axiom, ax:induction_axiom, lem:set_notin_empty+enlarge_iff+enlarge_empty}
     $\forall x \forall z (x=z \leftrightarrow \forall u (u \in x \leftrightarrow u \in z))$.
@@ -79,7 +79,7 @@ and that it contains a distinguished freely occuring variable which is quantifie
 
 \begin{definition}
     \label{def:Single+Pair+OrdPair}
-    \lean{HF.Single, HF.Pair, HF.OrdPair}
+    %\lean{}
     \leanok
     Denote by $\{x\}$, $\{x,y\}$ and $\langle x,y\rangle$ the following \textit{terms}:
     \begin{enumerate}
@@ -91,7 +91,7 @@ and that it contains a distinguished freely occuring variable which is quantifie
 
 \begin{lemma}
     \label{lem:single_iff+pair_iff+...+ordPair_equal}
-    \lean{HF.single_iff, HF.pair_iff, HF.duplic_pair_eq_single, HF.ordPair_equal}
+    %\lean{}
     \leanok
     \uses{lem:set_notin_empty+enlarge_iff+enlarge_empty, thm:exten_prop, def:Single+Pair+OrdPair}
     \leavevmode
@@ -153,7 +153,7 @@ and that it contains a distinguished freely occuring variable which is quantifie
 
 \begin{theorem}[Existence of the union of two sets]
     \label{thm:exists_union}
-    \lean{HF.exists_union}
+    %\lean{HF.exists_union}
     \leanok
     \uses{ax:induction_axiom, lem:set_notin_empty+enlarge_iff+enlarge_empty}
     $\forall x \forall y \exists z \forall u (u \in z \leftrightarrow u \in x \lor u \in y)$.
@@ -174,7 +174,7 @@ and that it contains a distinguished freely occuring variable which is quantifie
 
 \begin{theorem}[Existence of the union of a set of sets]
     \label{thm:exists_unionOfSet}
-    \lean{HF.exists_unionOfSet}
+    %\lean{HF.exists_unionOfSet}
     \leanok
     \uses{ax:induction_axiom, lem:set_notin_empty+enlarge_iff+enlarge_empty, thm:exists_union}
     $\forall x \exists z \forall u (u \in z \leftrightarrow \exists (y\in x)[u \in y])$.
@@ -203,7 +203,7 @@ and that it contains a distinguished freely occuring variable which is quantifie
 
 \begin{theorem}[Comprehension Scheme]
     \label{thm:comp_scheme}
-    \lean{HF.comp_scheme}
+    %\lean{HF.comp_scheme}
     \leanok
     \uses{ax:induction_axiom, lem:set_notin_empty+enlarge_iff+enlarge_empty}
     $\forall x \exists z \forall u (u\in z \leftrightarrow (u \in x) \land \phi (u))$, for any $\mathcal{L}$-formula $\phi$ in which $z$ is not free.
@@ -232,7 +232,7 @@ and that it contains a distinguished freely occuring variable which is quantifie
 
 \begin{definition}[Intersection]
     \label{def:Inter}
-    \lean{HF.Inter, HF.InterSet}
+    %\lean{HF.Inter, HF.InterSet}
     \leanok
     \uses{thm:exists_unionOfSet, thm:comp_scheme}
     Introduce the notation:
@@ -244,7 +244,7 @@ and that it contains a distinguished freely occuring variable which is quantifie
 
 \begin{theorem}[Replacement Scheme]
     \label{thm:repl_scheme}
-    \lean{HF.repl_scheme}
+    %\lean{HF.repl_scheme}
     %\leanok
     \uses{ax:induction_axiom, lem:set_notin_empty+enlarge_iff+enlarge_empty}
     $$\forall x ([\forall (u \in x) [\exists! v] \psi (u,v)]\rightarrow \exists z \forall v [v\in z \leftrightarrow \exists(u \in x) \psi (u,v)]),$$ 
@@ -267,7 +267,7 @@ and that it contains a distinguished freely occuring variable which is quantifie
 
 \begin{definition}[Subset relation]
     \label{def:SubsetEq+Subset}
-    \lean{HF.SubsetEq, HF.Subset}
+    %\lean{HF.SubsetEq, HF.Subset}
     \leanok
     Introduce the notation:
     \begin{enumerate}
@@ -278,7 +278,7 @@ and that it contains a distinguished freely occuring variable which is quantifie
 
 \begin{theorem}[Existence of the power set]
     \label{thm:exists_powerSet}
-    \lean{HF.exists_powerSet}
+    %\lean{HF.exists_powerSet}
     \leanok
     \uses{ax:induction_axiom, lem:set_notin_empty+enlarge_iff+enlarge_empty, thm:exten_prop, def:Single+Pair+OrdPair, lem:single_iff+pair_iff+...+ordPair_equal, thm:exists_union, thm:repl_scheme, def:SubsetEq+Subset}
     $\forall x \exists z \forall u (u\in z \leftrightarrow u \subseteq x).$
@@ -303,7 +303,7 @@ and that it contains a distinguished freely occuring variable which is quantifie
 
 \begin{theorem}[Foundation Property]
     \label{thm:found_prop}
-    \lean{HF.found_prop}
+    %\lean{HF.found_prop}
     \leanok
     \uses{ax:induction_axiom, lem:set_notin_empty+enlarge_iff+enlarge_empty, thm:exten_prop, def:Inter}
     $\forall z (z\neq \varnothing \rightarrow \exists (w \in z)[w\cap z = \varnothing])$.
@@ -329,7 +329,7 @@ and that it contains a distinguished freely occuring variable which is quantifie
 
 \begin{corollary}
     \label{cor:set_notin_itself}
-    \lean{HF.set_notin_itself}
+    %\lean{HF.set_notin_itself}
     \leanok
     \uses{lem:set_notin_empty+enlarge_iff+enlarge_empty, thm:exten_prop, def:Single+Pair+OrdPair, lem:single_iff+pair_iff+...+ordPair_equal, def:Inter, thm:found_prop}
     $\forall x (x \notin x)$.

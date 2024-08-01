@@ -1,100 +1,18 @@
 import Mathlib.Tactic
 import Mathlib.ModelTheory.Syntax
 import Mathlib.ModelTheory.Semantics
+import Mathlib.ModelTheory.Order
 
 open FirstOrder Language BoundedFormula
-
-/-- The first-order language of HF. -/
-def HFLang : Language.{0, 0} where
-  Functions :=
-  fun
-  | 0 => PUnit -- We have one 0-ary function, i.e. a constant term, "for the empty set".
-  | 1 => Empty -- We have no 1-ary functions.
-  | 2 => PUnit -- We have one 2-ary function "for enlargement".
-  | _ + 3 => Empty -- We have no n-ary functions for n > 2.
-  Relations :=
-  fun
-  | 0 => Empty -- We have no 0-ary relations.
-  | 1 => Empty -- We have no unary relations.
-  | 2 => PUnit -- We have one binary relation for "membership"
-  | _ + 3 => Empty -- We have no n-ary relations for n > 2.
-
-/-- Empty set: constant symbol. -/
-abbrev HFLang.emptySetSymbol : HFLang.Functions 0 := PUnit.unit
-
-local notation "∅'" => HFLang.emptySetSymbol
-
-/-- Enlargement: 2-ary function symbol. -/
-abbrev HFLang.enlargementSymbol : HFLang.Functions 2 := PUnit.unit
-
-local notation "◁'" => HFLang.enlargementSymbol
-
-/-- Membership: 2-ary relation symbol. -/
-abbrev HFLang.membershipSymbol : HFLang.Relations 2 := PUnit.unit
-
-local notation t " ∈' " s => HFLang.membershipSymbol.boundedFormula ![t, s]
-
-universe u
-
-/-- HF class -/
-class HFPrior (s : Type u) where
-  /-- Empty set: constant symbol. -/
-  EmptySet : s
-  /-- Enlargement: 2-ary function symbol. -/
-  Enlarging : s → s → s
-  /-- Membership: 2-ary relation symbol. -/
-  Mem : s → s → Prop
-
-/-- Write `∅` instead of `EmptySet`. -/
-instance (s) [HFPrior s] : EmptyCollection s := ⟨HFPrior.EmptySet⟩
-
-/-- Write `∈` instead of `Mem`. -/
-instance (s) [HFPrior s] : Membership s s := ⟨HFPrior.Mem⟩
-
-/-- Write `◁` instead of `Enlarging`. -/
-infixl:90 " ◁ " => HFPrior.Enlarging
-
-@[simps]
-instance (s) [HFPrior s] : HFLang.Structure s where
-  funMap {n} _ h := match n with
-  | 0 => ∅
-  | 2 => h 0 ◁ h 1
-  RelMap {n} _ h := match n with
-  | 2 => h 0 ∈ h 1
-
-/-- HF axioms -/
-class HF (s : Type u) extends HFPrior s where
-  /-- Axiom 1 "for the empty set". -/
-  empty (z : s) : z = ∅ ↔ ∀ x, x ∉ z
-  /-- Axiom 2 "for enlargement". -/
-  enlarge (x y z : s) : z = x ◁ y ↔ ∀ u, u ∈ z ↔ u ∈ x ∨ u = y
-  /-- Axiom 3: the induction principle. The addtional four goals (next to base and step)
-  ensure induction is over all formulae in the first-order language of HF rather than over all predicates.  -/
-  induction (α : s → Prop) (base : α ∅) (step : ∀ x y, α x → α y → α (x ◁ y)) (z : s)
-      (n : Nat) (f : Language.BoundedFormula HFLang (Fin n) 1) (t : (Fin n) → s)
-      (hP : α z ↔ f.Realize t (fun _ ↦ z)) : α z
-
-attribute [elab_as_elim] HF.induction
-
-suppress_compilation
-
-variable {S : Type u} [HF S]
-
--- section Fin
--- variable {n : ℕ} {α : Fin (n + 1) → Type u} (x : α (last n)) (q : ∀ i, α i)
---    (p : ∀ i : Fin n, α (castSucc i)) (i : Fin n) (y : α (castSucc i)) (z : α (last n))
-
--- lemma Fin_snoc_zero' : Fin.snoc p s 0 = p 0 := sorry
-
--- end Fin
--- open Fin
-
-----------------------------------------------------------------------------------------------------
 
 /-- Reverses all of the Fin-indexed variables of a term. -/
 abbrev FirstOrder.Language.Term.reverse {L : Language} {α : Type u'} {n : ℕ} :
     L.Term (α ⊕ (Fin n)) → L.Term (α ⊕ (Fin n)) :=
   relabel (Sum.map id (@Fin.rev n))
+
+-- abbrev FirstOrder.Language.Term.swap {L : Language} {α : Type u'} {n : ℕ} (i j : Fin n) :
+--     L.Term (α ⊕ (Fin n)) → L.Term (α ⊕ (Fin n)) :=
+--   relabel (Sum.map id (fun x ↦ if x = i then j else if x = j then i else x : Fin n → Fin n))
 
 /-- Reverse first n variables, leave the rest. -/
 def FirstOrder.Language.BoundedFormula.reverse_aux {L : Language} {α : Type u'} {n : ℕ} :
@@ -105,107 +23,170 @@ def FirstOrder.Language.BoundedFormula.reverse_aux {L : Language} {α : Type u'}
   | d, imp φ₁ φ₂ => (φ₁.reverse_aux d).imp (φ₂.reverse_aux d)
   | d, all φ => ((add_assoc n d 1 ▸ φ).reverse_aux (d + 1)).all
 
-def FirstOrder.Language.BoundedFormula.reverse {L : Language} {α : Type u'} {n : ℕ} :
+
+-- -- /-- Reverse first n variables, leave the rest. -/
+-- def FirstOrder.Language.BoundedFormula.swap_aux {L : Language} {α : Type u'} {n : ℕ} (i j : Fin n) :
+--     ∀ (d : ℕ), L.BoundedFormula α (n + d) → L.BoundedFormula α (n + d)
+--   | _d, falsum => falsum
+--   | _d, equal t₁ t₂ =>
+--     equal (t₁.swap (Fin.castLE (Nat.le_add_right n _d) i) (Fin.castLE (Nat.le_add_right n _d) j))
+--       (t₂.swap (Fin.castLE (Nat.le_add_right n _d) i) (Fin.castLE (Nat.le_add_right n _d) j))
+--   | _d, rel R ts => rel R fun x =>
+--       (ts x).swap (Fin.castLE (Nat.le_add_right n _d) i) (Fin.castLE (Nat.le_add_right n _d) j)
+--   | d, imp φ₁ φ₂ => (φ₁.swap_aux i j d).imp (φ₂.swap_aux i j d)
+--   | d, all φ => ((add_assoc n d 1 ▸ φ).swap_aux i j (d + 1)).all
+
+-- -- swap (∀ f) i j = ∀ swap f (i + 1) (j + 1)
+
+
+variable {L : Language} {α : Type u'} in
+def FirstOrder.Language.BoundedFormula.reverse {n : ℕ} :
     L.BoundedFormula α n → L.BoundedFormula α n :=
   FirstOrder.Language.BoundedFormula.reverse_aux 0
+
+
+-- -- swap f i j = swap f j i
+-- -- swap f i i = f
+-- variable {L : Language} {α : Type u'} in
+-- def FirstOrder.Language.BoundedFormula.swap {n : ℕ} (i j : Fin n) :
+--     L.BoundedFormula α n → L.BoundedFormula α n :=
+--   FirstOrder.Language.BoundedFormula.swap_aux i j 0
+
+
+-- -- to prove for all i and j, we can assume j < i because if i = j, then swap doesn't change anything
+-- -- if i < j then we can prove swap j i instead
+-- -- can we assume i + 1 < n then?
+-- -- if i + 1 = n, then we are dealing with swap f (n - 1) j = swap f j (n - 1) since j < i = n - 1
+-- example {L : Language} {α : Type u'} {n : ℕ} (i j : Fin n) (hi : j < i) (hi' : i.1 + 1 < n)
+--     (f : L.BoundedFormula α (n + 1)) :
+--     (∀' f).swap i j =
+--     -- if h : i.1 + 1 < n ∧ j < i then
+--     ∀' (f.swap_aux ⟨i.1 + 1, by omega⟩ ⟨j.1 + 1, by omega⟩)
+--     -- else
+--     -- sorry
+--     := by
+--   -- suffices ....
+--   induction' n with n ih
+--   · simp only [not_lt_zero'] at hi'
+--   ·
+--     sorry
+
+-- --- this lemma might be true now
+-- lemma realize_swap {L : Language} {α : Type u'} {n : ℕ} (i j : Fin n) [L.Structure S]
+--     (φ : BoundedFormula L α n) (v : α → S) (xs : Fin n → S) :
+--     (φ.swap i j).Realize v xs ↔
+--     φ.Realize v
+--       (xs ∘ (fun x ↦ if x = i then j else if x = j then i else x : Fin n → Fin n)) := by
+--   induction' φ with m m t₁ t₂ m l R t m f₁ f₂ ih₁ ih₂ k f ih
+--   · unfold swap swap_aux
+--     simp only [Realize]
+--   · unfold swap swap_aux
+--     simp only [Realize, Nat.add_zero, Fin.castLE_rfl, id_eq, Term.realize_relabel,
+--       Sum.elim_comp_map, CompTriple.comp_eq]
+--   · unfold swap swap_aux
+--     simp only [Realize, Nat.add_zero, Fin.castLE_rfl, id_eq, Term.realize_relabel,
+--       Sum.elim_comp_map, CompTriple.comp_eq]
+--   · unfold swap swap_aux
+--     simp only [Realize]
+--     specialize ih₁ i j xs
+--     specialize ih₂ i j xs
+--     rw [← ih₁, ← ih₂]
+--     unfold swap swap_aux
+--     simp only [Nat.add_eq]
+--   · simp only [realize_all, Nat.succ_eq_add_one]
+--     unfold swap swap_aux
+--     refine forall_congr' fun s => ?_
+--     specialize ih (Fin.castLE (Nat.le_add_right k 1) i) (Fin.castLE (Nat.le_add_right k 1) j)
+--       (Fin.snoc xs s)
+
+--     have eq :
+--       (Fin.snoc (xs ∘ fun x ↦ if x = i then j else if x = j then i else x) s : Fin (k + 1) → S) =
+--       Fin.snoc xs s ∘ fun x ↦ if x = (Fin.castLE (Nat.le_add_right k 1) i)
+--         then (Fin.castLE (Nat.le_add_right k 1) j)
+--         else if x = (Fin.castLE (Nat.le_add_right k 1) j)
+--         then (Fin.castLE (Nat.le_add_right k 1) i)
+--         else x  := by
+--       sorry
+--     rw [eq, ← ih]
+--     simp only [Nat.reduceAdd]
+--     unfold swap swap_aux
+
+
+--     sorry
+
 
 --- this lemma might be true now
 lemma realize_reverse {L : Language} {α : Type u'} {n : ℕ} [L.Structure S]
     (φ : BoundedFormula L α n) (v : α → S) (xs : Fin n → S) :
     φ.reverse.Realize v xs ↔ φ.Realize v (xs ∘ @Fin.rev n) := by
-  unfold reverse reverse_aux
-  induction' φ with m m t₁ t₂ m l R t m f₁ f₂ ih₁ ih₂ k f _
-  · simp [Realize]
-  · simp [Realize, Sum.elim_comp_map]
-  · simp [Realize, Sum.elim_comp_map]
-  · sorry
-  · sorry
+  -- unfold reverse reverse_aux
+  induction' φ with m m t₁ t₂ m l R t m f₁ f₂ ih₁ ih₂ k f ih
+  · unfold reverse reverse_aux
+    simp [mapTermRel, Realize]
+  · unfold reverse reverse_aux
+    simp [mapTermRel, Realize, Sum.elim_comp_map]
+  · unfold reverse reverse_aux
+    simp [mapTermRel, Realize, Sum.elim_comp_map]
+  · unfold reverse reverse_aux
+    simp only [Nat.add_zero, realize_imp]
+    specialize ih₁ xs
+    specialize ih₂ xs
+    rw [← ih₁, ← ih₂]
+    unfold reverse reverse_aux
+    simp only [Nat.add_eq]
+
+  · simp only [realize_all, Nat.succ_eq_add_one]
+    unfold reverse reverse_aux
+    refine forall_congr' fun s => ?_
+    have h₁ : (Fin.snoc (xs ∘ Fin.rev) s : Fin (k + 1) → S) =
+       (Fin.cons s xs) ∘ Fin.rev := sorry
+    specialize ih (Fin.cons s xs)
+    rw [h₁, ← ih]
+
+    conv_lhs => unfold reverse_aux
+
+    sorry
 
 
--- /-- Reverses all of the Fin-indexed variables of a formula. -/
--- abbrev FirstOrder.Language.BoundedFormula.reverse {L : Language} {α : Type u'} {n : ℕ}
---     (φ : L.BoundedFormula α n) : L.BoundedFormula α n :=
---   φ.mapTermRel (g := id) (fun _ t => t.reverse) (fun _ => id) (fun _ => castLE le_rfl)
+lemma test : False := by
+  let L := FirstOrder.Language.order
+  letI : L.Structure ℕ := inferInstance
+  let φ : L.BoundedFormula (Fin 0) 2 := Term.le (.var $ .inr 0) (.var $ .inr 1)
+  let ψ := ∀' φ
 
--- lemma aux1 {L : Language} {α : Type u'} {m : ℕ} (f₁ f₂ : L.BoundedFormula α m)
---     (H : (f₁ ⟹ f₂).IsQF) : f₁.IsQF := by
---   rcases H with H|H|⟨H1, H2⟩
---   · rcases H with H|H
---   · exact H1
+  have h1 : ¬ ψ.reverse.Realize finZeroElim ![0] := by
+    unfold reverse reverse_aux
+    simp only [Nat.add_eq, Nat.add_zero, Nat.reduceAdd, realize_all, Nat.succ_eq_add_one,
+      not_forall]
+    use 1
+    rw [show Fin.snoc ![0] 1 = ![0, 1] by
+      ext i; fin_cases i
+      · simp [Fin.snoc]
+      · rfl]
+    simp only [Term.reverse, Fin.isValue, Nat.succ_eq_add_one, Nat.reduceAdd]
+    unfold reverse_aux
+    simp only [Realize, Nat.reduceAdd, Fin.isValue, Term.realize_relabel]
+    set x := _; change ¬ Structure.RelMap _ x
+    have eq1 : x = ![1, 0] := by
+      simp only [Fin.isValue, Nat.succ_eq_add_one, Nat.reduceAdd, x]
+      ext i
+      fin_cases i
+      · simp only [Fin.isValue, Fin.zero_eta, Matrix.cons_val_zero, Term.realize_var,
+        Function.comp_apply, Sum.map_inr, Fin.rev_zero, Sum.elim_inr]; rfl
+      · simp only [Fin.isValue, Fin.mk_one, Matrix.cons_val_one, Matrix.head_cons,
+        Term.realize_var, Function.comp_apply, Sum.map_inr, Sum.elim_inr]; rfl
+    rw [eq1]
+    rw [relMap_leSymb]
+    omega
 
--- lemma aux2 {L : Language} {α : Type u'} {m : ℕ} (f₁ f₂ : L.BoundedFormula α m)
---     (H : (f₁ ⟹ f₂).IsQF) : f₂.IsQF := by
---   rcases H with H|H|⟨H1, H2⟩
---   · rcases H with H|H
---   · exact H2
-
--- @[simp] lemma realize_reverse_of_isQF {L : Language} [L.Structure S] {α : Type u'} {n : ℕ}
---     (φ : L.BoundedFormula α n) (hφ : φ.IsQF) {v : α → S} (xs : Fin n → S) :
---     φ.reverse.Realize v xs ↔ φ.Realize v (xs ∘ Fin.reverse n) := by
---   rw [reverse]
---   induction' φ with m m t₁ t₂ m l R t m f₁ f₂ ih₁ ih₂ k f _
---   · simp [mapTermRel, Realize]
---   · simp [mapTermRel, Realize, Sum.elim_comp_map]
---   · simp [mapTermRel, Realize, Sum.elim_comp_map]
---   · specialize ih₁ (aux1 f₁ f₂ hφ) xs
---     specialize ih₂ (aux2 f₁ f₂ hφ) xs
---     simp_all only [mapTermRel, Realize, id_eq]
---   · exfalso
---     exact not_all_isQF _ hφ
-
--- theorem repl_scheme (x : S) {n} (ψ : S → S → Prop)
---     (f : BoundedFormula HFLang (Fin n) 2)  (qf : f.IsQF)
---     (c : Fin n → S) (hψ : ∀ x y, ψ x y ↔ f.Realize c ![x, y]) :
---     (∀ u ∈ x, ∃ v, (ψ u v ∧ ∀ w, (ψ u w → w = v))) → (∃ (z : S), ∀ v, (v ∈ z ↔ ∃ u ∈ x, ψ u v)) := by
---   induction' x using HF.induction with x y hx _
---   · sorry -- done
---   · sorry -- done
---   · exact n
---   · exact
---       (∀' ((&1 ∈' &0) ⟹ ∃' (f.liftAt 1 0 /- f &1 &2 -/ ⊓ ∀' ((f.liftAt 1 0).liftAt 1 2 /- f &1 &3 -/ ⟹ &3 =' &2))))
---     ⟹ ∃' ∀' ((&2 ∈' &1) ⇔ ∃' ((&3 ∈' &0) ⊓ f.reverse.liftAt 2 0 /- f &3 &2-/))  -- should be correct
---   · rename_i a; exact c a
---   · simp
---     convert Iff.rfl
---     · rw [realize_liftAt (by norm_num), hψ]
---       convert Iff.rfl using 1
---       congr! 1
---       ext i
---       fin_cases i <;> simp <;> rfl
---     · rw [realize_liftAt (by norm_num), realize_liftAt (by norm_num), hψ]
---       convert Iff.rfl using 1
---       congr! 1
---       ext i
---       fin_cases i <;> simp <;> rfl
---     · rw [realize_liftAt (by norm_num), realize_reverse_of_isQF (hφ := qf), hψ]
---       rename_i h a b c
---       convert Iff.rfl using 1
---       congr! 1
---       ext i
---       fin_cases i <;> simp <;> rfl
+  have h2 : ψ.Realize finZeroElim ![0] := by
+    simp only [Fin.isValue, realize_all, Nat.succ_eq_add_one, Nat.reduceAdd, Term.realize_le,
+      Term.realize_var, Sum.elim_inr, ψ, φ]
+    intro n
+    simp only [Fin.snoc, Nat.reduceAdd, Fin.isValue, Fin.val_zero, zero_lt_one, ↓reduceDIte,
+      Nat.zero_eq, Fin.castSucc_castLT, Matrix.cons_val_fin_one, cast_eq, Fin.val_one,
+      lt_self_iff_false, zero_le]
 
 
-----------------------------------------------------------------------------------------------------
-
-/-- y ⊆ x -/
-abbrev subset_eq (y x : S) : Prop := ∀ (v : S), v ∈ y → v ∈ x
-
-/-- The set x is transitive -/
-abbrev tran (x : S) : Prop := ∀ y ∈ x, subset_eq y x
-
-/-- The set x is an ordinal -/
-abbrev ord (x : S) : Prop := tran x ∧ ∀ y ∈ x, tran y
-
-theorem exists_max_of_set_of_ord (x : S) (set_of_ord : ∀ k ∈ x, ord k) (neq_emp : x ≠ ∅) :
-    ∃ l ∈ x, ∀ k ∈ x, (k ∈ l ∨ k = l) := by sorry
-  -- induction' x using HF.induction with x y hx _
-
-theorem exists_min_of_set_of_ord (x : S) (set_of_ord : ∀ k ∈ x, ord k) (neq_emp : x ≠ ∅) :
-    ∃ l ∈ x, ∀ k ∈ x, (l ∈ k ∨ l = k) := by sorry
-  -- induction' x using HF.induction with x y hx _
-
-lemma toSetS_finite (x : S) : Set.Finite {s : S | s ∈ x} := by sorry
-  -- induction' x using HF.induction with x y hx _
-
-
--- app4 also contains one occurence of HF.induction: `exists_ordinal_set_in_R `
+  rw [realize_reverse (φ := ψ) finZeroElim] at h1
+  exact h1 (by convert h2; ext; simp)
