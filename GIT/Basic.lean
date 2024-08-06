@@ -279,7 +279,7 @@ theorem comp_scheme (x : S) (φ : S → Prop) {n} (f : BoundedFormula HFLang (Fi
     simp_all only [Matrix.cons_val_fin_one, Function.comp_apply]
     rfl
 
-/-- Any definable (defined through a formula φ) sublass of a set x is a set — {u ∈ x : φ(u)} -/
+/-- Any definable (defined through a formula φ) sublass of a set x is a set — {u ∈ x : φ(u)}. -/
 def setOfMem (x : S) (φ : S → Prop) {n} (f : BoundedFormula HFLang (Fin n) 1) (c : Fin n → S)
     (hφ : ∀ x, φ x ↔ f.Realize c ![x]) : S := (comp_scheme x φ f c hφ).choose
 
@@ -375,7 +375,7 @@ theorem repl_scheme (x : S) {n} (ψ : S → S → Prop)
       fin_cases i <;> simp only [Nat.succ_eq_add_one, Nat.reduceAdd, Fin.zero_eta, Fin.isValue,
         Matrix.cons_val_zero, not_lt_zero', ↓reduceIte, Function.comp_apply, Fin.rev_zero] <;> rfl
 
-/-- The image of any set x under any definable mapping ψ is a set – {v : ∃ u ∈ x, ψ(u,v)} -/
+/-- The image of any set x under any definable mapping ψ is a set – {v : ∃ u ∈ x, ψ(u,v)}. -/
 def setOfImage (x : S) {n} (ψ : S → S → Prop)
     (f : BoundedFormula HFLang (Fin n) 2)  (qf : f.IsQF)
     (c : Fin n → S) (hψ : ∀ x y, ψ x y ↔ f.Realize c ![x, y]) (h : (∀ u ∈ x, ∃! v, ψ u v)) : S
@@ -440,7 +440,7 @@ theorem exists_powerset (x : S) : ∃ (z : S), ∀ (u : S), u ∈ z ↔ u ⊆ x 
     Matrix.cons_val_zero, Term.realize_var, Sum.elim_inr, Matrix.cons_val_one, Matrix.head_cons,
     realize_imp]; rfl
 
-/-- Power set. Defined through u ∈ PowerSet x ↔ SubsetEq u x. -/
+/-- Power set. Defined through u ∈ powerset x ↔ u ⊆ x. -/
 def powerset (x : S) : S := (exists_powerset x).choose
 
 lemma mem_powerset (x : S) : ∀ (u : S), u ∈ powerset x ↔ u ⊆ x :=
@@ -837,7 +837,7 @@ lemma pred_isOrd (k : S) (ord : IsOrd k) (ne_emp : k ≠ ∅) : IsOrd (pred k or
 end IsOrd
 
 variable (S) in
-/-- The ordinal subtype.-/
+/-- The ordinal subtype. -/
 def Ord : Type u := {k : S // IsOrd k}
 
 namespace Ord
@@ -871,7 +871,7 @@ lemma le_iff (k l : Ord S) : k ≤ l ↔ k < l ∨ k = l := by simp [le_aux, lt_
   simp only [lt_iff, iff_false]
   exact notin_empty k.1
 
-@[simp] lemma lt_itself_iff_false (k : Ord S) : k < k ↔ False := by simp [lt_iff]
+lemma lt_itself_iff_false (k : Ord S) : k < k ↔ False := by simp [lt_iff]
 
 lemma ne_of_lt (k l : Ord S) (h : k < l) : k ≠ l := by
   simp only [lt_iff, ne_eq, eq_iff] at *
@@ -996,7 +996,7 @@ instance lt_sTotalOrder : IsStrictTotalOrder (Ord S) (· < ·) where
   irrefl := fun a ↦ gt_irrefl a
   trans := lt_trans
 
-/-- The predecessor of a non-empty ordinal -/
+/-- The predecessor of a non-empty ordinal. -/
 def pred (k : Ord S) (ne_emp : k ≠ ∅) : Ord S := ⟨_, IsOrd.pred_isOrd _ k.2
   (by simp only [ne_eq, eq_iff] at ne_emp; exact ne_emp)⟩
 
