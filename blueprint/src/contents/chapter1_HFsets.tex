@@ -3,31 +3,34 @@
 \section{Language and axioms}
 
 The first-order theory of HF is determined by the first-order language of HF and three axioms.
-The language $\mathcal{L}$ has one binary relation symbol $\in$, one binary function symbol $\lhd$, and one constant symbol $\varnothing$.
-Informally, i.e. given an $\mathcal{L}$-structure whose domain consists of sets,  $\in$ represents membership, $x \lhd y$ is the result of
-enlarging the set $x$ by $y$ (think of $x \cup \{y\}$), and $\varnothing$ denotes the empty set.
+The language $\mathcal{L}$ has one binary relation symbol $\in$, one binary function symbol $\lhd$, 
+and one constant symbol $\varnothing$.
+Informally, i.e. given an $\mathcal{L}$-structure whose domain consists of sets,  
+$\in$ represents membership, $x \lhd y$ is the result of enlarging the set $x$ by $y$ 
+(think of $x \cup \{y\}$), and $\varnothing$ denotes the empty set.
 
 The axioms are given by the following sentences.
 
 \begin{axiom}
-    \label{ax:empty_axiom}
-    %\lean{}
+    \label{ax:empty}
+    \lean{HFSet.empty}
     \leanok
     $\forall z (z=\varnothing \leftrightarrow \forall x(x \notin z))$.
 \end {axiom}
 
 \begin{axiom}
-    \label{ax:enlarge_axiom}
-    %\lean{}
+    \label{ax:enlarge}
+    \lean{HFSet.enlarge}
     \leanok
     $\forall z (z=x \lhd y \leftrightarrow \forall u(u \in z \leftrightarrow u \in x \lor u=y))$.
 \end {axiom}
 
 \begin{axiom}
-    \label{ax:induction_axiom}
-    %\lean{}
+    \label{ax:induction}
+    \lean{HFSet.induction}
     \leanok
-    $(\alpha(\varnothing) \land \forall x \forall y[\alpha(x) \land \alpha(y) \rightarrow \alpha(x \lhd y)]) \rightarrow \forall x \alpha(x)$.
+    $(\alpha(\varnothing) \land \forall x \forall y[\alpha(x) \land \alpha(y) \rightarrow 
+    \alpha(x \lhd y)]) \rightarrow \forall x \alpha(x)$.
 \end {axiom}
 
 The assumption in Axiom 3 — the induction principle — is that $\alpha$ is an $\mathcal{L}$-formula
@@ -36,10 +39,10 @@ and that it contains a distinguished freely occuring variable which is quantifie
 \section{Basic results}
 
 \begin{lemma}
-    \label{lem:set_notin_empty+enlarge_iff+enlarge_empty}
-    %\lean{}
+    \label{lem:notin_empty+mem_enlarge+mem_enlarge_empty}
+    \lean{HFSet.notin_empty, HFSet.mem_enlarge, HFSet.mem_enlarge_empty}
     \leanok
-    \uses{ax:empty_axiom, ax:enlarge_axiom}
+    \uses{ax:empty, ax:enlarge}
     \leavevmode
     \begin{enumerate}
         \item $\forall x (x\notin \varnothing)$.
@@ -52,34 +55,40 @@ and that it contains a distinguished freely occuring variable which is quantifie
     \leanok
     \leavevmode
     \begin{enumerate}
-        \item Substitute $\varnothing$ in Axiom \ref{ax:empty_axiom}.
-        \item Substitute $x \lhd y$ in Axiom \ref{ax:enlarge_axiom}.
-        \item Substitute $\varnothing$ for $x$ in Lemma \ref{lem:set_notin_empty+enlarge_iff+enlarge_empty}.2 and use Lemma \ref{lem:set_notin_empty+enlarge_iff+enlarge_empty}.1.
+        \item Substitute $\varnothing$ in Axiom \ref{ax:empty}.
+        \item Substitute $x \lhd y$ in Axiom \ref{ax:enlarge}.
+        \item Substitute $\varnothing$ for $x$ in Lemma 
+        \ref{lem:notin_empty+mem_enlarge+mem_enlarge_empty}.2 and use Lemma 
+        \ref{lem:notin_empty+mem_enlarge+mem_enlarge_empty}.1.
     \end{enumerate}
 \end{proof}
 
 \begin{theorem}[Extensionality Property]
     \label{thm:exten_prop}
-    %\lean{}
+    \lean{HFSet.exten_prop}
     \leanok
-    \uses{ax:empty_axiom, ax:enlarge_axiom, ax:induction_axiom, lem:set_notin_empty+enlarge_iff+enlarge_empty}
+    \uses{ax:empty, ax:enlarge, ax:induction, lem:notin_empty+mem_enlarge+mem_enlarge_empty}
     $\forall x \forall z (x=z \leftrightarrow \forall u (u \in x \leftrightarrow u \in z))$.
 \end{theorem}
 
 \begin{proof}
     \leanok
-    Pick $x$ and $z$ arbitrarily and let $\alpha (x)$ be the formula $x=z \leftrightarrow \forall u (u \in x \leftrightarrow u \in z)$.
-    We apply Axiom \ref{ax:induction_axiom}.
+    Pick $x$ and $z$ arbitrarily and let $\alpha (x)$ be the formula 
+    $x=z \leftrightarrow \forall u (u \in x \leftrightarrow u \in z)$.
+    We apply Axiom \ref{ax:induction}.
     \begin{itemize}
-        \item The base case — $\alpha (\varnothing)$ — follows directly from Lemma \ref{lem:set_notin_empty+enlarge_iff+enlarge_empty}.1 and Axiom \ref{ax:empty_axiom}.
-        \item The induction step — $\forall y[\alpha(x) \land \alpha(y) \rightarrow \alpha(x \lhd y)]$ — 
-        follows directly from Lemma \ref{lem:set_notin_empty+enlarge_iff+enlarge_empty}.2 and Axiom \ref{ax:enlarge_axiom}.
+        \item The base case — $\alpha (\varnothing)$ — follows directly from Lemma 
+        \ref{lem:notin_empty+mem_enlarge+mem_enlarge_empty}.1 and Axiom \ref{ax:empty}.
+        \item The induction step — 
+        $\forall y[\alpha(x) \land \alpha(y) \rightarrow \alpha(x \lhd y)]$ — 
+        follows directly from Lemma \ref{lem:notin_empty+mem_enlarge+mem_enlarge_empty}.2 and 
+        Axiom \ref{ax:enlarge}.
     \end{itemize}
 \end{proof}
 
 \begin{definition}
-    \label{def:Single+Pair+OrdPair}
-    %\lean{}
+    \label{def:singleton+pair}
+    \lean{HFSet.insert, HFSet.singleton, HFSet.pair}
     \leanok
     Denote by $\{x\}$, $\{x,y\}$ and $\langle x,y\rangle$ the following \textit{terms}:
     \begin{enumerate}
@@ -90,16 +99,17 @@ and that it contains a distinguished freely occuring variable which is quantifie
 \end{definition}
 
 \begin{lemma}
-    \label{lem:single_iff+pair_iff+...+ordPair_equal}
-    %\lean{}
+    \label{lem:mem_singleton+...+pair_inj}
+    \lean{HFSet.mem_singleton, HFSet.mem_pair, HFSet.duplic_pair_eq_single, HFSet.pair_inj}
     \leanok
-    \uses{lem:set_notin_empty+enlarge_iff+enlarge_empty, thm:exten_prop, def:Single+Pair+OrdPair}
+    \uses{lem:notin_empty+mem_enlarge+mem_enlarge_empty, thm:exten_prop, def:singleton+pair}
     \leavevmode
     \begin{enumerate}
         \item $\forall x \forall u (u\in \{x\} \leftrightarrow u = x)$.
         \item $\forall x \forall y \forall u (u \in \{x,y\}\leftrightarrow u=x \lor u=y)$.
         \item $\forall x (\{x,x\} = \{x\})$.
-        \item $\forall x \forall y \forall u \forall v (\langle x,y\rangle = \langle u,v\rangle \leftrightarrow x=u \land y=v)$.
+        \item $\forall x \forall y \forall u \forall v 
+        (\langle x,y\rangle = \langle u,v\rangle \leftrightarrow x=u \land y=v)$.
     \end{enumerate}
 \end{lemma}
 
@@ -107,12 +117,18 @@ and that it contains a distinguished freely occuring variable which is quantifie
     \leanok
     \leavevmode
     \begin{enumerate}
-        \item This follows directly from Lemma \ref{lem:set_notin_empty+enlarge_iff+enlarge_empty}.3.
-        \item This follows directly from Lemma \ref{lem:set_notin_empty+enlarge_iff+enlarge_empty}.2 and Lemma \ref{lem:single_iff+pair_iff+...+ordPair_equal}.1.
-        \item This follows directly from Theorem \ref{thm:exten_prop}, Lemma \ref{lem:single_iff+pair_iff+...+ordPair_equal}.1 and Lemma \ref{lem:single_iff+pair_iff+...+ordPair_equal}.2.
+        \item This follows directly from Lemma 
+        \ref{lem:notin_empty+mem_enlarge+mem_enlarge_empty}.3.
+        \item This follows directly from 
+        Lemma \ref{lem:notin_empty+mem_enlarge+mem_enlarge_empty}.2 and 
+        Lemma \ref{lem:mem_singleton+...+pair_inj}.1.
+        \item This follows directly from Theorem \ref{thm:exten_prop},
+        Lemma \ref{lem:mem_singleton+...+pair_inj}.1 and 
+        Lemma \ref{lem:mem_singleton+...+pair_inj}.2.
         \item  The proof closely follows an analogous proof from ZF by \cite{enderton1977elements}.
         Pick $x,y,u$ and $v$ arbitrarily. The $\leftarrow$ direction is trivial.
-        For the $\rightarrow$ direction, by the definition of ordered pairs, the hypothesis can be rewritten to
+        For the $\rightarrow$ direction, by the definition of ordered pairs, 
+        the hypothesis can be rewritten to
         \begin{equation*}
             \{\{x\}, \{x,y\}\} = \{\{u\}, \{u,v\}\}.
         \end{equation*}
@@ -124,7 +140,7 @@ and that it contains a distinguished freely occuring variable which is quantifie
         \begin{equation}
             \{u\} \in \{\{x\}, \{x,y\}\}\quad\text{ and }\quad \{u,v\} \in \{\{x\}, \{x,y\}\}.
         \end{equation}
-        By Lemma \ref{lem:single_iff+pair_iff+...+ordPair_equal}.2, (2) can be rewritten to
+        By Lemma \ref{lem:mem_singleton+...+pair_inj}.2, (2) can be rewritten to
         \begin{equation*}
             (\textbf{a})\quad\{u\}=\{x\}\quad\text{or}\quad (\textbf{b})\quad\{u\}=\{x,y\}
         \end{equation*}
@@ -132,61 +148,80 @@ and that it contains a distinguished freely occuring variable which is quantifie
         \begin{equation*}
             (\textbf{c})\quad\{u,v\}=\{x\}\quad\text{or}\quad (\textbf{d})\quad\{u,v\}=\{x,y\}.
         \end{equation*}
-        Note that, by Theorem \ref{thm:exten_prop}, Lemma \ref{lem:single_iff+pair_iff+...+ordPair_equal}.1 and Lemma \ref{lem:single_iff+pair_iff+...+ordPair_equal}.2,
+        Note that, by Theorem \ref{thm:exten_prop}, Lemma \ref{lem:mem_singleton+...+pair_inj}.1 
+        and Lemma \ref{lem:mem_singleton+...+pair_inj}.2,
         \begin{equation}
         \forall x \forall y \forall z (\{x,y\} = \{z\} \leftrightarrow x = y =z).
         \end{equation}
         Now, consider three cases:
         \begin{itemize}
-            \item Suppose (\textbf{b}) holds. Then, by (3), $u=x=y$. By Lemma \ref{lem:single_iff+pair_iff+...+ordPair_equal}.3, it then follows that 
-            (\textbf{d}) can be rewritten to $\{u,v\}=\{x\}$, implying (\textbf{c}) and (\textbf{d}) are equivalent.
+            \item Suppose (\textbf{b}) holds. Then, by (3), $u=x=y$. 
+            By Lemma \ref{lem:mem_singleton+...+pair_inj}.3, it then follows that 
+            (\textbf{d}) can be rewritten to $\{u,v\}=\{x\}$, 
+            implying (\textbf{c}) and (\textbf{d}) are equivalent.
             Thus, by (3), under (\textbf{b}), it must hold that $u=v=x=y$.
-            \item Suppose (\textbf{c}) holds. Then, by (3), $u=v=x$. Note that, by (1) and Lemma \ref{lem:single_iff+pair_iff+...+ordPair_equal}.2, 
-            either $\{x,y\}=\{u\}$ or $\{x,y\}=\{u,v\}$.  By Lemma \ref{lem:single_iff+pair_iff+...+ordPair_equal}.3, it follows that $\{u,v\}=\{u\}$ and 
-            thus these two statements are equivalent. Thus, by (3), under (\textbf{c}), it must hold that $x=y=u=v$.
+            \item Suppose (\textbf{c}) holds. 
+            Then, by (3), $u=v=x$. 
+            Note that, by (1) and Lemma \ref{lem:mem_singleton+...+pair_inj}.2, 
+            either $\{x,y\}=\{u\}$ or $\{x,y\}=\{u,v\}$.  
+            By Lemma \ref{lem:mem_singleton+...+pair_inj}.3, it follows that $\{u,v\}=\{u\}$ and 
+            thus these two statements are equivalent. 
+            Thus, by (3), under (\textbf{c}), it must hold that $x=y=u=v$.
             \item Suppose (\textbf{a}) and (\textbf{d}) hold. From (\textbf{a}) we have $u=x$. 
-            From (\textbf{d}) it follows that, by Lemma \ref{lem:single_iff+pair_iff+...+ordPair_equal}.2, $v=x$ or $v=y$. In the latter case, 
-            $u=x\land v=y$. If $v=x$, then $u=v=x$, and case (\textbf{c}) holds by (3); this case has already been considered.
+            From (\textbf{d}) it follows that, by 
+            Lemma \ref{lem:mem_singleton+...+pair_inj}.2, $v=x$ or $v=y$. 
+            In the latter case, $u=x\land v=y$. 
+            If $v=x$, then $u=v=x$, and case (\textbf{c}) holds by (3); 
+            this case has already been considered.
         \end{itemize}
     \end{enumerate}
 \end{proof}
 
 \begin{theorem}[Existence of the union of two sets]
     \label{thm:exists_union}
-    %\lean{HF.exists_union}
+    \lean{HFSet.exists_union}
     \leanok
-    \uses{ax:induction_axiom, lem:set_notin_empty+enlarge_iff+enlarge_empty}
+    \uses{ax:induction, lem:notin_empty+mem_enlarge+mem_enlarge_empty}
     $\forall x \forall y \exists z \forall u (u \in z \leftrightarrow u \in x \lor u \in y)$.
 \end{theorem}
 
 \begin{proof}
     \leanok
-    Pick $x$ and $y$ arbitrarily and let $\alpha (x)$ be the formula $\exists z \forall u (u \in z \leftrightarrow u \in x \lor u \in y)$.
-    We apply Axiom \ref{ax:induction_axiom}.
+    Pick $x$ and $y$ arbitrarily and let $\alpha (x)$ be the formula 
+    $\exists z \forall u (u \in z \leftrightarrow u \in x \lor u \in y)$.
+    We apply Axiom \ref{ax:induction}.
     \begin{itemize}
-        \item For the base case — $\alpha (\varnothing)$ — take $z=y$ and use Lemma \ref{lem:set_notin_empty+enlarge_iff+enlarge_empty}.1.
-        \item For the induction step — $\forall w[\alpha(x) \land \alpha(w) \rightarrow \alpha(x \lhd w)]$ — 
-        pick $w$ arbitrarily and assume $\alpha(x)$, i.e. the existence of $x \cup y$. By Lemma \ref{lem:set_notin_empty+enlarge_iff+enlarge_empty}.2, 
-        $\alpha(x \lhd w)$ is equivalent to $\exists z \forall u (u \in z \leftrightarrow u \in x \lor u = w \lor u \in y)$.
-        Then, take $z= (x \cup y) \lhd w$ and use Lemma \ref{lem:set_notin_empty+enlarge_iff+enlarge_empty}.2.
+        \item For the base case — $\alpha (\varnothing)$ — take $z=y$ and use 
+        Lemma \ref{lem:notin_empty+mem_enlarge+mem_enlarge_empty}.1.
+        \item For the induction step 
+        — $\forall w[\alpha(x) \land \alpha(w) \rightarrow \alpha(x \lhd w)]$ — 
+        pick $w$ arbitrarily and assume $\alpha(x)$, i.e. the existence of $x \cup y$. 
+        By Lemma \ref{lem:notin_empty+mem_enlarge+mem_enlarge_empty}.2, 
+        $\alpha(x \lhd w)$ is equivalent to 
+        $\exists z \forall u (u \in z \leftrightarrow u \in x \lor u = w \lor u \in y)$.
+        Then, take $z= (x \cup y) \lhd w$ and use 
+        Lemma \ref{lem:notin_empty+mem_enlarge+mem_enlarge_empty}.2.
     \end{itemize}
 \end{proof}
 
 \begin{theorem}[Existence of the union of a set of sets]
-    \label{thm:exists_unionOfSet}
-    %\lean{HF.exists_unionOfSet}
+    \label{thm:exists_sUnion}
+    \lean{HFSet.exists_sUnion}
     \leanok
-    \uses{ax:induction_axiom, lem:set_notin_empty+enlarge_iff+enlarge_empty, thm:exists_union}
+    \uses{ax:induction, lem:notin_empty+mem_enlarge+mem_enlarge_empty, thm:exists_union}
     $\forall x \exists z \forall u (u \in z \leftrightarrow \exists (y\in x)[u \in y])$.
 \end{theorem}
 
 \begin{proof}
     \leanok
-    Pick $x$ arbitrarily and let $\alpha (x)$ be the formula $\exists z \forall u (u \in z \leftrightarrow \exists (y\in x)[u \in y])$.
-    We apply Axiom \ref{ax:induction_axiom}.
+    Pick $x$ arbitrarily and let $\alpha (x)$ be the formula 
+    $\exists z \forall u (u \in z \leftrightarrow \exists (y\in x)[u \in y])$.
+    We apply Axiom \ref{ax:induction}.
     \begin{itemize}
-        \item For the base case — $\alpha (\varnothing)$ — take $z=\varnothing$ and use Lemma \ref{lem:set_notin_empty+enlarge_iff+enlarge_empty}.1.
-        \item For the induction step — $\forall w[\alpha(x) \land \alpha(w) \rightarrow \alpha(x \lhd w)]$ — 
+        \item For the base case — $\alpha (\varnothing)$ — take $z=\varnothing$ and use 
+        Lemma \ref{lem:notin_empty+mem_enlarge+mem_enlarge_empty}.1.
+        \item For the induction step 
+        — $\forall w[\alpha(x) \land \alpha(w) \rightarrow \alpha(x \lhd w)]$ — 
         pick $w$ arbitrarily and assume $\alpha(x)$, i.e. the existence of $\bigcup x$.
         We need to find $z$ such that
         \begin{equation*}
@@ -197,44 +232,49 @@ and that it contains a distinguished freely occuring variable which is quantifie
             & \leftrightarrow u \in \bigcup x \lor u \in w,
         \end{split}
         \end{equation*}
-        using Lemma \ref{lem:set_notin_empty+enlarge_iff+enlarge_empty}.2. Thus, take $z = (\bigcup x) \cup w$.
+        using Lemma \ref{lem:notin_empty+mem_enlarge+mem_enlarge_empty}.2. 
+        Thus, take $z = (\bigcup x) \cup w$.
     \end{itemize}
 \end{proof}
 
 \begin{theorem}[Comprehension Scheme]
     \label{thm:comp_scheme}
-    %\lean{HF.comp_scheme}
+    \lean{HFSet.comp_scheme}
     \leanok
-    \uses{ax:induction_axiom, lem:set_notin_empty+enlarge_iff+enlarge_empty}
-    $\forall x \exists z \forall u (u\in z \leftrightarrow (u \in x) \land \phi (u))$, for any $\mathcal{L}$-formula $\phi$ in which $z$ is not free.
+    \uses{ax:induction, lem:notin_empty+mem_enlarge+mem_enlarge_empty}
+    $\forall x \exists z \forall u (u\in z \leftrightarrow (u \in x) \land \phi (u))$, 
+    for any $\mathcal{L}$-formula $\phi$ in which $z$ is not free.
 \end{theorem}
 
 \begin{proof}
     \leanok
-    Pick $x$ arbitrarily and let $\alpha (x)$ be the formula $\exists z \forall u (u\in z \leftrightarrow (u \in x) \land \phi (u))$.
-    We apply Axiom \ref{ax:induction_axiom}.
+    Pick $x$ arbitrarily and let $\alpha (x)$ be the formula 
+    $\exists z \forall u (u\in z \leftrightarrow (u \in x) \land \phi (u))$.
+    We apply Axiom \ref{ax:induction}.
     \begin{itemize}
-        \item For the base case — $\alpha (\varnothing)$ — take $z=\varnothing$ and use Lemma \ref{lem:set_notin_empty+enlarge_iff+enlarge_empty}.1.
-        \item For the induction step — $\forall y[\alpha(x) \land \alpha(y) \rightarrow \alpha(x \lhd y)]$ — 
-        pick $y$ arbitrarily and assume $\alpha(x)$, i.e. the existence of $ \{u \in x : \phi (u)\}$.
-        We need to find $z$ such that
+        \item For the base case — $\alpha (\varnothing)$ — take $z=\varnothing$ and use L
+        emma \ref{lem:notin_empty+mem_enlarge+mem_enlarge_empty}.1.
+        \item For the induction step 
+        — $\forall y[\alpha(x) \land \alpha(y) \rightarrow \alpha(x \lhd y)]$ — 
+        pick $y$ arbitrarily and assume $\alpha(x)$, i.e. 
+        the existence of $ \{u \in x : \phi (u)\}$. We need to find $z$ such that
     \begin{equation*}
     \begin{split}
         u \in z & \leftrightarrow (u \in x \lhd y) \land \phi (u)\\
         & \leftrightarrow (u \in x \lor u = y) \land \phi (u),
     \end{split}
     \end{equation*}
-    using Lemma \ref{lem:set_notin_empty+enlarge_iff+enlarge_empty}.2.
+    using Lemma \ref{lem:notin_empty+mem_enlarge+mem_enlarge_empty}.2.
     Since $z$ is not free in $\phi$, take $z = \{u \in x : \phi (u)\} \lhd y$ if $\phi(y)$ 
     and $z=\{u \in x : \phi (u)\}$ if $\neg \phi(y)$.
     \end{itemize}
 \end{proof}
 
 \begin{definition}[Intersection]
-    \label{def:Inter}
-    %\lean{HF.Inter, HF.InterSet}
+    \label{def:inter+sInter}
+    \lean{HFSet.inter, HFSet.sInter}
     \leanok
-    \uses{thm:exists_unionOfSet, thm:comp_scheme}
+    \uses{thm:exists_sUnion, thm:comp_scheme}
     Introduce the notation:
     \begin{enumerate}
         \item $x \cap y = \{u \in x : u \in y\}$.
@@ -244,30 +284,41 @@ and that it contains a distinguished freely occuring variable which is quantifie
 
 \begin{theorem}[Replacement Scheme]
     \label{thm:repl_scheme}
-    %\lean{HF.repl_scheme}
+    \lean{HFSet.repl_scheme}
     %\leanok
-    \uses{ax:induction_axiom, lem:set_notin_empty+enlarge_iff+enlarge_empty}
-    $$\forall x ([\forall (u \in x) [\exists! v] \psi (u,v)]\rightarrow \exists z \forall v [v\in z \leftrightarrow \exists(u \in x) \psi (u,v)]),$$ 
+    \uses{ax:induction, lem:notin_empty+mem_enlarge+mem_enlarge_empty}
+    $$\forall x ([\forall (u \in x) [\exists! v] \psi (u,v)]\rightarrow 
+    \exists z \forall v [v\in z \leftrightarrow \exists(u \in x) \psi (u,v)]),$$ 
     for any $\mathcal{L}$-formula $\psi$ in which $z$ is not free.
 \end{theorem}
 
 \begin{proof}
     \leanok
-    Pick $x$ arbitrarily and let $\alpha (x)$ be the formula $[\forall (u \in x) [\exists! v] \psi (u,v)]\rightarrow \exists z \forall v [v\in z \leftrightarrow \exists(u \in x) \psi (u,v)]$.
-    We apply Axiom \ref{ax:induction_axiom}.
+    Pick $x$ arbitrarily and let $\alpha (x)$ be the formula 
+    $[\forall (u \in x) [\exists! v] \psi (u,v)]\rightarrow 
+    \exists z \forall v [v\in z \leftrightarrow \exists(u \in x) \psi (u,v)]$.
+    We apply Axiom \ref{ax:induction}.
     \begin{itemize}
-        \item For the base case — $\alpha (\varnothing)$ — take $z=\varnothing$ and use Lemma \ref{lem:set_notin_empty+enlarge_iff+enlarge_empty}.1.
-        \item For the induction step — $\forall y[\alpha(x) \land \alpha(y) \rightarrow \alpha(x \lhd y)]$ — 
-        pick $y$ arbitrarily and assume $\alpha(x)$, i.e. the existence of $\{v : \exists (u\in x)\psi(u,v)\}$ provided that $\forall (u \in x) [\exists! v] \psi (u,v)$.
-        Furthermore, assume $\forall (u \in x \lhd y) [\exists! v] \psi (u,v)$, i.e. that $\forall u [(u \in x \lor u = y) \rightarrow \exists! v \psi (u,v)]$.
-        Hence, $\exists! v \psi (y,v)$; let $v_y$ be this unique $v$. Moreover, it follows that $\forall (u \in x) [\exists! v] \psi (u,v)$ and thus $\{v : \exists (u\in x)\psi(u,v)\}$ exists.
-        By Lemma \ref{lem:set_notin_empty+enlarge_iff+enlarge_empty}.2, the required $z$ is $\{v : \exists (u\in x)\psi(u,v)\} \lhd v_y$.
+        \item For the base case — $\alpha (\varnothing)$ — take $z=\varnothing$ and use 
+        Lemma \ref{lem:notin_empty+mem_enlarge+mem_enlarge_empty}.1.
+        \item For the induction step 
+        — $\forall y[\alpha(x) \land \alpha(y) \rightarrow \alpha(x \lhd y)]$ — 
+        pick $y$ arbitrarily and assume $\alpha(x)$, i.e. the existence of 
+        $\{v : \exists (u\in x)\psi(u,v)\}$ provided that 
+        $\forall (u \in x) [\exists! v] \psi (u,v)$.
+        Furthermore, assume $\forall (u \in x \lhd y) [\exists! v] \psi (u,v)$, 
+        i.e. that $\forall u [(u \in x \lor u = y) \rightarrow \exists! v \psi (u,v)]$.
+        Hence, $\exists! v \psi (y,v)$; let $v_y$ be this unique $v$. 
+        Moreover, it follows that $\forall (u \in x) [\exists! v] \psi (u,v)$ and 
+        thus $\{v : \exists (u\in x)\psi(u,v)\}$ exists.
+        By Lemma \ref{lem:notin_empty+mem_enlarge+mem_enlarge_empty}.2, 
+        the required $z$ is $\{v : \exists (u\in x)\psi(u,v)\} \lhd v_y$.
     \end{itemize}
 \end{proof}
 
 \begin{definition}[Subset relation]
-    \label{def:SubsetEq+Subset}
-    %\lean{HF.SubsetEq, HF.Subset}
+    \label{def:Subset+SSubset}
+    \lean{HFSet.Subset, HFSet.SSubset}
     \leanok
     Introduce the notation:
     \begin{enumerate}
@@ -277,35 +328,45 @@ and that it contains a distinguished freely occuring variable which is quantifie
 \end{definition}
 
 \begin{theorem}[Existence of the power set]
-    \label{thm:exists_powerSet}
-    %\lean{HF.exists_powerSet}
+    \label{thm:exists_powerset}
+    \lean{HFSet.exists_powerset}
     \leanok
-    \uses{ax:induction_axiom, lem:set_notin_empty+enlarge_iff+enlarge_empty, thm:exten_prop, def:Single+Pair+OrdPair, lem:single_iff+pair_iff+...+ordPair_equal, thm:exists_union, thm:repl_scheme, def:SubsetEq+Subset}
+    \uses{ax:induction, lem:notin_empty+mem_enlarge+mem_enlarge_empty, thm:exten_prop, 
+    def:singleton+pair, lem:mem_singleton+...+pair_inj, thm:exists_union, 
+    thm:repl_scheme, def:Subset+SSubset}
     $\forall x \exists z \forall u (u\in z \leftrightarrow u \subseteq x).$
 \end{theorem}
 
 \begin{proof}
     \leanok
-    Pick $x$ arbitrarily and let $\alpha (x)$ be the formula $\exists z \forall u (u\in z \leftrightarrow u \subseteq x)$.
-    We apply Axiom \ref{ax:induction_axiom}.
+    Pick $x$ arbitrarily and let $\alpha (x)$ be the formula 
+    $\exists z \forall u (u\in z \leftrightarrow u \subseteq x)$.
+    We apply Axiom \ref{ax:induction}.
     \begin{itemize}
-        \item For the base case — $\alpha (\varnothing)$ — take $z=\{\varnothing\}$ and use Lemma \ref{lem:set_notin_empty+enlarge_iff+enlarge_empty}, \ref{lem:single_iff+pair_iff+...+ordPair_equal}.1 
-        and \ref{thm:exten_prop}.
-        \item For the induction step — $\forall y[\alpha(x) \land \alpha(y) \rightarrow \alpha(x \lhd y)]$ — 
+        \item For the base case — $\alpha (\varnothing)$ — take $z=\{\varnothing\}$ and use 
+        Lemma \ref{lem:notin_empty+mem_enlarge+mem_enlarge_empty}, 
+        Theorem \ref{thm:exten_prop}, Lemma \ref{lem:mem_singleton+...+pair_inj}.1.
+        \item For the induction step 
+        — $\forall y[\alpha(x) \land \alpha(y) \rightarrow \alpha(x \lhd y)]$ — 
         pick $y$ arbitrarily and assume $\alpha(x)$, i.e. the existence of the power set $P(x)$.
-        One checks directly from the definitions that $$u \subseteq x \lhd y \leftrightarrow u \in P(x) \lor \exists (v \in P(x))[u=v\lhd y]. $$
-        Indeed, for the $\rightarrow$ direction, the cases $y \notin u$ and $y \in u$ correspond to the left and right cases of the disjunction, 
-        respectively, where for the right case, the required $v$ is $u \cap x$. The $\leftarrow$ direction is rather trivial.
-        Now, note that the formula $\psi(v,u): u = v \lhd y$ satisfies the condition for Theorem \ref{thm:repl_scheme}, i.e. $v \mapsto v \lhd y$ is a well-defined mapping.
-        By Theorem \ref{thm:exists_union}, it follows that the required $z$ is $P(x) \cup \{u : \exists (v \in P(x)) [u=v\lhd y]\}$.
+        One checks directly from the definitions that 
+        $$u \subseteq x \lhd y \leftrightarrow u \in P(x) \lor \exists (v \in P(x))[u=v\lhd y].$$
+        Indeed, for the $\rightarrow$ direction, the cases $y \notin u$ and $y \in u$ correspond to 
+        the left and right cases of the disjunction, respectively, where for the right case, 
+        the required $v$ is $u \cap x$. The $\leftarrow$ direction is rather trivial.
+        Now, note that the formula $\psi(v,u): u = v \lhd y$ satisfies the condition for 
+        Theorem \ref{thm:repl_scheme}, i.e. $v \mapsto v \lhd y$ is a well-defined mapping.
+        By Theorem \ref{thm:exists_union}, 
+        it follows that the required $z$ is $P(x) \cup \{u : \exists (v \in P(x)) [u=v\lhd y]\}$.
     \end{itemize}
 \end{proof}
 
 \begin{theorem}[Foundation Property]
     \label{thm:found_prop}
-    %\lean{HF.found_prop}
+    \lean{HFSet.found_prop}
     \leanok
-    \uses{ax:induction_axiom, lem:set_notin_empty+enlarge_iff+enlarge_empty, thm:exten_prop, def:Inter}
+    \uses{ax:induction, lem:notin_empty+mem_enlarge+mem_enlarge_empty, thm:exten_prop, 
+    def:inter+sInter}
     $\forall z (z\neq \varnothing \rightarrow \exists (w \in z)[w\cap z = \varnothing])$.
 \end{theorem}
 
@@ -316,99 +377,122 @@ and that it contains a distinguished freely occuring variable which is quantifie
     which follows if $\forall (w \in z)[w \cap z \neq \varnothing] \rightarrow \forall x \alpha(x)$, 
     where $\alpha(x)$ is the formula $(x \notin z) \land (x \cap z = \varnothing)$.
     Thus, assume $\forall (w \in z)[w \cap z \neq \varnothing]$ and pick $x$ arbitrarily.
-    We apply Axiom \ref{ax:induction_axiom}.
+    We apply Axiom \ref{ax:induction}.
     \begin{itemize}
-        \item For the base case — $\alpha (\varnothing)$ — the assumption immediately implies that $\varnothing \notin z$, 
-        as otherwise $\varnothing \cap z \neq \varnothing$.
-        \item For the induction step — $\forall y[\alpha(x) \land \alpha(y) \rightarrow \alpha(x \lhd y)]$ — pick $y$ arbitrarily and assume $\alpha(x)$ and $\alpha(y)$.
-        Suppose, for a contradiction, that $\neg \alpha (x \lhd y)$, i.e. that $(x \lhd y) \cap z \neq \varnothing \lor (x \lhd y) \in z$. 
-        As $y \notin z$ by $\alpha(y)$, the first case implies $x \cap z \neq \varnothing$, which contradicts $\alpha(x)$. 
-        By the assumption, the second case implies $(x \lhd y) \cap z \neq \varnothing$, which is the first case.
+        \item For the base case — $\alpha (\varnothing)$ — the assumption immediately implies that 
+        $\varnothing \notin z$, as otherwise $\varnothing \cap z \neq \varnothing$.
+        \item For the induction step 
+        — $\forall y[\alpha(x) \land \alpha(y) \rightarrow \alpha(x \lhd y)]$ — 
+        pick $y$ arbitrarily and assume $\alpha(x)$ and $\alpha(y)$.
+        Suppose, for a contradiction, that $\neg \alpha (x \lhd y)$, i.e. 
+        that $(x \lhd y) \cap z \neq \varnothing \lor (x \lhd y) \in z$. 
+        As $y \notin z$ by $\alpha(y)$, the first case implies $x \cap z \neq \varnothing$, 
+        which contradicts $\alpha(x)$. 
+        By the assumption, the second case implies $(x \lhd y) \cap z \neq \varnothing$, 
+        which is the first case.
     \end{itemize}
 \end{proof}
 
 \begin{corollary}
-    \label{cor:set_notin_itself}
-    %\lean{HF.set_notin_itself}
+    \label{cor:mem_irrefl}
+    \lean{HFset.mem_irrefl}
     \leanok
-    \uses{lem:set_notin_empty+enlarge_iff+enlarge_empty, thm:exten_prop, def:Single+Pair+OrdPair, lem:single_iff+pair_iff+...+ordPair_equal, def:Inter, thm:found_prop}
+    \uses{lem:notin_empty+mem_enlarge+mem_enlarge_empty, thm:exten_prop, 
+    def:singleton+pair, lem:mem_singleton+...+pair_inj, def:inter+sInter, thm:found_prop}
     $\forall x (x \notin x)$.
 \end{corollary}
 
 \begin{proof}
     \leanok
-    Apply the foundation property to $z = \{x\}\neq \varnothing$.
-    It follows that $\exists (w \in \{x\})[w\cap \{x\} = \varnothing]$, which implies $x \cap \{x\} = \varnothing$.
+    Apply Theorem \ref{thm:found_prop} to $z = \{x\}\neq \varnothing$.
+    It follows that $\exists (w \in \{x\})[w\cap \{x\} = \varnothing]$, 
+    which implies $x \cap \{x\} = \varnothing$.
 \end{proof}
 
 \section{Ordinals}
 
 \begin{definition}
     \label{def:IsTrans+IsOrd}
+    \lean{HFSet.IsTrans, HFSet.IsOrd, HFSet.Ord}
     \leanok
-    \uses{def:SubsetEq+Subset}
+    \uses{def:Subset+SSubset}
     We say that $x$ is \textit{transitive} if every element of $x$ is a subset of $x$. 
-    We call $x$ an \textit{ordinal} if $x$ is transitive and every element of $x$ is transitive, abbreviated by $\text{Ord}(x)$.
+    We call $x$ an \textit{ordinal} if $x$ is transitive and every element of $x$ is transitive, 
+    abbreviated by $\text{Ord}(x)$.
 
     Ordinals will be mostly denoted by $k$, $l$, $m$, $n$, $p$, $q$, $r$.
 \end{definition}
 
 \begin{definition}
-    \label{def:Succ}
+    \label{def:succ}
+    \lean{HFSet.succ, HFSet.Ord.succ}
     \leanok
     The \textit{successor} of $x$ is defined as $x \lhd x$, abbreviated by $\text{succ}(x)$.
 \end{definition}
 
 \begin{lemma}
-    \label{lem:succ_isOrd_if_isOrd+mem_of_ord_isOrd+...+empty_in_ord}
+    \label{lem:IsOrd.succ_isOrd+...+IsOrd.empty_is_mem}
+    \lean{HFSet.IsOrd.succ_isOrd, HFSet.IsOrd.mem_isOrd, HFSet.empty_isOrd, 
+    HFSet.IsOrd.empty_of_mem_and_disjoint, HFSet.IsOrd.empty_is_mem, HFSet.Ord.empty_is_lt}
     \leanok
-    \uses{ax:empty_axiom, lem:set_notin_empty+enlarge_iff+enlarge_empty, thm:exten_prop, def:Inter, thm:found_prop, def:IsTrans+IsOrd, def:Succ}
+    \uses{ax:empty, lem:notin_empty+mem_enlarge+mem_enlarge_empty, 
+    thm:exten_prop, def:inter+sInter, thm:found_prop, def:IsTrans+IsOrd, def:succ}
     \leavevmode
     \begin{enumerate}
         \item $\forall k(\text{Ord}(k) \rightarrow \text{Ord}(\text{succ}(k)))$.
         \item $\forall k \forall l(\text{Ord}(k) \land l \in k \rightarrow \text{Ord}(l))$.
         \item $\text{Ord}(\varnothing)$.
-        \item $\forall k \forall l ((\text{Ord}(k) \land (k \neq \varnothing) \land (l \cap k = \varnothing))\rightarrow(l \in k \leftrightarrow l = \varnothing))$.
+        \item $\forall k \forall l ((\text{Ord}(k) \land (k \neq \varnothing) \land 
+        (l \cap k = \varnothing))\rightarrow(l \in k \leftrightarrow l = \varnothing))$.
     \end{enumerate}
 \end{lemma}
 
 \begin{proof}
     \leanok
     \leavevmode
-    The proofs of 1, 2 and 3 are immediate from Definitions \ref{def:IsTrans+IsOrd} and \ref{def:Succ}.
-    For 4, pick $k$ a non-empty ordinal, $l$ such that $l \cap k = \varnothing$, and suppose $l \in k$.
-    As $k$ is an ordinal, $l \subseteq k$, and as $l \cap k = \varnothing$, it follows that $l=\varnothing$.
-    Conversely, as $k \neq \varnothing$, by Theorem \ref{thm:found_prop} there must exist such an $l \in k$ satisfying $l \cap k = \varnothing$.
-    Hence, $\varnothing \in k$.
+    The proofs of 1, 2 and 3 are immediate from Definitions \ref{def:IsTrans+IsOrd} and 
+    \ref{def:succ}.
+    For 4, pick $k$ a non-empty ordinal, $l$ such that $l \cap k = \varnothing$, 
+    and suppose $l \in k$. As $k$ is an ordinal, $l \subseteq k$, and as $l \cap k = \varnothing$, 
+    it follows that $l=\varnothing$.
+    Conversely, as $k \neq \varnothing$, by Theorem \ref{thm:found_prop} there must exist such 
+    an $l \in k$ satisfying $l \cap k = \varnothing$. Hence, $\varnothing \in k$.
 \end{proof}
 
 \begin{theorem}[Comparability of ordinals]
-    \label{thm:compar_of_ord_ord}
+    \label{thm:IsOrd.comparability}
+    \lean{HFSet.IsOrd.comparability, HFSet.Ord.comparability}
     \leanok
-    \uses{ax:empty_axiom, lem:set_notin_empty+enlarge_iff+enlarge_empty, thm:comp_scheme, def:Inter, def:SubsetEq+Subset, thm:exists_powerSet,
-    thm:found_prop, cor:set_notin_itself, def:IsTrans+IsOrd, lem:succ_isOrd_if_isOrd+mem_of_ord_isOrd+...+empty_in_ord}
+    \uses{ax:empty, lem:notin_empty+mem_enlarge+mem_enlarge_empty, thm:comp_scheme, 
+    def:inter+sInter, def:Subset+SSubset, thm:exists_powerset, thm:found_prop, 
+    cor:mem_irrefl, def:IsTrans+IsOrd, lem:IsOrd.succ_isOrd+...+IsOrd.empty_is_mem}
     Let $k,l$ be ordinals. Then, $k \in l \lor k = l \lor l \in k$.
 \end{theorem}
 
 \setcounter{equation}{0}
 \begin{proof}
+    \leanok
     Denote the formula $k \in l \lor k = l \lor l \in k$ by $\beta (k,l)$. 
-    Suppose, for a contradiction, there exist ordinals $k$ and $l$ such that $\neg \beta (k,l)$, i.e. $k \notin l \land k \neq l \land l \notin k$. 
+    Suppose, for a contradiction, there exist ordinals $k$ and $l$ such that $\neg \beta (k,l)$, 
+    i.e. $k \notin l \land k \neq l \land l \notin k$. 
     We claim there exists an ordinal $k_0$ that satisfies
     \begin{equation}\label{eq:1}
     \forall(m \in k_0)[\forall l \beta(m,l)] \land \exists l \neg \beta(k_0,l),
     \end{equation}
     where $\forall$ and $\exists$ range over ordinals. 
     Indeed, if there exist ordinals $k$ and $l$ such that $\neg \beta (k,l)$, then 
-    $$K := \{m \subseteq k : \text{Ord}(m) \land \exists l (\text{Ord}(l) \land \neg \beta (m,l))\} \neq \varnothing.$$
+    $$K := \{m \subseteq k : \text{Ord}(m) \land \exists l (\text{Ord}(l) \land \neg \beta (m,l))\} 
+    \neq \varnothing.$$
     By Theorem \ref{thm:found_prop}, there exists $k_0 \in K$ such that $k_0 \cap K = \varnothing$. 
     We claim this $k_0$ satisfies (\ref{eq:1}). 
     Clearly, $\exists l \neg \beta(k_0,l)$. 
-    Now suppose, for a contradiction, there exist ordinals $r_0 \in k_0$ and $l_0$ such that $\neg \beta (r_0,l_0)$. 
+    Now suppose, for a contradiction, there exist ordinals $r_0 \in k_0$ and $l_0$ such that 
+    $\neg \beta (r_0,l_0)$. 
     Then, as $k_0 \subseteq k$, $r_0 \in k$, and thus $r_0 \subseteq k$. 
     Moreover, $r_0 \in K$, which contradicts $k_0 \cap K = \varnothing$. 
     
-    We claim further that, having selected $k_0$ that satisfies (\ref{eq:1}), there exists an ordinal $l_0$ that satisfies 
+    We claim further that, having selected $k_0$ that satisfies (\ref{eq:1}), 
+    there exists an ordinal $l_0$ that satisfies 
     \begin{equation}\label{eq:2}
     \forall(p \in l_0)\beta(k_0,p) \land \neg \beta(k_0,l_0),
     \end{equation}
@@ -417,27 +501,34 @@ and that it contains a distinguished freely occuring variable which is quantifie
     $$L := \{p \subseteq l : \text{Ord}(p) \land \neg \beta (k_0, p)\} \neq \varnothing.$$
     By Theorem \ref{thm:found_prop}, there exists $l_0 \in L$ such that $l_0 \cap L = \varnothing$. 
     We claim this $l_0$ satisfies (\ref{eq:2}). Clearly, $\neg \beta(k_0,l_0)$. 
-    Now suppose, for a contradiction, there exists an ordinal $q_0 \in l_0$ such that $\neg \beta (k_0, q_0)$. 
+    Now suppose, for a contradiction, there exists an ordinal $q_0 \in l_0$ such that 
+    $\neg \beta (k_0, q_0)$. 
     Then, as $l_0 \subseteq l$, $q_0 \in l$, and thus $q_0 \subseteq l$. 
     Moreover, $q_0 \in L$, which contradicts $l_0 \cap L = \varnothing$. 
     
     We now claim that $l_0 \subset k_0$. Indeed, suppose $p \in l_0$. 
     Then $\beta (k_0, p)$, by (\ref{eq:2}), i.e. $k_0 \in p \lor k_0 = p \lor p \in k_0$. 
-    But both $k_0 \in p$ and $k_0 = p$ contradict $\neg \beta(k_0,l_0)$ in (\ref{eq:2}), as $p \in l_0$ is assumed. 
-    Thus $p \in k_0$, and $l_0 \subseteq k_0$ follows. 
-    Since $l_0 = k_0$ also contradicts $\neg \beta(k_0,l_0)$ in (\ref{eq:2}), we get $l_0 \subset k_0$. \\
+    But both $k_0 \in p$ and $k_0 = p$ contradict $\neg \beta(k_0,l_0)$ in (\ref{eq:2}), 
+    as $p \in l_0$ is assumed. Thus $p \in k_0$, and $l_0 \subseteq k_0$ follows. 
+    Since $l_0 = k_0$ also contradicts $\neg \beta(k_0,l_0)$ in (\ref{eq:2}), 
+    we get $l_0 \subset k_0$. \\
     
     Let $m \in k_0 \setminus l_0$. Then $\beta(m, l_0)$, by (\ref{eq:1}), i.e.
     $$m \in l_0 \lor m = l_0 \lor l_0 \in m.$$
     It follows immediately that $m \in l_0$ is impossible. 
-    But both $m=l_0$ and $l_0 \in m$ contradict $\neg \beta(k_0,l_0)$ in (\ref{eq:2}), as $m \in k_0$.
+    But both $m=l_0$ and $l_0 \in m$ contradict $\neg \beta(k_0,l_0)$ in (\ref{eq:2}), 
+    as $m \in k_0$.
 \end{proof}
 
-\begin{lemma}
-    \label{lem:four}
+\begin{corollary}
+    \label{cor:IsOrd.exclusive_comparability+...+IsOrd.succ_inj}
+    \lean{HFSet.IsOrd.exclusive_comparability, HFSet.Ord.exclusive_comparability, 
+    HFSet.IsOrd.sSubset_iff_mem, HFSet.Ord.sSubset_iff_lt, HFSet.IsOrd.succ_eq_or_succ_mem, 
+    HFSet.Ord.succ_eq_or_succ_lt, HFSet.IsOrd.succ_inj, HFSet.Ord.succ_inj}
     \leanok
-    \uses{lem:set_notin_empty+enlarge_iff+enlarge_empty, thm:exten_prop, def:SubsetEq+Subset, cor:set_notin_itself, def:IsTrans+IsOrd, def:Succ,
-    lem:succ_isOrd_if_isOrd+mem_of_ord_isOrd+...+empty_in_ord, thm:compar_of_ord_ord}
+    \uses{lem:notin_empty+mem_enlarge+mem_enlarge_empty, thm:exten_prop, def:Subset+SSubset, 
+    cor:mem_irrefl, def:IsTrans+IsOrd, def:succ, lem:IsOrd.succ_isOrd+...+IsOrd.empty_is_mem, 
+    thm:IsOrd.comparability}
     Let $k,l$ be ordinals. Then,
     \begin{enumerate}
         \item Exactly one of $k\in l$, $k=l$, $l \in k$ occurs.
@@ -445,34 +536,126 @@ and that it contains a distinguished freely occuring variable which is quantifie
         \item $l \in k \rightarrow (\text{succ}(l)=k \lor \text{succ}(l)\in k)$.
         \item $(\text{succ}(k) = \text{succ}(l) )\rightarrow k = l$.
     \end{enumerate}
-\end{lemma}
+\end{corollary}
 
 \begin{proof}
     \leanok
     \leavevmode
     \begin{enumerate}
-        \item Any two of the three mentioned possibilities contradict Corollary \ref{cor:set_notin_itself}. 
-        At least one possibility occurs by Theorem \ref{thm:compar_of_ord_ord}.
-        \item The $\rightarrow$ direction follows by the transitivity of $l$ and Corollary \ref{cor:set_notin_itself}. 
-        Suppose $k \subset l$. Then $k \in l \lor l \in k$ by Theorem \ref{thm:compar_of_ord_ord}. 
-        But $l \in k$ yields $l \in l$, contradicting Corollary \ref{cor:set_notin_itself}.
-        \item By Theorem \ref{thm:compar_of_ord_ord}, we have to exclude $k \in \text{succ}(l)$, i.e. we have to show that neither $k\in l$ nor $k=l$ can occur. 
-        This is indeed so because each of these possibilities, together with $l\in k$, leads to $l \in l$.
+        \item Any two of the three mentioned possibilities contradict 
+        Corollary \ref{cor:mem_irrefl}. 
+        At least one possibility occurs by Theorem \ref{thm:IsOrd.comparability}.
+        \item The $\rightarrow$ direction follows by the transitivity of $l$ and 
+        Corollary \ref{cor:mem_irrefl}. 
+        Suppose $k \subset l$. Then $k \in l \lor l \in k$ by Theorem \ref{thm:IsOrd.comparability}. 
+        But $l \in k$ yields $l \in l$, contradicting Corollary \ref{cor:mem_irrefl}.
+        \item By Theorem \ref{thm:IsOrd.comparability}, we have to exclude $k \in \text{succ}(l)$, 
+        i.e. we have to show that neither $k\in l$ nor $k=l$ can occur. 
+        This is indeed so because each of these possibilities, together with $l\in k$, 
+        leads to $l \in l$.
         \item Suppose, for a contradiction, that $k \neq l$. 
-        Then $\text{succ}(k) = k \lhd k = l \lhd l = \text{succ}(l)$ implies $k \in l$ and $l \in k$, yielding again $l \in l$.
+        Then $\text{succ}(k) = k \lhd k = l \lhd l = \text{succ}(l)$ 
+        implies $k \in l$ and $l \in k$, yielding again $l \in l$.
     \end{enumerate}
 \end{proof}
 
-\begin{lemma}
-    \label{lem:exists_max_of_set_of_ord+exists_min_of_set_of_ord}
-    \uses{ax:induction_axiom, lem:set_notin_empty+enlarge_iff+enlarge_empty, def:IsTrans+IsOrd, thm:compar_of_ord_ord}
-    If $x$ is a non-empty set of ordinals, then $x$ has a smallest and a largest element, i.e.
-    \begin{equation*}
-    \exists(l \in x) \forall (k \in x) [l \in k \lor l = k]\quad\text{and}\quad\exists(l \in x) \forall (k \in x) [k \in l \lor k = l].
-    \end{equation*}
-\end{lemma}
+\begin{definition}
+    \label{def:Ord.lt+Ord.le}
+    \lean{HFSet.Ord.lt, HFSet.Ord.le}
+    \leanok
+    For ordinals $k,l$, we shall use:
+    \begin{enumerate}
+    \item $k\,<\,l$ to abbreviate $k \in l$,
+    \item $k \leq l$ to abbreviate $k\,<\,l \lor k = l$.
+    \end{enumerate}
+\end{definition}
 
-%\begin{proof}
-    %Let $\alpha (x)$ be the formula $\exists z \forall u (u\in z \leftrightarrow u \subseteq x)$.
-    %We apply Axiom \ref{ax:induction_axiom}.
-%\end{proof}
+\begin{theorem}
+    \label{thm:Ord.le_totalOrder+Ord.lt_sTotalOrder}
+    \lean{HFSet.Ord.le_totalOrder, HFSet.Ord.lt_sTotalOrder}
+    \uses{cor:mem_irrefl, def:IsTrans+IsOrd, thm:IsOrd.comparability, def:Ord.lt+Ord.le}
+    \leanok
+    On every set of ordinals, the relation $\leq$ ($<$) is a (strict) total order.
+\end{theorem}
+
+\begin{proof}
+    \leanok
+    Reflexivity of $\leq$ follows directly from $=$ being reflexive; 
+    irreflexivity of $<$ follows directly from Corollary \ref{cor:mem_irrefl}.
+    Transitivity is immediate from Definition \ref{def:IsTrans+IsOrd}.
+    Antisymmetry and asymmetry are straightforward from Definition \ref{def:IsTrans+IsOrd} and
+    Corollary \ref{cor:mem_irrefl}.
+    (Strong) connectivity is derived trivally from Theorem \ref{thm:IsOrd.comparability}.
+\end{proof}
+
+\begin{theorem}
+    \label{thm:IsOrd.exists_max_of_set+IsOrd.exists_min_of_set}
+    \lean{HFSet.IsOrd.exists_max_of_set, HFSet.IsOrd.exists_min_of_set}
+    \leanok
+    \uses{ax:induction, lem:notin_empty+mem_enlarge+mem_enlarge_empty, def:IsTrans+IsOrd, 
+    thm:IsOrd.comparability}
+    If $x$ is a non-empty set of ordinals, then $x$ has a smallest and a largest element, 
+    i.e.
+    \begin{equation*}
+    \exists(l \in x) \forall (k \in x) [l \leq k]\quad\text{and}\quad\exists(l \in x) 
+    \forall (k \in x) [k \leq l].
+    \end{equation*}
+\end{theorem}
+
+\begin{proof}
+    \leanok
+    We first prove the existence of the largest element of $x$, denoted by $\max(x)$. 
+    Let $\alpha(x)$ be the formula 
+    $$(\forall (k \in x)[\text{Ord} k]) \rightarrow (x \neq \varnothing) \rightarrow 
+    (\exists(l \in x) \forall (k \in x) [k \leq l]).$$ 
+    We apply Axiom \ref{ax:induction}.
+    \begin{itemize}
+        \item For the base case — $\alpha (\varnothing)$ — obviously, $x = \varnothing$ immediately 
+        contradicts $x \neq \varnothing$.
+        \item For the induction step 
+        — $\forall y[\alpha(x) \land \alpha(y) \rightarrow \alpha(x \lhd y)]$ — 
+        pick $y$ arbitrarily and assume $\alpha(x)$, 
+        i.e. the existence of $\max(x)$ if $x$ is a set of ordinals and $x \neq \varnothing$. 
+        Assume $x \lhd y$ is a set of ordinals, evidently non-empty. 
+        Then $x$ is a set of ordinals or it is empty.
+        If $x=\varnothing$, then $x \lhd y = \{y\}$, and $\max(x\lhd y) = y$.
+        Now suppose $x \neq \varnothing$, and thus $\max(x)$ exists. 
+        Since $x \lhd y$ arises from $x$ by adjoining one element, it is clear that 
+        $\max (x \lhd y)$ also exists. 
+        More specifically, it equals $y$ if $\max (x) \in y$, and $\max (x)$ otherwise.
+    \end{itemize}
+    To deduce the existence of $\min (x)$, 
+    replace in the above proof $\leq$ by $\geq$ and "max" by "min" throughout.
+\end{proof}
+
+\begin{corollary}
+    \label{cor:IsOrd.exists_pred}
+    \lean{HFSet.IsOrd.exists_pred}
+    \leanok
+    \uses{def:IsTrans+IsOrd, def:succ, lem:IsOrd.succ_isOrd+...+IsOrd.empty_is_mem, 
+    cor:IsOrd.exclusive_comparability+...+IsOrd.succ_inj, 
+    thm:IsOrd.exists_max_of_set+IsOrd.exists_min_of_set}
+    $\forall k ((\text{Ord}(k) \land k \neq \varnothing) \rightarrow \exists!l(\text{succ}(l)=k))$.
+\end{corollary}
+
+\begin{proof}
+    \leanok
+    By Lemma \ref{lem:IsOrd.succ_isOrd+...+IsOrd.empty_is_mem}.2, 
+    $k$ is a non-empty set of ordinals. 
+    Thus, by Theorem \ref{thm:IsOrd.exists_max_of_set+IsOrd.exists_min_of_set}, 
+    $\max (k)$ exists, where $\max (k) \in k$. 
+    It follows from Corollary \ref{cor:IsOrd.exclusive_comparability+...+IsOrd.succ_inj}.3 that 
+    either $\text{succ}(\max (k)) = k$ or $\text{succ}(\max (k)) \in k$. 
+    However, the latter contradicts the definition of $\max (k)$. 
+    Thus $\text{succ}(\max (k)) = k$. Uniqueness follows from 
+    Corollary \ref{cor:IsOrd.exclusive_comparability+...+IsOrd.succ_inj}.4.
+\end{proof}
+
+\begin{definition}
+    \label{def:IsOrd.pred}
+    \lean{HFSet.IsOrd.pred, HFSet.Ord.pred}
+    \leanok
+    \uses{def:succ, cor:IsOrd.exists_pred}
+    The unique (if existing) $l$ for which $\text{succ}(l) = k$ is called the 
+    \textit{predecessor} of $k$, abbreviated by $\text{pred}(k)$.
+\end{definition}

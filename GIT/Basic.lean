@@ -3,7 +3,7 @@ import Mathlib.ModelTheory.Syntax
 import Mathlib.ModelTheory.Semantics
 import GIT.FirstOrder_reverse
 
-open FirstOrder Language BoundedFormula
+open FirstOrder Language BoundedFormula Classical
 
 /-!
 # Appendix 1: Axioms and basic results of hereditarily finite set theory
@@ -147,9 +147,9 @@ theorem exten_prop (z : S) (x : S) : x = z ↔ ∀ u, u ∈ x ↔ u ∈ z := by
     instStructureHFLangOfHF_RelMap, Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons]
     rfl
 
-instance : Insert S S := ⟨fun y x => x ◁ y⟩
+instance insert : Insert S S := ⟨fun y x => x ◁ y⟩
 
-instance : Singleton S S := ⟨fun x => ∅ ◁ x⟩
+instance singleton : Singleton S S := ⟨fun x => ∅ ◁ x⟩
 
 @[simp] lemma mem_singleton (u x : S) : u ∈ ({x} : S) ↔ u = x := mem_enlarge_empty u x
 
@@ -402,7 +402,7 @@ instance : HasSSubset S := ⟨SSubset⟩
 
 lemma sSubset_def (x y : S) : x ⊂ y ↔ (∀ v, v ∈ x → v ∈ y) ∧ x ≠ y := by rfl
 
-lemma exists_set_in_sdiff (x y : S) (h : x ⊂ y) : ∃ z, z ∈ y ∧ z ∉ x := by
+lemma exists_mem_of_sdiff (x y : S) (h : x ⊂ y) : ∃ z, z ∈ y ∧ z ∉ x := by
   simp only [sSubset_def, ne_eq] at h
   by_contra! hn
   have hf (u : S) : u ∈ x ↔ u ∈ y := by apply Iff.intro <;> intro a <;> simp_all only
@@ -478,7 +478,7 @@ theorem found_prop (z : S) : z ≠ ∅ → ∃ w, w ∈ z ∧ w ∩ z = ∅ := b
   intro h; simp only [not_and] at h
   intro u; simp_all [found_prop_aux u z h]
 
-instance : IsIrrefl S (· ∈ ·) where
+instance mem_irrefl : IsIrrefl S (· ∈ ·) where
   irrefl := by
     intro x
     obtain ⟨w, hw⟩ := found_prop ({x} : S) (by simp_rw [ne_eq, exten_prop]; simp_all)
@@ -649,7 +649,7 @@ theorem comparability (k l : S) (ord_k : IsOrd k) (ord_l : IsOrd l) :
   obtain ⟨k0, ⟨ord_k0, ⟨forall_in_k0, hk0⟩⟩⟩ := comparability_aux1 hn
   obtain ⟨l0, ⟨ord_l0, ⟨forall_in_l0, hl0⟩⟩⟩ := comparability_aux2 k0 hk0
   obtain ⟨m, ⟨m_in_k0 , m_notin_l0⟩⟩ :=
-    exists_set_in_sdiff l0 k0 (comparability_aux3 k0 l0 ord_l0 forall_in_l0 hl0)
+    exists_mem_of_sdiff l0 k0 (comparability_aux3 k0 l0 ord_l0 forall_in_l0 hl0)
   specialize forall_in_k0 m m_in_k0 l0 ord_l0
   simp only [m_notin_l0, false_or] at forall_in_k0
   refine forall_in_k0.elim (by intro h; simp_all) ?_
@@ -672,7 +672,7 @@ theorem exclusive_comparability (k l : S) (ord_k : IsOrd k) (ord_l : IsOrd l) :
       simp only [k_in_l, not_false_eq_true, k_eq_l, false_or, ne_eq, and_self, and_true] at *
       exact ord_l
 
-@[simp] lemma subset_iff_mem (k l : S) (ord_k : IsOrd k) (ord_l : IsOrd l) :
+@[simp] lemma sSubset_iff_mem (k l : S) (ord_k : IsOrd k) (ord_l : IsOrd l) :
     k ⊂ l ↔ k ∈ l := by
   constructor
   · intro k_subset_l
@@ -694,6 +694,16 @@ lemma succ_eq_or_succ_mem (k l : S) (ord_k : IsOrd k) (ord_l : IsOrd l) (l_in_k 
   · exfalso; apply mem_asymm k l ord_k k_in_l l_in_k
   · exfalso; apply ne_of_mem l k l_in_k; rw [k_eq_l]
 
+lemma mem_iff_succ_mem (k l : S) (ord_k : IsOrd k) (ord_l : IsOrd l) :
+    l ∈ k ↔ succ l ∈ succ k := by
+  simp only [mem_enlarge]
+  refine ⟨by intro l_in_k; rw [Or.comm]; exact succ_eq_or_succ_mem k l ord_k ord_l l_in_k , ?_⟩
+  intro h
+  refine h.elim (by intro h; exact isTrans_mem k (succ l) l ord_k.1 h (by simp)) ?_
+  intro h2
+  subst k
+  simp_all
+
 lemma succ_inj (k l : S) (ord_k : IsOrd k) (succ_eq : succ k = succ l) :
     k = l := by
   by_contra! k_ne_l
@@ -702,6 +712,9 @@ lemma succ_inj (k l : S) (ord_k : IsOrd k) (succ_eq : succ k = succ l) :
   simp only [in_itself_iff_false, k_ne_l, eq_comm, k_ne_l, or_false, or_true, iff_true,
     true_iff] at *
   apply mem_asymm k l ord_k succ_eq' succ_eq
+
+lemma eq_iff_succ_eq (k l : S) (ord_k : IsOrd k) :
+    k = l ↔ succ k = succ l := by refine ⟨by intro h; rw [h], succ_inj k l ord_k⟩
 
 lemma exists_max_of_set_aux (x y : S) (set_of_ord : ∀ k ∈ x ◁ y, IsOrd k)
     (x_has_max : ∃ l ∈ x, ∀ k ∈ x, (k ∈ l ∨ k = l)) :
@@ -818,6 +831,9 @@ lemma succ_pred (k : S) (ord : IsOrd k) (ne_emp : k ≠ ∅) :
   rcases this with ⟨this, _⟩
   rwa [pred]
 
+lemma pred_isOrd (k : S) (ord : IsOrd k) (ne_emp : k ≠ ∅) : IsOrd (pred k ord ne_emp) := by
+  rwa [iff_succ_isOrd, succ_pred]
+
 end IsOrd
 
 variable (S) in
@@ -826,28 +842,190 @@ def Ord : Type u := {k : S // IsOrd k}
 
 namespace Ord
 
-@[simp] lemma eq (k l : Ord S) : k = l ↔ k.1 = l.1 := Subtype.ext_iff
-
-lemma ne (k l : Ord S) : k ≠ l ↔ k.1 ≠ l.1 := by simp
+@[simp] lemma eq_iff (k l : Ord S) : k = l ↔ k.1 = l.1 := Subtype.ext_iff
 
 instance : EmptyCollection (Ord S) := ⟨⟨(∅ : S), empty_isOrd⟩⟩
 
-instance : LT (Ord S) := ⟨fun k l => (k.1 ∈ l.1)⟩
+instance le : LE (Ord S) := ⟨fun k l => k.1 ∈ l.1 ∨ k = l⟩
 
-lemma lt (k l : Ord S) : k < l ↔ k.1 ∈ l.1 := Iff.rfl
+instance lt : LT (Ord S) := ⟨fun k l => k ≤ l ∧ ¬l ≤ k⟩
 
-instance : LE (Ord S) := ⟨fun k l => k < l ∨ k = l⟩
+lemma le_aux (k l : Ord S) : k ≤ l ↔ k.1 ∈ l.1 ∨ k = l := Iff.rfl
 
-lemma le  (k l : Ord S) : k ≤ l ↔ k < l ∨ k = l := Iff.rfl
+lemma lt_aux (k l : Ord S) : k < l ↔ k ≤ l ∧ ¬l ≤ k := Iff.rfl
+
+lemma lt_iff (k l : Ord S) : k < l ↔ k.1 ∈ l.1 := by
+  simp only [lt_aux, le_aux, eq_iff, not_or, Eq.comm]
+  constructor
+  · intro h; rcases h with ⟨h1, _⟩
+    refine h1.elim ?_ (by simp_all only [or_false, false_implies])
+    exact fun a ↦ a
+  · intro h
+    refine ⟨by left; exact h, ?_⟩
+    have := IsOrd.exclusive_comparability k.1 l.1 k.2 l.2
+    simp_all
+
+lemma le_iff (k l : Ord S) : k ≤ l ↔ k < l ∨ k = l := by simp [le_aux, lt_iff]
 
 @[simp] lemma lt_empty_iff_false (k : Ord S) : k < (∅ : Ord S) ↔ False := by
-  simp only [lt, iff_false]
+  simp only [lt_iff, iff_false]
   exact notin_empty k.1
 
-@[simp] lemma lt_itself_iff_false (k : Ord S) : k < k ↔ False := by simp [lt]
+@[simp] lemma lt_itself_iff_false (k : Ord S) : k < k ↔ False := by simp [lt_iff]
+
+lemma ne_of_lt (k l : Ord S) (h : k < l) : k ≠ l := by
+  simp only [lt_iff, ne_eq, eq_iff] at *
+  exact ne_of_mem k.1 l.1 h
+
+lemma lt_trans (k l m : Ord S) (k_lt_l : k < l) (l_lt_m : l < m) : k < m := by
+  simp only [lt_iff] at *
+  exact isTrans_mem m.1 l.1 k.1 m.2.1 l_lt_m k_lt_l
 
 /-- The successor of an ordinal. -/
 def succ (k : Ord S) : Ord S := ⟨_, IsOrd.succ_isOrd _ k.2⟩
+
+lemma ne_succ (k : Ord S) : k ≠ succ k := by
+  simp only [ne_eq, eq_iff]
+  exact HFSet.ne_succ k.1
+
+lemma lt_asymm (k l : Ord S) (k_lt_l : k < l) (l_lt_k : l < k) :
+    False := by
+  simp only [lt_iff] at *
+  exact IsOrd.mem_asymm k.1 l.1 k.2 k_lt_l l_lt_k
+
+lemma empty_is_lt (k : Ord S) (ne_emp : k ≠ ∅) : ∅ < k := by
+  simp only [ne_eq, eq_iff, lt_iff] at *
+  exact IsOrd.empty_is_mem k.1 k.2 ne_emp
+
+lemma succ_is_not_lt (k : Ord S) : ¬(succ k < k) := by
+  simp only [lt_iff]
+  exact IsOrd.succ_is_not_mem k.1 k.2
+
+theorem comparability (k l : Ord S) : k < l ∨ k = l ∨ l < k := by
+  simp only [lt_iff, eq_iff]
+  exact IsOrd.comparability k.1 l.1 k.2 l.2
+
+theorem exclusive_comparability (k l : Ord S) :
+    (k < l ∧ ¬(k = l ∨ l < k)) ∨ (k = l ∧ ¬(k < l ∨ l < k)) ∨ (l < k ∧ ¬(k < l ∨ k = l)) := by
+  simp only [lt_iff, eq_iff, not_or]
+  push_neg
+  exact IsOrd.exclusive_comparability k.1 l.1 k.2 l.2
+
+/-- k ⊆ l -/
+abbrev Subset (k l : Ord S) : Prop := ∀ (m : Ord S), m < k → m < l
+
+instance : HasSubset (Ord S) := ⟨Subset⟩
+
+lemma subset_def (k l : Ord S) : k ⊆ l ↔ ∀ m, m < k → m < l := by rfl
+
+lemma subset_iff (k l : Ord S) : k ⊆ l ↔ k.1 ⊆ l.1 := by
+  simp only [subset_def, lt_iff, HFSet.subset_def]
+  constructor
+  · intros h m m_in_k
+    specialize h ⟨m, IsOrd.mem_isOrd k.1 m k.2 m_in_k⟩
+    exact h m_in_k
+  · intros h m m_in_k
+    exact h m.1 m_in_k
+
+/-- k ⊂ l -/
+abbrev SSubset (k l : Ord S) : Prop := k ⊆ l ∧ k ≠ l
+
+instance : HasSSubset (Ord S) := ⟨SSubset⟩
+
+lemma sSubset_def (k l : Ord S) : k ⊂ l ↔ (∀ m, m < k → m < l) ∧ k ≠ l := by rfl
+
+lemma sSubset_iff (k l : Ord S) : k ⊂ l ↔ k.1 ⊂ l.1 := by
+  simp only [sSubset_def, lt_iff, ne_eq, eq_iff, HFSet.sSubset_def, and_congr_left_iff]
+  intro _
+  have := subset_iff k l
+  simp [subset_def, lt_iff] at this
+  exact this
+
+@[simp] lemma sSubset_iff_lt (k l : Ord S) : k ⊂ l ↔ k < l := by
+  simp only [sSubset_iff, lt_iff]
+  exact IsOrd.sSubset_iff_mem k.1 l.1 k.2 l.2
+
+lemma succ_eq_or_succ_lt (k l : Ord S) (l_lt_k : l < k) : succ l = k ∨ succ l < k := by
+  simp only [lt_iff, eq_iff] at *
+  exact IsOrd.succ_eq_or_succ_mem k.1 l.1 k.2 l.2 l_lt_k
+
+lemma succ_inj (k l : Ord S) (succ_eq : succ k = succ l) : k = l := by
+  simp only [eq_iff] at *
+  exact IsOrd.succ_inj k.1 l.1 k.2 succ_eq
+
+lemma le_trans (k l m : Ord S) : k ≤ l → l ≤ m → k ≤ m := by
+  intros k_le_l l_le_m
+  simp [le_aux] at *
+  cases k_le_l with
+  | inl h_k_le_l =>
+    cases l_le_m with
+    | inl h_l_le_m => exact Or.inl (m.2.1 _ h_l_le_m _ h_k_le_l)
+    | inr h_l_eq_m => exact Or.inl (h_l_eq_m ▸ h_k_le_l)
+  | inr h_k_eq_l =>
+    cases l_le_m with
+    | inl h_l_le_m => exact Or.inl (h_k_eq_l.symm ▸ h_l_le_m)
+    | inr h_l_eq_m => exact Or.inr (h_k_eq_l.symm ▸ h_l_eq_m)
+
+lemma le_antisymm (k l : Ord S) : k ≤ l → l ≤ k → k = l := by
+  simp only [le_aux, eq_iff]
+  intros h1 h2
+  refine h1.elim ?_ (fun a ↦ a)
+  refine h2.elim ?_ (fun a _↦ id (Eq.symm a))
+  intros h3 h4; exfalso
+  exact IsOrd.mem_asymm k.1 l.1 k.2 h4 h3
+
+lemma le_total (k l : Ord S) : k ≤ l ∨ l ≤ k := by
+  simp only [le_aux, eq_iff, Eq.comm]
+  cases IsOrd.comparability k.1 l.1 k.2 l.2 with
+  | inl h => simp_all only [true_or]
+  | inr h_1 =>
+    cases h_1 with
+    | inl h => simp_all only [in_itself_iff_false, or_true, or_self]
+    | inr h_2 => simp_all only [true_or, or_true]
+
+instance le_totalOrder : LinearOrder (Ord S) where
+  le := fun k l => k ≤ l
+  le_refl := by simp [le_iff]
+  le_trans := le_trans
+  le_antisymm := le_antisymm
+  le_total := le_total
+  decidableLE := inferInstance
+
+instance lt_sTotalOrder : IsStrictTotalOrder (Ord S) (· < ·) where
+  trichotomous := comparability
+  irrefl := fun a ↦ gt_irrefl a
+  trans := lt_trans
+
+/-- The predecessor of a non-empty ordinal -/
+def pred (k : Ord S) (ne_emp : k ≠ ∅) : Ord S := ⟨_, IsOrd.pred_isOrd _ k.2
+  (by simp only [ne_eq, eq_iff] at ne_emp; exact ne_emp)⟩
+
+lemma succ_pred (k : Ord S) (ne_emp : k ≠ ∅) : succ (pred k ne_emp) = k := by
+  simp only [eq_iff]
+  exact IsOrd.succ_pred k.1 k.2 (by simp only [ne_eq, eq_iff] at ne_emp; exact ne_emp)
+
+lemma pred_element_eq (k : Ord S) (ne_emp : k ≠ ∅) :
+    (pred k ne_emp).1 = IsOrd.pred k.1 k.2 (by simp only [ne_eq, eq_iff] at ne_emp; exact ne_emp)
+    := by rfl
+
+lemma pred_lt (k : Ord S) (ne_emp : k ≠ ∅) : pred k ne_emp < k := by
+  simp only [lt_iff]
+  rw [IsOrd.mem_iff_succ_mem, pred_element_eq, IsOrd.succ_pred]
+  · simp
+  · exact k.2
+  · rw [pred_element_eq]
+    exact IsOrd.pred_isOrd k.1 k.2 (by simp only [ne_eq, eq_iff] at ne_emp; exact ne_emp)
+
+lemma forall_lt_le_pred (k : Ord S) (ne_emp : k ≠ ∅) : ∀ l < k, l ≤ pred k ne_emp := by
+  intros l l_lt_k
+  simp only [lt_iff, le_iff, eq_iff] at *
+  rw [IsOrd.mem_iff_succ_mem, IsOrd.eq_iff_succ_eq, pred_element_eq,
+    IsOrd.succ_pred k.1 k.2 (by simp only [ne_eq, eq_iff] at ne_emp; exact ne_emp), Or.comm]
+  · exact IsOrd.succ_eq_or_succ_mem k.1 l.1 k.2 l.2 l_lt_k
+  · exact l.2
+  · rw [pred_element_eq]
+    exact IsOrd.pred_isOrd k.1 k.2 (by simp only [ne_eq, eq_iff] at ne_emp; exact ne_emp)
+  · exact l.2
 
 end Ord
 end HFSet
