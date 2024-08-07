@@ -8,4 +8,4 @@ An ongoing project to formalise Gödel's incompleteness theorems using hereditar
 
 The project is being run by Ruben Reijerse under the supervision of Kevin Buzzard; it currently serves as a master's thesis at Imperial College London. Furthermore, Jujian Zhang is an active collaborator.
 
-For more details about the proof and the first-order theory of hereditarily finite sets, a good place to start is the [paper](https://books.google.co.uk/books?id=5BQZAQAAIAAJ) by Swierczkowski and the [blueprint](https://aemiliusr.github.io/Goedel_HF_Lean/blueprint/).
+For more details about the proof and the first-order theory of hereditarily finite sets, good places to start are the [paper](https://books.google.co.uk/books?id=5BQZAQAAIAAJ) by Swierczkowski and the [blueprint](https://aemiliusr.github.io/Goedel_HF_Lean/blueprint/).
