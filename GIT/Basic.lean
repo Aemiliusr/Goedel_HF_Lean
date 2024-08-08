@@ -96,7 +96,7 @@ class HFSet (s : Type u) extends HF s where
   empty (z : s) : z = ∅ ↔ ∀ x, x ∉ z
   /-- Axiom 2 "for enlargement". -/
   enlarge (x y z : s) : z = x ◁ y ↔ ∀ u, u ∈ z ↔ u ∈ x ∨ u = y
-  /-- Axiom 3: the induction principle. The addtional four goals (next to base and step)
+  /-- Axiom 3: the induction principle. The additional four goals (next to base and step)
   ensure induction is over all formulae in the first-order language of HF rather than over all
   predicates.  -/
   induction (α : s → Prop) (base : α ∅) (step : ∀ x y, α x → α y → α (x ◁ y)) (z : s)

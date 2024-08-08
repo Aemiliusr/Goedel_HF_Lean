@@ -34,7 +34,7 @@ The axioms are given by the following sentences.
 \end {axiom}
 
 The assumption in Axiom 3 — the induction principle — is that $\alpha$ is an $\mathcal{L}$-formula
-and that it contains a distinguished freely occuring variable which is quantified over.
+and that it contains a distinguished freely occurring variable which is quantified over.
 
 \section{Basic results}
 
@@ -73,7 +73,7 @@ and that it contains a distinguished freely occuring variable which is quantifie
 
 \begin{proof}
     \leanok
-    Pick $x$ and $z$ arbitrarily and let $\alpha (x)$ be the formula 
+    Pick $x$ and $z$ arbitrarily and let $\alpha (x)$ be the $\mathcal{L}$-formula
     $x=z \leftrightarrow \forall u (u \in x \leftrightarrow u \in z)$.
     We apply Axiom \ref{ax:induction}.
     \begin{itemize}
@@ -187,7 +187,7 @@ and that it contains a distinguished freely occuring variable which is quantifie
 
 \begin{proof}
     \leanok
-    Pick $x$ and $y$ arbitrarily and let $\alpha (x)$ be the formula 
+    Pick $x$ and $y$ arbitrarily and let $\alpha (x)$ be the $\mathcal{L}$-formula 
     $\exists z \forall u (u \in z \leftrightarrow u \in x \lor u \in y)$.
     We apply Axiom \ref{ax:induction}.
     \begin{itemize}
@@ -214,7 +214,7 @@ and that it contains a distinguished freely occuring variable which is quantifie
 
 \begin{proof}
     \leanok
-    Pick $x$ arbitrarily and let $\alpha (x)$ be the formula 
+    Pick $x$ arbitrarily and let $\alpha (x)$ be the $\mathcal{L}$-formula 
     $\exists z \forall u (u \in z \leftrightarrow \exists (y\in x)[u \in y])$.
     We apply Axiom \ref{ax:induction}.
     \begin{itemize}
@@ -248,7 +248,7 @@ and that it contains a distinguished freely occuring variable which is quantifie
 
 \begin{proof}
     \leanok
-    Pick $x$ arbitrarily and let $\alpha (x)$ be the formula 
+    Pick $x$ arbitrarily and let $\alpha (x)$ be the $\mathcal{L}$-formula 
     $\exists z \forall u (u\in z \leftrightarrow (u \in x) \land \phi (u))$.
     We apply Axiom \ref{ax:induction}.
     \begin{itemize}
@@ -294,7 +294,7 @@ and that it contains a distinguished freely occuring variable which is quantifie
 
 \begin{proof}
     \leanok
-    Pick $x$ arbitrarily and let $\alpha (x)$ be the formula 
+    Pick $x$ arbitrarily and let $\alpha (x)$ be the $\mathcal{L}$-formula 
     $[\forall (u \in x) [\exists! v] \psi (u,v)]\rightarrow 
     \exists z \forall v [v\in z \leftrightarrow \exists(u \in x) \psi (u,v)]$.
     We apply Axiom \ref{ax:induction}.
@@ -339,7 +339,7 @@ and that it contains a distinguished freely occuring variable which is quantifie
 
 \begin{proof}
     \leanok
-    Pick $x$ arbitrarily and let $\alpha (x)$ be the formula 
+    Pick $x$ arbitrarily and let $\alpha (x)$ be the $\mathcal{L}$-formula 
     $\exists z \forall u (u\in z \leftrightarrow u \subseteq x)$.
     We apply Axiom \ref{ax:induction}.
     \begin{itemize}
@@ -354,8 +354,8 @@ and that it contains a distinguished freely occuring variable which is quantifie
         Indeed, for the $\rightarrow$ direction, the cases $y \notin u$ and $y \in u$ correspond to 
         the left and right cases of the disjunction, respectively, where for the right case, 
         the required $v$ is $u \cap x$. The $\leftarrow$ direction is rather trivial.
-        Now, note that the formula $\psi(v,u): u = v \lhd y$ satisfies the condition for 
-        Theorem \ref{thm:repl_scheme}, i.e. $v \mapsto v \lhd y$ is a well-defined mapping.
+        Now, note that the $\mathcal{L}$-formula $\psi(v,u): u = v \lhd y$ satisfies the condition 
+        for Theorem \ref{thm:repl_scheme}, i.e. $v \mapsto v \lhd y$ is a well-defined mapping.
         By Theorem \ref{thm:exists_union}, 
         it follows that the required $z$ is $P(x) \cup \{u : \exists (v \in P(x)) [u=v\lhd y]\}$.
     \end{itemize}
@@ -375,7 +375,7 @@ and that it contains a distinguished freely occuring variable which is quantifie
     Pick z arbitrarily. 
     We need to show that $\forall (w \in z)[w \cap z \neq \varnothing] \rightarrow z = \varnothing$, 
     which follows if $\forall (w \in z)[w \cap z \neq \varnothing] \rightarrow \forall x \alpha(x)$, 
-    where $\alpha(x)$ is the formula $(x \notin z) \land (x \cap z = \varnothing)$.
+    where $\alpha(x)$ is the $\mathcal{L}$-formula $(x \notin z) \land (x \cap z = \varnothing)$.
     Thus, assume $\forall (w \in z)[w \cap z \neq \varnothing]$ and pick $x$ arbitrarily.
     We apply Axiom \ref{ax:induction}.
     \begin{itemize}
@@ -418,16 +418,16 @@ and that it contains a distinguished freely occuring variable which is quantifie
     \uses{def:Subset+SSubset}
     We say that $x$ is \textit{transitive} if every element of $x$ is a subset of $x$. 
     We call $x$ an \textit{ordinal} if $x$ is transitive and every element of $x$ is transitive, 
-    abbreviated by $\text{Ord}(x)$.
+    abbreviated by $\operatorname{Ord}(x)$.
 
     Ordinals will be mostly denoted by $k$, $l$, $m$, $n$, $p$, $q$, $r$.
 \end{definition}
 
-\begin{definition}
+\begin{definition}[Successor]
     \label{def:succ}
     \lean{HFSet.succ, HFSet.Ord.succ}
     \leanok
-    The \textit{successor} of $x$ is defined as $x \lhd x$, abbreviated by $\text{succ}(x)$.
+    The \textit{successor} of $x$ is defined as $x \lhd x$, abbreviated by $\operatorname{succ}(x)$.
 \end{definition}
 
 \begin{lemma}
@@ -439,10 +439,12 @@ and that it contains a distinguished freely occuring variable which is quantifie
     thm:exten_prop, def:inter+sInter, thm:found_prop, def:IsTrans+IsOrd, def:succ}
     \leavevmode
     \begin{enumerate}
-        \item $\forall k(\text{Ord}(k) \rightarrow \text{Ord}(\text{succ}(k)))$.
-        \item $\forall k \forall l(\text{Ord}(k) \land l \in k \rightarrow \text{Ord}(l))$.
-        \item $\text{Ord}(\varnothing)$.
-        \item $\forall k \forall l ((\text{Ord}(k) \land (k \neq \varnothing) \land 
+        \item $\forall k(\operatorname{Ord}(k) \rightarrow 
+        \operatorname{Ord}(\operatorname{succ}(k)))$.
+        \item $\forall k \forall l(\operatorname{Ord}(k) \land l \in k \rightarrow 
+        \operatorname{Ord}(l))$.
+        \item $\operatorname{Ord}(\varnothing)$.
+        \item $\forall k \forall l ((\operatorname{Ord}(k) \land (k \neq \varnothing) \land 
         (l \cap k = \varnothing))\rightarrow(l \in k \leftrightarrow l = \varnothing))$.
     \end{enumerate}
 \end{lemma}
@@ -472,7 +474,7 @@ and that it contains a distinguished freely occuring variable which is quantifie
 \setcounter{equation}{0}
 \begin{proof}
     \leanok
-    Denote the formula $k \in l \lor k = l \lor l \in k$ by $\beta (k,l)$. 
+    Denote the $\mathcal{L}$-formula $k \in l \lor k = l \lor l \in k$ by $\beta (k,l)$. 
     Suppose, for a contradiction, there exist ordinals $k$ and $l$ such that $\neg \beta (k,l)$, 
     i.e. $k \notin l \land k \neq l \land l \notin k$. 
     We claim there exists an ordinal $k_0$ that satisfies
@@ -481,8 +483,8 @@ and that it contains a distinguished freely occuring variable which is quantifie
     \end{equation}
     where $\forall$ and $\exists$ range over ordinals. 
     Indeed, if there exist ordinals $k$ and $l$ such that $\neg \beta (k,l)$, then 
-    $$K := \{m \subseteq k : \text{Ord}(m) \land \exists l (\text{Ord}(l) \land \neg \beta (m,l))\} 
-    \neq \varnothing.$$
+    $$K := \{m \subseteq k : \operatorname{Ord}(m) \land \exists l (\operatorname{Ord}(l) \land 
+    \neg \beta (m,l))\} \neq \varnothing.$$
     By Theorem \ref{thm:found_prop}, there exists $k_0 \in K$ such that $k_0 \cap K = \varnothing$. 
     We claim this $k_0$ satisfies (\ref{eq:1}). 
     Clearly, $\exists l \neg \beta(k_0,l)$. 
@@ -498,7 +500,7 @@ and that it contains a distinguished freely occuring variable which is quantifie
     \end{equation}
     where $\forall$ ranges over ordinals. 
     Indeed, if there exists an ordinal $l$ such that $\neg \beta (k_0,l)$, then 
-    $$L := \{p \subseteq l : \text{Ord}(p) \land \neg \beta (k_0, p)\} \neq \varnothing.$$
+    $$L := \{p \subseteq l : \operatorname{Ord}(p) \land \neg \beta (k_0, p)\} \neq \varnothing.$$
     By Theorem \ref{thm:found_prop}, there exists $l_0 \in L$ such that $l_0 \cap L = \varnothing$. 
     We claim this $l_0$ satisfies (\ref{eq:2}). Clearly, $\neg \beta(k_0,l_0)$. 
     Now suppose, for a contradiction, there exists an ordinal $q_0 \in l_0$ such that 
@@ -533,8 +535,8 @@ and that it contains a distinguished freely occuring variable which is quantifie
     \begin{enumerate}
         \item Exactly one of $k\in l$, $k=l$, $l \in k$ occurs.
         \item $k\in l \leftrightarrow k \subset l$.
-        \item $l \in k \rightarrow (\text{succ}(l)=k \lor \text{succ}(l)\in k)$.
-        \item $(\text{succ}(k) = \text{succ}(l) )\rightarrow k = l$.
+        \item $l \in k \rightarrow (\operatorname{succ}(l)=k \lor \operatorname{succ}(l)\in k)$.
+        \item $(\operatorname{succ}(k) = \operatorname{succ}(l) )\rightarrow k = l$.
     \end{enumerate}
 \end{corollary}
 
@@ -549,12 +551,12 @@ and that it contains a distinguished freely occuring variable which is quantifie
         Corollary \ref{cor:mem_irrefl}. 
         Suppose $k \subset l$. Then $k \in l \lor l \in k$ by Theorem \ref{thm:IsOrd.comparability}. 
         But $l \in k$ yields $l \in l$, contradicting Corollary \ref{cor:mem_irrefl}.
-        \item By Theorem \ref{thm:IsOrd.comparability}, we have to exclude $k \in \text{succ}(l)$, 
-        i.e. we have to show that neither $k\in l$ nor $k=l$ can occur. 
+        \item By Theorem \ref{thm:IsOrd.comparability}, we have to exclude $k \in 
+        \operatorname{succ}(l)$, i.e. we have to show that neither $k\in l$ nor $k=l$ can occur. 
         This is indeed so because each of these possibilities, together with $l\in k$, 
         leads to $l \in l$.
         \item Suppose, for a contradiction, that $k \neq l$. 
-        Then $\text{succ}(k) = k \lhd k = l \lhd l = \text{succ}(l)$ 
+        Then $\operatorname{succ}(k) = k \lhd k = l \lhd l = \operatorname{succ}(l)$ 
         implies $k \in l$ and $l \in k$, yielding again $l \in l$.
     \end{enumerate}
 \end{proof}
@@ -605,8 +607,8 @@ and that it contains a distinguished freely occuring variable which is quantifie
 \begin{proof}
     \leanok
     We first prove the existence of the largest element of $x$, denoted by $\max(x)$. 
-    Let $\alpha(x)$ be the formula 
-    $$(\forall (k \in x)[\text{Ord} k]) \rightarrow (x \neq \varnothing) \rightarrow 
+    Let $\alpha(x)$ be the $\mathcal{L}$-formula 
+    $$(\forall (k \in x)[\operatorname{Ord} k]) \rightarrow (x \neq \varnothing) \rightarrow 
     (\exists(l \in x) \forall (k \in x) [k \leq l]).$$ 
     We apply Axiom \ref{ax:induction}.
     \begin{itemize}
@@ -635,7 +637,8 @@ and that it contains a distinguished freely occuring variable which is quantifie
     \uses{def:IsTrans+IsOrd, def:succ, lem:IsOrd.succ_isOrd+...+IsOrd.empty_is_mem, 
     cor:IsOrd.exclusive_comparability+...+IsOrd.succ_inj, 
     thm:IsOrd.exists_max_of_set+IsOrd.exists_min_of_set}
-    $\forall k ((\text{Ord}(k) \land k \neq \varnothing) \rightarrow \exists!l(\text{succ}(l)=k))$.
+    $\forall k ((\operatorname{Ord}(k) \land k \neq \varnothing) \rightarrow 
+    \exists!l(\operatorname{succ}(l)=k))$.
 \end{corollary}
 
 \begin{proof}
@@ -645,17 +648,63 @@ and that it contains a distinguished freely occuring variable which is quantifie
     Thus, by Theorem \ref{thm:IsOrd.exists_max_of_set+IsOrd.exists_min_of_set}, 
     $\max (k)$ exists, where $\max (k) \in k$. 
     It follows from Corollary \ref{cor:IsOrd.exclusive_comparability+...+IsOrd.succ_inj}.3 that 
-    either $\text{succ}(\max (k)) = k$ or $\text{succ}(\max (k)) \in k$. 
+    either $\operatorname{succ}(\max (k)) = k$ or $\operatorname{succ}(\max (k)) \in k$. 
     However, the latter contradicts the definition of $\max (k)$. 
-    Thus $\text{succ}(\max (k)) = k$. Uniqueness follows from 
+    Thus $\operatorname{succ}(\max (k)) = k$. Uniqueness follows from 
     Corollary \ref{cor:IsOrd.exclusive_comparability+...+IsOrd.succ_inj}.4.
 \end{proof}
 
-\begin{definition}
+\begin{definition}[Predecessor]
     \label{def:IsOrd.pred}
     \lean{HFSet.IsOrd.pred, HFSet.Ord.pred}
     \leanok
     \uses{def:succ, cor:IsOrd.exists_pred}
-    The unique (if existing) $l$ for which $\text{succ}(l) = k$ is called the 
-    \textit{predecessor} of $k$, abbreviated by $\text{pred}(k)$.
+    The unique (if existing) $l$ for which $\operatorname{succ}(l) = k$ is called the 
+    \textit{predecessor} of $k$, abbreviated by $\operatorname{pred}(k)$.
+\end{definition}
+
+\section{\textit{p}-functions}
+
+\begin{definition}
+    \label{def:IsFunc+IsFunc.dom}
+    \lean{HFSet.IsFunc, HFSet.IsFunc.dom}
+    \leanok
+    \uses{def:singleton+pair, thm:exists_sUnion, thm:comp_scheme}
+    We say that $x$ is a \textit{function} if every element of $x$ is a an ordered pair and
+    $$ 
+    \left(\left\langle u, v_1\right\rangle \in x \wedge\left\langle u, v_2\right\rangle 
+    \in x\right) \rightarrow v_1=v_2.
+    $$
+    Note that $\langle u, v\rangle = \{\{u\}, \{u,v\}\} \in x$ implies $\{u\} \in \bigcup x$, and 
+    hence $u \in \bigcup\left(\bigcup x\right)$.
+    Thus, the \textit{domain} of a function $x$ is defined as
+    $$
+    \operatorname{dom}(x)=\{u \in \bigcup\left(\bigcup x\right): 
+    \exists v(\langle u, v\rangle \in x)\}
+    $$
+    (see Theorems \ref{thm:exists_sUnion} and \ref{thm:comp_scheme}).
+\end{definition}
+
+\begin{definition}[Sequence]
+    \label{def:IsSeq}
+    \lean{HFSet.IsSeq}
+    \leanok
+    \uses{def:IsFunc+IsFunc.dom}
+    We call $s$ a \textit{sequence} if $s$ is a function and $\operatorname{dom}(s)=k$ 
+    where $k$ is a non-empty ordinal, abbreviated by $\operatorname{Seq}(s,k)$.
+    If $\operatorname{Seq}(s,k)$, then for any $\mathcal{L}$-formula $\alpha$ with exactly one free
+    variable and all $n\,<\,k$, we write $\alpha(s_n)$ to abbreviate 
+    $\exists z (\langle n, z\rangle \in s \land \alpha(z))$.
+\end{definition}
+
+\begin{definition}[Functional]
+    \label{def:IsFunctional}
+    \lean{HFSet.IsFunctional}
+    We say an $\mathcal{L}$-formula $\phi$ with $n+1$ free variables is \textit{functional} 
+    with respect to a freely occurring variable $y$ if 
+    $$
+    \forall x_1 \forall x_2 \ldots \forall x_n \exists! y  \phi (x_1, x_2, \ldots, x_n, y).
+    $$
+    If $\phi$ is functional, given $x_1, x_2, \ldots, x_n$, the unique $y$ for which
+    $\phi (x_1, x_2, \ldots, x_n, y)$ is denoted by $F_\phi^y(x_1, x_2, \ldots, x_n)$.
 \end{definition}
