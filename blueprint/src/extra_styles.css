@@ -1,9 +1,3 @@
-/* This file contains CSS tweaks for this blueprint.
- * As an example, we included CSS rules that put
- * a vertical line on the left of theorem statements
- * and proofs.
- * */
-
 div.theorem_thmcontent {
 	border-left: .15rem solid black;
 }
@@ -22,4 +16,24 @@ div.corollary_thmcontent {
 
 div.proof_content {
 	border-left: .08rem solid grey;
+}
+
+figure.subfloat span.subref {
+	display: none;
+}
+
+nav.local_toc ul {
+	font-size: 1.2rem;
+}
+
+@media (min-width:1024px) {
+ nav.toc {
+  width: 25vw;
+ }
+}
+
+@media (min-width:1024px) {
+ div.with-toc {
+  margin-left:25vw;
+ }
 }

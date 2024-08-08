@@ -14,7 +14,7 @@ Theorems' is formalised. It systematically presents the theory on hereditarily f
 - `HFSet.IsOrd.exists_max_of_set` : Existence of a largest element of a set of ordinals.
 - `HFSet.IsOrd.exists_min_of_set` : Existence of a smallest element of a set of ordinals.
 - `HFSet.Ord.le_totalOrder`: Total order on ordinals by `≤`.
-- `HFSet.Ord.lt_sTotalOrder`: Total order on ordinals by `<`.
+- `HFSet.Ord.lt_sTotalOrder`: Strict total order on ordinals by `<`.
 
 ## Notation
 

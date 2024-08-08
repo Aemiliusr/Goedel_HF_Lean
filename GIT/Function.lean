@@ -80,15 +80,42 @@ abbrev IsFunctional (φ : S → S → Prop) (n : ℕ) (f : BoundedFormula HFLang
     (c : Fin n → S) (_hφ : ∀ x y, φ x y ↔ f.Realize c ![x, y]) (x : S) : Prop
     := ∃! y, φ x y
 
-def p_function (x : S) (φ : S → S → Prop) (n : ℕ) (f : BoundedFormula HFLang (Fin n) 2)
+def pFunc (x : S) (φ : S → S → Prop) (n : ℕ) (f : BoundedFormula HFLang (Fin n) 2)
     (c : Fin n → S) (hφ : ∀ x y, φ x y ↔ f.Realize c ![x, y]) (h : IsFunctional φ n f c hφ x) : S
     := h.choose
 
-lemma p_function_iff (x y : S) (φ : S → S → Prop) (n : ℕ) (f : BoundedFormula HFLang (Fin n) 2)
+lemma pFunc_iff (x y : S) (φ : S → S → Prop) (n : ℕ) (f : BoundedFormula HFLang (Fin n) 2)
     (c : Fin n → S) (hφ : ∀ x y, φ x y ↔ f.Realize c ![x, y]) (h : IsFunctional φ n f c hφ x) :
-    p_function x φ n f c hφ h = y ↔ φ x y := by
+    pFunc x φ n f c hφ h = y ↔ φ x y := by
   refine ⟨by rintro rfl; exact (h.choose_spec).1, ?_⟩
   rw [eq_comm]
   exact (h.choose_spec).2 y
+
+class IsSeq (s : S) (k : Ord S) [IsFunc s] : Prop :=
+  dom_eq_ord : IsFunc.dom s = k.1
+  dom_ne_emp : k ≠ ∅
+
+namespace IsSeq
+
+def apply (s : S) (k : Ord S) [IsFunc s] [IsSeq s k] (l : Ord S) : S :=
+  if hl : l < k then ((IsFunc.mem_dom s l.1).1 (by
+  rename_i seq
+  rw [seq.1]
+  simp [Ord.lt_iff] at hl
+  exact hl)).choose else ∅
+
+lemma apply_iff (s : S) (k : Ord S) [IsFunc s] [IsSeq s k] (l : Ord S) (hl : l < k) (x : S) :
+    apply s k l = x ↔ pair l.1 x ∈ s := by
+  unfold apply; rw [dif_pos hl]
+  have : l.1 ∈ IsFunc.dom s := by
+    rename_i seq
+    rw [seq.1]
+    simp [Ord.lt_iff] at hl
+    exact hl
+  refine ⟨?_, IsFunc.pair_unique _ _ _ ((IsFunc.mem_dom s l.1).1 this).choose_spec⟩
+  rintro rfl
+  exact ((IsFunc.mem_dom s l.1).1 this).choose_spec
+
+end IsSeq
 
 end HFSet
