@@ -689,7 +689,7 @@ and that it contains a distinguished freely occurring variable which is quantifi
     \label{def:IsSeq}
     \lean{HFSet.IsSeq}
     \leanok
-    \uses{def:IsFunc+IsFunc.dom}
+    \uses{def:IsTrans+IsOrd, def:IsFunc+IsFunc.dom}
     We call $s$ a \textit{sequence} if $s$ is a function and $\operatorname{dom}(s)=k$ 
     where $k$ is a non-empty ordinal, abbreviated by $\operatorname{Seq}(s,k)$.
     If $\operatorname{Seq}(s,k)$, then for any $\mathcal{L}$-formula $\alpha$ with exactly one free
@@ -699,12 +699,104 @@ and that it contains a distinguished freely occurring variable which is quantifi
 
 \begin{definition}[Functional]
     \label{def:IsFunctional}
-    \lean{HFSet.IsFunctional}
+    \lean{HFSet.IsFunctionalUnary, HFSet.IsFunctionalBinary, HFSet.IsFunctionalTernary}
+    \leanok
     We say an $\mathcal{L}$-formula $\phi$ with $n+1$ free variables is \textit{functional} 
     with respect to a freely occurring variable $y$ if 
     $$
-    \forall x_1 \forall x_2 \ldots \forall x_n \exists! y  \phi (x_1, x_2, \ldots, x_n, y).
+    \forall x_1 \ldots \forall x_n \exists! y  \phi (x_1,\ldots, x_n, y).
     $$
-    If $\phi$ is functional, given $x_1, x_2, \ldots, x_n$, the unique $y$ for which
-    $\phi (x_1, x_2, \ldots, x_n, y)$ is denoted by $F_\phi^y(x_1, x_2, \ldots, x_n)$.
+\end{definition}
+
+\begin{definition}[\textit{p}-function]
+    \label{def:pFunc}
+    \lean{HFSet.pFuncUnary, HFSet.pFuncBinary, HFSet.pFuncTernary}
+    \leanok
+    \uses{def:IsFunctional}
+    If $\phi$ has $n+1$ free variables and is functional with respect to $y$, 
+    we associate with $\phi$ and $y$ a new $n$-ary function symbol $F_\phi^y$, 
+    called a \textit{p-function}. 
+    However, formally, this function symbol is not part of the language $\mathcal{L}$. 
+    In particular, $F_\phi^y(x_{i_1},\ldots,x_{i_n})=u$ abbreviates
+    $$
+    \exists w (w = u \land \phi (x_{i_1},\ldots,x_{i_n},w)),
+    $$
+    where the latter, in view of $\exists! y \phi (x_{i_1},\ldots,x_{i_n},y)$, 
+    is equivalent to $\phi (x_{i_1},\ldots,x_{i_n},u)$.
+
+    Examples of \textit{p}-functions are:
+    \begin{itemize}
+        \item $F_\phi^y(x) = \bigcup x$, with $\phi(x,y)$ defined as $y = \bigcup x$.
+        \item $F_\psi^y(x) = \bigcap x$, with $\psi(x,y)$ defined as $y = \bigcap x$.
+        \item $F_\chi^y(x) = P (x)$, with $\chi(x,y)$ defined as $y = P (x)$
+        ($P(x)$ is the power set of $x$).
+    \end{itemize}
+
+    Often, instead of writing $F_\phi^y$, we shall use only one capital letter to 
+    denote a \textit{p}-function. 
+    In the non-arbitrary case, $\phi$ and $y$ will be specified beforehand.
+\end{definition}
+
+\begin{theorem}
+    \label{thm:Ord.exists_pFuncRecursive}
+    \uses{def:singleton_pair, thm:exists_union, thm:comp_scheme, def:IsTrans+IsOrd, 
+    lem:IsOrd.succ_isOrd+...+IsOrd.empty_is_mem, def:Ord.lt+Ord.le, 
+    thm:IsOrd.exists_max_of_set+IsOrd.exists_min_of_set, def:IsOrd.pred,
+    def:IsFunc+IsFunc.dom, def:IsSeq, def:IsFunctional, def:pFunc}
+    Let $k$ be an ordinal. Then, for every ordinal $l$ and \textit{p}-function $G$,
+    there exists a \textit{p}-function $F$ such that:
+    \begin{enumerate}
+        \item $k=\varnothing \rightarrow F(k) = l$.
+        \item $k\neq \varnothing \rightarrow F(k) = G(F(\operatorname{pred}(k)))$.
+    \end{enumerate}
+\end{theorem}
+
+\begin{proof}
+    Let $\phi(k,y)$ be the $\mathcal{L}$-formula
+    \begin{equation*}
+        \begin{split}
+    & (k \neq \varnothing \land \exists s [\operatorname{Seq}(s,k) \land 
+    y = G(s_{\operatorname{pred}(k)}) \land \forall (n\,<\,k)[(n=\varnothing \land s_n = l)
+    \lor\\ &(n \neq \varnothing \land s_n = G(s_{\operatorname{pred}(n)}))]])
+    \lor (k = \varnothing \land y = l).
+        \end{split}
+    \end{equation*}
+    We claim that $\phi$ is functional with respect to $y$.
+    Indeed, if $k=\varnothing$, then trivially $y=l$ is unique.
+    Now suppose, for a contradiction, there exists an ordinal $k\neq \varnothing$ such that there
+    is no unique $y$ for which $\phi(k,y)$. 
+    Then, by Theorems \ref{thm:comp_scheme} and 
+    \ref{thm:IsOrd.exists_max_of_set+IsOrd.exists_min_of_set}, there exists a
+    least ordinal $m\neq\varnothing$ such that there is no unique $y$ for which $\phi(m,y)$.
+    Let $p=\operatorname{pred}(m)$; it follows there exists a unique $y$ such that $\phi(p,y)$.
+    Suppose $p\neq \varnothing$. Then there exists $s$ such that
+    \begin{equation*}
+        \begin{split}
+    &\operatorname{Seq}(s,p) \land y = G(s_{\operatorname{pred}(p)}) \land 
+    \forall (n\,<\,p)[(n=\varnothing \land s_n = l) \lor \\& 
+    (n \neq \varnothing \land s_n = G(s_{\operatorname{pred}(n)}))].
+        \end{split}
+    \end{equation*}
+    But then $\tilde{s} = s \cup \langle p, G(s_{\operatorname{pred}(p)}) \rangle$ satisfies
+    \begin{equation*}
+    \operatorname{Seq}(\tilde{s},m) \land \forall (n\,<\,m)[(n=\varnothing \land \tilde{s}_n = l) 
+    \lor (n \neq \varnothing \land \tilde{s}_n = G(\tilde{s}_{\operatorname{pred}(n)}))], 
+    \end{equation*}
+    and thus $y = G(\tilde{s}_p)$ uniquely satisfies $\phi(m,y)$, a contradiction.
+    Now, suppose $p=\varnothing$. Then $\bar{s}=\langle \varnothing, l \rangle$ satisfies
+    \begin{equation*}
+        \operatorname{Seq}(\bar{s},m) \land \forall (n\,<\,m)[(n=\varnothing \land \bar{s}_n = l) 
+        \lor (n \neq \varnothing \land \bar{s}_n = G(\bar{s}_{\operatorname{pred}(n)}))], 
+    \end{equation*}
+    and thus $y = G(\bar{s}_\varnothing)$ uniquely satisfies $\phi(m,y)$, again a contradiction.
+    
+    It is easily verified that \ref{thm:Ord.exists_pFunc_recursive}.1 and 
+    \ref{thm:Ord.exists_pFunc_recursive}.2 hold when $F$ is $F_\phi^y$.
+\end{proof}
+
+\begin{definition}
+    \label{def:Ord.pFuncRecursive}
+    \uses{thm:Ord.exists_pFuncRecursive}
+    Say the \textit{p}-function $F$ in Theorem \ref{thm:Ord.exists_pFuncRecursive} is
+    \textit{defined recursively on ordinals}.
 \end{definition}

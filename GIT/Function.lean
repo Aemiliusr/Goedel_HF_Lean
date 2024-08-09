@@ -103,19 +103,62 @@ lemma apply_iff (s : S) (k : Ord S) [IsFunc s] [IsSeq s k] (l : Ord S) (hl : l <
 
 end IsSeq
 
--- probably not correct
-abbrev IsFunctional (φ : S → S → Prop) (n : ℕ) (f : BoundedFormula HFLang (Fin n) 2)
-    (c : Fin n → S) (_hφ : ∀ x y, φ x y ↔ f.Realize c ![x, y]) (x : S) : Prop
-    := ∃! y, φ x y
+-- -- not correct for general n
+-- abbrev IsFunctional (φ : S → S → Prop) (n : ℕ) (f : BoundedFormula HFLang (Fin n) 2)
+--     (c : Fin n → S) (_hφ : ∀ x y, φ x y ↔ f.Realize c ![x, y]) (x : S) : Prop
+--     := ∃! y, φ x y
 
--- probably not correct
-def pFunc (x : S) (φ : S → S → Prop) (n : ℕ) (f : BoundedFormula HFLang (Fin n) 2)
-    (c : Fin n → S) (hφ : ∀ x y, φ x y ↔ f.Realize c ![x, y]) (h : IsFunctional φ n f c hφ x) : S
-    := h.choose
+-- -- not correct for general n
+-- def pFunc (x : S) (φ : S → S → Prop) (n : ℕ) (f : BoundedFormula HFLang (Fin n) 2)
+--     (c : Fin n → S) (hφ : ∀ x y, φ x y ↔ f.Realize c ![x, y]) (h : IsFunctional φ n f c hφ x) : S
+--     := h.choose
 
-lemma pFunc_iff (x y : S) (φ : S → S → Prop) (n : ℕ) (f : BoundedFormula HFLang (Fin n) 2)
-    (c : Fin n → S) (hφ : ∀ x y, φ x y ↔ f.Realize c ![x, y]) (h : IsFunctional φ n f c hφ x) :
-    pFunc x φ n f c hφ h = y ↔ φ x y := by
+abbrev IsFunctionalUnary (φ : S → S → Prop) (f : BoundedFormula HFLang (Fin 0) 2)
+    (c : Fin 0 → S) (_hφ : ∀ x y, φ x y ↔ f.Realize c ![x, y]) (x : S) : Prop :=
+    ∃! y, φ x y
+
+abbrev IsFunctionalBinary (φ : S → S → S → Prop) (f : BoundedFormula HFLang (Fin 0) 3)
+    (c : Fin 0 → S) (_hφ : ∀ x x' y, φ x x' y ↔ f.Realize c ![x, x', y]) (x x' : S) : Prop :=
+    ∃! y, φ x x' y
+
+abbrev IsFunctionalTernary (φ : S → S → S → S → Prop) (f : BoundedFormula HFLang (Fin 0) 4)
+    (c : Fin 0 → S) (_hφ : ∀ x x' x'' y, φ x x' x'' y ↔ f.Realize c ![x, x', x'', y])
+    (x x' x'' : S) : Prop := ∃! y, φ x x' x'' y
+
+def pFuncUnary (x : S) (φ : S → S → Prop) (f : BoundedFormula HFLang (Fin 0) 2)
+    (c : Fin 0 → S) (hφ : ∀ x y, φ x y ↔ f.Realize c ![x, y])
+    (h : IsFunctionalUnary φ f c hφ x) : S :=
+    h.choose
+
+def pFuncBinary (x x' : S) (φ : S → S → S → Prop) (f : BoundedFormula HFLang (Fin 0) 3)
+    (c : Fin 0 → S) (hφ : ∀ x x' y, φ x x' y ↔ f.Realize c ![x, x', y])
+    (h : IsFunctionalBinary φ f c hφ x x') : S :=
+    h.choose
+
+def pFuncTernary (x x' x'' : S) (φ : S → S → S → S → Prop) (f : BoundedFormula HFLang (Fin 0) 4)
+    (c : Fin 0 → S) (hφ : ∀ x x' x'' y, φ x x' x'' y ↔ f.Realize c ![x, x', x'', y])
+    (h : IsFunctionalTernary φ f c hφ x x' x'') : S :=
+    h.choose
+
+lemma pFuncUnary_iff (x y : S) (φ : S → S → Prop) (f : BoundedFormula HFLang (Fin 0) 2)
+    (c : Fin 0 → S) (hφ : ∀ x y, φ x y ↔ f.Realize c ![x, y]) (h : IsFunctionalUnary φ f c hφ x) :
+    pFuncUnary x φ f c hφ h = y ↔ φ x y := by
+  refine ⟨by rintro rfl; exact (h.choose_spec).1, ?_⟩
+  rw [eq_comm]
+  exact (h.choose_spec).2 y
+
+lemma pFuncBinary_iff (x x' y : S) (φ : S → S → S → Prop) (f : BoundedFormula HFLang (Fin 0) 3)
+    (c : Fin 0 → S) (hφ : ∀ x x' y, φ x x' y ↔ f.Realize c ![x, x', y])
+    (h : IsFunctionalBinary φ f c hφ x x') : pFuncBinary x x' φ f c hφ h = y ↔ φ x x' y := by
+  refine ⟨by rintro rfl; exact (h.choose_spec).1, ?_⟩
+  rw [eq_comm]
+  exact (h.choose_spec).2 y
+
+lemma pFuncTernary_iff (x x' x'' y : S) (φ : S → S → S → S → Prop)
+    (f : BoundedFormula HFLang (Fin 0) 4) (c : Fin 0 → S)
+    (hφ : ∀ x x' x'' y, φ x x' x'' y ↔ f.Realize c ![x, x', x'', y])
+    (h : IsFunctionalTernary φ f c hφ x x' x'') :
+    pFuncTernary x x' x'' φ f c hφ h = y ↔ φ x x' x'' y := by
   refine ⟨by rintro rfl; exact (h.choose_spec).1, ?_⟩
   rw [eq_comm]
   exact (h.choose_spec).2 y
