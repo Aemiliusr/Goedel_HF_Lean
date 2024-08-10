@@ -3,11 +3,11 @@ import GIT.Ordinal
 open FirstOrder Language BoundedFormula Classical
 
 /-!
-# Appendix 3: (P-)functions and recursion
+# Appendix 3: P-functions
 
 In this file, the third appendix of S. Swierczkowski: 'Finite Sets and Gödel’s Incompleteness
-Theorems' is formalised. It systematically presents the theory on (p-)functions and recursion for
-hereditarily finite sets.
+Theorems' is formalised. It systematically presents the theory on (p-)functions and recursion
+on ordinals for hereditarily finite sets.
 
 ## Main results
 

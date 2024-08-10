@@ -692,9 +692,9 @@ and that it contains a distinguished freely occurring variable which is quantifi
     \uses{def:IsTrans+IsOrd, def:IsFunc+IsFunc.dom}
     We call $s$ a \textit{sequence} if $s$ is a function and $\operatorname{dom}(s)=k$ 
     where $k$ is a non-empty ordinal, abbreviated by $\operatorname{Seq}(s,k)$.
-    If $\operatorname{Seq}(s,k)$, then for any $\mathcal{L}$-formula $\alpha$ with exactly one free
-    variable and all $n\,<\,k$, we write $\alpha(s_n)$ to abbreviate 
-    $\exists z (\langle n, z\rangle \in s \land \alpha(z))$.
+
+    If $\operatorname{Seq}(s,k)$, then, for any $n\,<\,k$, we write $s_n$ to abbreviate the 
+    uniquely existing $z$ such that $\langle n, z\rangle \in s$.
 \end{definition}
 
 \begin{definition}[Functional]
@@ -790,8 +790,8 @@ and that it contains a distinguished freely occurring variable which is quantifi
     \end{equation*}
     and thus $y = G(\bar{s}_\varnothing)$ uniquely satisfies $\phi(m,y)$, again a contradiction.
     
-    It is easily verified that \ref{thm:Ord.exists_pFunc_recursive}.1 and 
-    \ref{thm:Ord.exists_pFunc_recursive}.2 hold when $F$ is $F_\phi^y$.
+    It is easily verified that \ref{thm:Ord.exists_pFuncRecursive}.1 and 
+    \ref{thm:Ord.exists_pFuncRecursive}.2 hold when $F$ is $F_\phi^y$.
 \end{proof}
 
 \begin{definition}
