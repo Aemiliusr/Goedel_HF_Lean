@@ -78,17 +78,60 @@ def Axiom4 (φ ψ μ : Lang.Sentence) : Lang.Sentence := (φ ⊔ (ψ ⊔ μ)) �
 /-- Boolean axiom 5: (φ ∨ ψ) ∧ (¬φ ∨ μ) → ψ ∨ μ -/
 def Axiom5 (φ ψ μ : Lang.Sentence) : Lang.Sentence := ((φ ⊔ ψ) ⊓ (∼φ ⊔ μ)) ⟹ (ψ ⊔ μ)
 
--- missing the other axioms
-def Theory : Lang.Theory := (⋃ (φ : Lang.Sentence), {Axiom1 φ, Axiom3 φ})
+
+def Theory : Lang.Theory :=
+    (⋃ (φ : Lang.Sentence), (⋃ (ψ : Lang.Sentence), (⋃ (μ : Lang.Sentence),
+    {Axiom1 φ, Axiom2 φ ψ, Axiom3 φ, Axiom4 φ ψ μ, Axiom5 φ ψ μ})))
 
 end Bool
 
+namespace Spec
+
+/-- Specialization axiom: For every formula φ and every xᵢ : φ → ∃ xᵢ φ -/
+def Axiom1 (φ : Lang.BoundedFormula Empty 1) : Lang.Sentence := ∀' (φ ⟹ ∃' φ.liftAt 1 0)
+
+def Theory : Lang.Theory :=
+  ⋃ (φ : Lang.BoundedFormula Empty 1), {Axiom1 φ}
+
+end Spec
+
+namespace Equality
+
+/-- Equality axiom 1: x = x -/
+def Axiom1: Lang.Sentence := ∀' (&0 =' &0)
+
+/-- Equality axiom 2: (x₁ = x₂) ∧ (x₃ = x₄) → [(x₁ = x₃) → (x₂ → x₄)]  -/
+def Axiom2: Lang.Sentence := ∀' ∀' ∀' ∀' (((&0 =' &1) ⊓ (&2 =' &3)) ⟹ ((&0 =' &2) ⟹ (&1 =' &3)))
+
+/-- Equality axiom 3: (x₁ = x₂) ∧ (x₃ = x₄) → [(x₁ ∈ x₃) → (x₂ ∈ x₄)]  -/
+def Axiom3: Lang.Sentence := ∀' ∀' ∀' ∀' (((&0 =' &1) ⊓ (&2 =' &3)) ⟹ ((&0 ∈' &2) ⟹ (&1 ∈' &3)))
+
+/-- Equality axiom 4: (x₁ = x₂) ∧ (x₃ = x₄) → (x₁ ◁ x₃ = x₂ ◁ x₄)  -/
+def Axiom4: Lang.Sentence :=
+    ∀' ∀' ∀' ∀' (((&0 =' &1) ⊓ (&2 =' &3)) ⟹ ((.func ◁' ![&0, &2]) =' (.func ◁' ![&1, &3])))
+
+def Theory : Lang.Theory := {Axiom1, Axiom2, Axiom3, Axiom4}
+
+end Equality
+
 inductive Theorem (T : Lang.Theory) (φ : Lang.Sentence) : Prop
+| Hyp : φ ∈ T → Theorem T φ
 | Ax : φ ∈ Theory → Theorem T φ
 | Bool : φ ∈ Bool.Theory → Theorem T φ
+| Spec : φ ∈ Spec.Theory → Theorem T φ
+| Eq : φ ∈ Equality.Theory → Theorem T φ
 
-infixl:55 "⊢" => Theorem
+infixl:51 "⊢" => Theorem
 
-example : Theory ⊢ Axiom1 := by apply Theorem.Ax ; simp [Theory]
+prefix:51 "⊢" => Theorem ∅
+
+example : Theory ⊢ Axiom3' (.var (.inl 0) =' .var (.inl 0)) := by
+  apply Theorem.Hyp; simp [Theory]
+
+example : ⊢ Bool.Axiom1 (Axiom1) := by
+  apply Theorem.Bool
+  simp only [Bool.Theory, Set.mem_iUnion, Set.mem_insert_iff, Set.mem_singleton_iff]
+  use Axiom1
+  simp
 
 end HF
