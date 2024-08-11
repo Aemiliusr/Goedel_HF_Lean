@@ -577,5 +577,42 @@ lemma forall_lt_le_pred (k : Ord S) (ne_emp : k ≠ ∅) : ∀ l < k, l ≤ pred
     exact IsOrd.pred_isOrd k.1 k.2 (by simp only [ne_eq, eq_iff] at ne_emp; exact ne_emp)
   · exact l.2
 
+lemma exists_leastOrd (k : Ord S) (φ : S → Prop) (f : BoundedFormula HFLang (Fin 0) 1)
+    (c : Fin 0 → S) (hφ : ∀ x, φ x ↔ f.Realize c ![x]) (h : ¬(φ k.1)) :
+    ∃ (l : Ord S), ¬(φ l.1) ∧ ((∃ (l_ne_emp : l ≠ ∅), φ (pred l l_ne_emp).1) ∨ l = ∅) := by
+  let K := setOfMem (succ k).1 (fun x ↦ ¬(φ x)) 0 (∼f) c
+    (by simpa [Decidable.not_iff_not])
+  have K_ne_emp : K ≠ ∅ := by
+    by_contra K_eq_emp
+    simp only [exten_prop, in_empty_iff_false, iff_false] at K_eq_emp
+    specialize K_eq_emp k.1
+    apply K_eq_emp
+    rw [mem_setOfMem]
+    refine ⟨by unfold succ; simp, h⟩
+  apply IsOrd.exists_min_of_set K at K_ne_emp
+  · rcases K_ne_emp with ⟨y, ⟨y_in_K, hy⟩⟩
+    rw [mem_setOfMem] at y_in_K
+    let l : Ord S := ⟨y, IsOrd.mem_isOrd (succ k).1 y (IsOrd.succ_isOrd k.1 k.2) y_in_K.1 ⟩
+    refine ⟨l,⟨y_in_K.2, ?_⟩⟩
+    by_cases l_eq_emp : l = ∅
+    · right; exact l_eq_emp
+    · left; use l_eq_emp
+      by_contra hφl
+      have pred_in_l : (pred l l_eq_emp).1 ∈ (k.succ).1 := by
+        apply isTrans_mem (k.succ).1 l.1 (pred l l_eq_emp).1 ?_ y_in_K.1 ?_
+        · exact (IsOrd.succ_isOrd k.1 k.2).1
+        · rw [← lt_iff]; exact pred_lt l l_eq_emp
+      specialize hy (pred l l_eq_emp).1 (by rw [mem_setOfMem]; exact ⟨pred_in_l, hφl⟩)
+      rcases hy with y_in_pred | y_eq_pred
+      · have := pred_lt l l_eq_emp
+        rw [lt_iff] at this
+        exact IsOrd.mem_asymm l.1 (l.pred l_eq_emp).1 l.2 y_in_pred this
+      · have := pred_lt l l_eq_emp
+        rw [lt_iff, ← y_eq_pred] at this
+        rwa [← in_itself_iff_false l.1]
+  · intros m hm
+    rw [mem_setOfMem, succ, mem_enlarge] at hm
+    refine (hm.1).elim (IsOrd.mem_isOrd k.1 m k.2 ) (by rintro rfl; exact k.2)
+
 end Ord
 end HFSet
