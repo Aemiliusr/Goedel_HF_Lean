@@ -36,102 +36,144 @@ abbrev Lang.membershipSymbol : Lang.Relations 2 := PUnit.unit
 
 local notation t " ∈' " s => Lang.membershipSymbol.boundedFormula ![t, s]
 
-/-- HF1: ∀ z, z = ∅ ↔ ∀ x, ¬(x ∈ z) -/
-def Axiom1 : Lang.Sentence :=
-∀' (&0 =' (.func ∅' Fin.elim0)) ⇔ ∀' ∼(&0 ∈' &1)
+/-- HF1: z = ∅ ↔ ∀ x, ¬(x ∈ z) -/
+def Axiom1 : Lang.Formula (Fin 1) :=
+(.var (.inl 0) =' (.func ∅' Fin.elim0)) ⇔ ∀' ∼(&0 ∈' .var (.inl 0))
 
-/-- HF2: ∀ z, ∀ x, ∀ y, z = x ◁ y ↔ ∀ u, u ∈ z ↔ u ∈ x ∨ u = y -/
-def Axiom2 : Lang.Sentence :=
-∀' ∀' ∀'
-  (&0 =' (.func ◁' ![&1, &2])) ⇔
-  ∀' ((&3 ∈' &0) ⇔ ((&3 ∈' &1) ⊔ (&3 ∈' &2)))
+/-- HF2: z = x ◁ y ↔ ∀ u, u ∈ z ↔ u ∈ x ∨ u = y -/
+def Axiom2 : Lang.Formula (Fin 3) :=
+(.var (.inl 0) =' (.func ◁' ![.var (.inl 1), .var (.inl 2)]))
+⇔ ∀' ((&0 ∈' .var (.inl 0)) ⇔ ((&0 ∈' .var (.inl 1)) ⊔ (&0 =' .var (.inl 2))))
 
 /-- HF3: (α(∅) ∧ ∀ x y, α(x) → α(y) → α(x ◁ y)) → ∀ x α(x) -/
-def Axiom3 (n : ℕ) (α : Lang.BoundedFormula (Fin n) 1) : Lang.Sentence := sorry
+def Axiom3 (n) (α : Lang.BoundedFormula (Fin n) 1 ) : Lang.Formula (Fin n) :=
+    ((∀' ((&0 =' .func ∅' Fin.elim0) ⟹ α))
+    ⊓ (∀' ∀' ((α.liftAt 1 1 ⊓ (α.liftAt 1 0))
+    ⟹ (∀' ((&2 =' .func ◁' ![&0, &1]) ⟹ α.liftAt 2 0)))))
+    ⟹ ∀' α
 
--- this is incomplete because α needs to be BoundedFormula (Fin n) 1
-/-- HF3: (α(∅) ∧ ∀ x y, α(x) → α(y) → α(x ◁ y)) → ∀ x α(x) -/
-def Axiom3' (α : Lang.Formula (Fin 1)) : Lang.Sentence :=
-(α.subst ![.func ∅' Fin.elim0] ⊓
-∀' ∀'
-((α.subst ![.var 0] |>.relabel ![.inr 0]) ⊓ (α.subst ![.var 1] |>.relabel ![.inr 1]) ⟹
-  (α.subst ![ .func ◁' ![.var 0, .var 1] ] |>.relabel .inr))) ⟹
-  ∀' (α.subst ![.var 0] |>.relabel ![.inr 0])
-
-def Theory : Lang.Theory :=
-{Axiom1, Axiom2} ∪ ⋃ (α : Lang.Formula (Fin 1)), {Axiom3' α}
+def Theory :  Set (Σ n, Lang.Formula (Fin n)) :=
+{⟨1, Axiom1⟩, ⟨3, Axiom2⟩} ∪ ⋃ (n), (⋃ (α : Lang.BoundedFormula (Fin n) 1), {⟨n, Axiom3 n α⟩})
 
 namespace Bool
 
 /-- Boolean axiom 1: φ → φ -/
-def Axiom1 (φ : Lang.Sentence) : Lang.Sentence := φ ⟹ φ
+def Axiom1 (φ : Lang.Formula (Fin n)) : Lang.Formula (Fin n) := φ ⟹ φ
 
 /-- Boolean axiom 2: φ → φ ∨ ψ -/
-def Axiom2 (φ ψ : Lang.Sentence) : Lang.Sentence := φ ⟹ (φ ⊔ ψ)
+def Axiom2 (φ ψ: Lang.Formula (Fin n)) : Lang.Formula (Fin n) := φ ⟹ (φ ⊔ ψ)
 
 /-- Boolean axiom 3: φ ∨ φ → φ -/
-def Axiom3 (φ : Lang.Sentence) : Lang.Sentence := (φ ⊔ φ) ⟹ φ
+def Axiom3 (φ : Lang.Formula (Fin n)) : Lang.Formula (Fin n) := (φ ⊔ φ) ⟹ φ
 
 /-- Boolean axiom 4: φ ∨ (ψ ∨ μ) → (φ ∨ ψ) ∨ μ -/
-def Axiom4 (φ ψ μ : Lang.Sentence) : Lang.Sentence := (φ ⊔ (ψ ⊔ μ)) ⟹ ((φ ⊔ ψ) ⊔ μ)
+def Axiom4 (φ ψ μ : Lang.Formula (Fin n)) : Lang.Formula (Fin n) := (φ ⊔ (ψ ⊔ μ)) ⟹ ((φ ⊔ ψ) ⊔ μ)
 
 /-- Boolean axiom 5: (φ ∨ ψ) ∧ (¬φ ∨ μ) → ψ ∨ μ -/
-def Axiom5 (φ ψ μ : Lang.Sentence) : Lang.Sentence := ((φ ⊔ ψ) ⊓ (∼φ ⊔ μ)) ⟹ (ψ ⊔ μ)
+def Axiom5 (φ ψ μ : Lang.Formula (Fin n)) : Lang.Formula (Fin n) := ((φ ⊔ ψ) ⊓ (∼φ ⊔ μ)) ⟹ (ψ ⊔ μ)
 
-
-def Theory : Lang.Theory :=
-    (⋃ (φ : Lang.Sentence), (⋃ (ψ : Lang.Sentence), (⋃ (μ : Lang.Sentence),
-    {Axiom1 φ, Axiom2 φ ψ, Axiom3 φ, Axiom4 φ ψ μ, Axiom5 φ ψ μ})))
+def Theory : Set (Σ n, Lang.Formula (Fin n)) :=
+    ⋃ (n),
+    ((⋃ (φ : Lang.Formula (Fin n)), (⋃ (ψ : Lang.Formula (Fin n)), (⋃ (μ : Lang.Formula (Fin n)),
+    {⟨n, Axiom1 φ⟩, ⟨n, Axiom2 φ ψ⟩, ⟨n, Axiom3 φ⟩, ⟨n, Axiom4 φ ψ μ⟩, ⟨n, Axiom5 φ ψ μ⟩}))))
 
 end Bool
 
 namespace Spec
 
 /-- Specialization axiom: For every formula φ and every xᵢ : φ → ∃ xᵢ φ -/
-def Axiom1 (φ : Lang.BoundedFormula Empty 1) : Lang.Sentence := ∀' (φ ⟹ ∃' φ.liftAt 1 0)
+def Axiom1 (φ : Lang.BoundedFormula (Fin n) 1) : Lang.Formula (Fin n) :=
+    ∀' (φ ⟹ ∃' φ.liftAt 1 0)
 
-def Theory : Lang.Theory :=
-  ⋃ (φ : Lang.BoundedFormula Empty 1), {Axiom1 φ}
+def Theory : Set (Σ n, Lang.Formula (Fin n)) :=
+  ⋃ (n), (⋃ (φ : Lang.BoundedFormula (Fin n) 1), {⟨n, Axiom1 φ⟩})
 
 end Spec
 
 namespace Equality
 
 /-- Equality axiom 1: x = x -/
-def Axiom1: Lang.Sentence := ∀' (&0 =' &0)
+def Axiom1 : Lang.Formula (Fin 1) := .var (.inl 0) =' .var (.inl 0)
 
 /-- Equality axiom 2: (x₁ = x₂) ∧ (x₃ = x₄) → [(x₁ = x₃) → (x₂ → x₄)]  -/
-def Axiom2: Lang.Sentence := ∀' ∀' ∀' ∀' (((&0 =' &1) ⊓ (&2 =' &3)) ⟹ ((&0 =' &2) ⟹ (&1 =' &3)))
+def Axiom2: Lang.Formula (Fin 4) :=
+    ((.var (.inl 0) =' .var (.inl 1)) ⊓ (.var (.inl 2) =' .var (.inl 3)))
+    ⟹ ((.var (.inl 0) =' .var (.inl 2)) ⟹ (.var (.inl 1) =' .var (.inl 3)))
 
 /-- Equality axiom 3: (x₁ = x₂) ∧ (x₃ = x₄) → [(x₁ ∈ x₃) → (x₂ ∈ x₄)]  -/
-def Axiom3: Lang.Sentence := ∀' ∀' ∀' ∀' (((&0 =' &1) ⊓ (&2 =' &3)) ⟹ ((&0 ∈' &2) ⟹ (&1 ∈' &3)))
+def Axiom3: Lang.Formula (Fin 4) :=
+    ((.var (.inl 0) =' .var (.inl 1)) ⊓ (.var (.inl 2) =' .var (.inl 0)))
+    ⟹ ((.var (.inl 0) ∈' .var (.inl 2)) ⟹ (.var (.inl 1) ∈' .var (.inl 3)))
 
 /-- Equality axiom 4: (x₁ = x₂) ∧ (x₃ = x₄) → (x₁ ◁ x₃ = x₂ ◁ x₄)  -/
-def Axiom4: Lang.Sentence :=
-    ∀' ∀' ∀' ∀' (((&0 =' &1) ⊓ (&2 =' &3)) ⟹ ((.func ◁' ![&0, &2]) =' (.func ◁' ![&1, &3])))
+def Axiom4: Lang.Formula (Fin 4) :=
+    ((.var (.inl 0) =' .var (.inl 1)) ⊓ (.var (.inl 2) =' .var (.inl 3)))
+    ⟹ ((.func ◁' ![.var (.inl 0), .var (.inl 2)]) =' (.func ◁' ![.var (.inl 1), .var (.inl 3)]))
 
-def Theory : Lang.Theory := {Axiom1, Axiom2, Axiom3, Axiom4}
+def Theory : Set (Σ n, Lang.Formula (Fin n)) :=
+    {⟨1, Axiom1⟩, ⟨4, Axiom2⟩, ⟨4, Axiom3⟩, ⟨4, Axiom4⟩}
 
 end Equality
 
-inductive Theorem (T : Lang.Theory) (φ : Lang.Sentence) : Prop
-| Hyp : φ ∈ T → Theorem T φ
-| Ax : φ ∈ Theory → Theorem T φ
-| Bool : φ ∈ Bool.Theory → Theorem T φ
-| Spec : φ ∈ Spec.Theory → Theorem T φ
-| Eq : φ ∈ Equality.Theory → Theorem T φ
+-- inductive Theorem : Lang.Theory → Lang.Sentence → Prop
+-- | Hyp : φ ∈ T → Theorem T φ
+-- | Ax : φ ∈ Theory → Theorem T φ
+-- | Bool : φ ∈ Bool.Theory → Theorem T φ
+-- | Spec : φ ∈ Spec.Theory → Theorem T φ
+-- | Eq : φ ∈ Equality.Theory → Theorem T φ
+-- | MP (ψ) : Theorem T (ψ ⟹ φ) → Theorem T ψ → Theorem T φ
+-- | Subst (φ : Lang.BoundedFormula Empty 1) (t : Lang.Term (Empty ⊕ Fin 0)) :
+--     Theorem T (∀' φ) → Theorem T (sorry) -- not sure how to do this (and if type of t is correct)
+-- | Exists (φ : Lang.BoundedFormula Empty 2) (ψ : Lang.BoundedFormula Empty 1) :
+--     Theorem T (∀' ∀' (φ ⟹ ψ)) → sorry → Theorem T (∀' (∃' φ) ⟹ ψ)
 
-infixl:51 "⊢" => Theorem
 
-prefix:51 "⊢" => Theorem ∅
+inductive thm : Set (Σ n, Lang.Formula (Fin n)) → ℕ → Lang.Formula (Fin n) → Prop
+| Hyp : ⟨n, φ⟩  ∈ T → thm T n φ
+| Ax : ⟨n, φ⟩ ∈ Theory → thm T n φ
+| Bool : ⟨n, φ⟩ ∈ Bool.Theory → thm T n φ
+| Spec : ⟨n, φ⟩ ∈ Spec.Theory → thm T n φ
+| Eq : ⟨n, φ⟩ ∈ Equality.Theory → thm T n φ
+| MP (ψ : Lang.Formula (Fin n)) : thm T n (ψ ⟹ φ) → thm T n ψ → thm T n φ
 
-example : Theory ⊢ Axiom3' (.var (.inl 0) =' .var (.inl 0)) := by
-  apply Theorem.Hyp; simp [Theory]
+abbrev thm' (T : Set (Σ n, Lang.Formula (Fin n))) (φ : Lang.Formula (Fin n)) : Prop :=
+  ∃ n, thm T n φ
+
+prefix:51 "⊢" => thm' {}
+
+@[simp] lemma thm_iff (φ : Lang.Formula (Fin n)) : ⊢ φ ↔ ∃ n, thm {} n φ := by rfl
+
+example : ⊢ Equality.Axiom1 := by
+  simp only [thm_iff]
+  use 1
+  apply thm.Eq
+  simp [Equality.Theory]
+
+example : ⊢ Axiom3 0 (&0 =' &0) := by
+  simp only [Fin.isValue, Function.comp_apply, thm_iff]
+  use 0
+  apply thm.Ax
+  simp [Theory]
 
 example : ⊢ Bool.Axiom1 (Axiom1) := by
-  apply Theorem.Bool
-  simp only [Bool.Theory, Set.mem_iUnion, Set.mem_insert_iff, Set.mem_singleton_iff]
-  use Axiom1
+  simp only [thm_iff]
+  use 1
+  apply thm.Bool
+  simp only [Bool.Theory, Set.mem_iUnion, Set.mem_insert_iff, Sigma.mk.inj_iff,
+    Set.mem_singleton_iff]
+  use 1; use Axiom1
   simp
+
+-- need deduction theorem for this
+example (φ : Lang.Formula (Fin 1)) : ⊢ (Axiom1 ⟹ φ) ⟹ φ := by
+  simp only [thm_iff]
+  use 1
+  apply thm.MP Axiom1
+  · sorry
+  · apply thm.Ax
+    simp [Theory]
+
+-- example (t : Lang.Term (Empty ⊕ Fin 0)) : ⊢ t =' t := by
+--   sorry
 
 end HF
