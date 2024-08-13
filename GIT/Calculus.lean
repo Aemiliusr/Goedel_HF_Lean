@@ -5,10 +5,10 @@ import Mathlib.ModelTheory.Semantics
 open FirstOrder Language BoundedFormula
 
 /-!
-# The language and logic calculus of the theory of hereditarily finite sets
+# The language and logical calculus of the theory of hereditarily finite sets
 
 In this file, parts of Sections 1 and 4 of S. Swierczkowski: 'Finite Sets and Gödel’s Incompleteness
-Theorems' are formalised. It systematically presents the language and logic calculus of the
+Theorems' are formalised. It systematically presents the language and logical calculus of the
 theory of hereditarily finite sets.
 
 ## Main results
@@ -102,12 +102,13 @@ end Bool
 
 namespace Spec
 
+-- not 100% sure about this one
 /-- Specialization axiom: For every formula φ and every xᵢ : φ → ∃ xᵢ φ -/
-def Axiom1 (φ : Lang.BoundedFormula (Fin n) 1) : Lang.Formula (Fin n) :=
+def Axiom (φ : Lang.BoundedFormula (Fin n) 1) : Lang.Formula (Fin n) :=
     ∀' (φ ⟹ ∃' φ.liftAt 1 0)
 
 def Theory : Set (Σ n, Lang.Formula (Fin n)) :=
-  ⋃ (n), (⋃ (φ : Lang.BoundedFormula (Fin n) 1), {⟨n, Axiom1 φ⟩})
+  ⋃ (n), (⋃ (φ : Lang.BoundedFormula (Fin n) 1), {⟨n, Axiom φ⟩})
 
 end Spec
 

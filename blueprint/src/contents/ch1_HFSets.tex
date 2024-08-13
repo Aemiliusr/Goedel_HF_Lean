@@ -9,25 +9,25 @@ Informally, i.e. given an $\mathcal{L}$-structure whose domain consists of sets,
 $\in$ represents membership, $x \lhd y$ is the result of enlarging the set $x$ by $y$ 
 (think of $x \cup \{y\}$), and $\varnothing$ denotes the empty set.
 
-The axioms are given by the following sentences.
+The axioms are given by the following formulas.
 
 \begin{axiom}
     \label{ax:empty}
-    \lean{HFSet.empty}
+    \lean{HF.Axiom1, HFSet.empty}
     \leanok
-    $\forall z (z=\varnothing \leftrightarrow \forall x(x \notin z))$.
+    $z=\varnothing \leftrightarrow \forall x(x \notin z)$.
 \end {axiom}
 
 \begin{axiom}
     \label{ax:enlarge}
-    \lean{HFSet.enlarge}
+    \lean{HF.Axiom2, HFSet.enlarge}
     \leanok
-    $\forall z (z=x \lhd y \leftrightarrow \forall u(u \in z \leftrightarrow u \in x \lor u=y))$.
+    $z=x \lhd y \leftrightarrow \forall u(u \in z \leftrightarrow u \in x \lor u=y)$.
 \end {axiom}
 
 \begin{axiom}
     \label{ax:induction}
-    \lean{HFSet.induction}
+    \lean{HF.Axiom3, HFSet.induction}
     \leanok
     $(\alpha(\varnothing) \land \forall x \forall y[\alpha(x) \land \alpha(y) \rightarrow 
     \alpha(x \lhd y)]) \rightarrow \forall x \alpha(x)$.
@@ -37,6 +37,14 @@ The assumption in Axiom 3 — the induction principle — is that $\alpha$ is an
 and that it contains a distinguished freely occurring variable which is quantified over.
 
 \section{Basic results}
+
+Need text here on not using the logical calculus of HF in these sections. 
+Maybe some text on that the proof of a formula $\phi$ can be regarded on three levels: 
+informally (what is used in the rest of this chapter), formally — as a proof of $\vdash \phi$ — 
+using the logical calculus of HF described in the next chapter, 
+and as a proof of $\vdash \operatorname{Pf}\ulcorner \phi \urcorner$, 
+given a suitable coding system defining $\ulcorner \phi \urcorner$ and a provability predicate 
+$\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{lemma}
     \label{lem:notin_empty+mem_enlarge+mem_enlarge_empty}
