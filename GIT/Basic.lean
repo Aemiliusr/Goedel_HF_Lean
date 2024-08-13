@@ -1,7 +1,5 @@
-import Mathlib.Tactic
-import Mathlib.ModelTheory.Syntax
-import Mathlib.ModelTheory.Semantics
 import GIT.FirstOrder_reverse
+import GIT.Calculus
 
 open FirstOrder Language BoundedFormula
 
@@ -9,8 +7,8 @@ open FirstOrder Language BoundedFormula
 # Appendix 1: Axioms and basic results of hereditarily finite set theory
 
 In this file, the first appendix of S. Swierczkowski: 'Finite Sets and Gödel’s Incompleteness
-Theorems' is formalised. It systematically presents the language, axioms and basic results of the
-theory of hereditarily finite.
+Theorems' is formalised. It systematically presents the axioms and basic results of the
+theory of hereditarily finite sets.
 
 ## Main results
 
@@ -32,35 +30,11 @@ S. Swierczkowski. Finite Sets and Gödel’s Incompleteness Theorems. Dissertati
 mathematicae. IM PAN, 2003. URL https://books.google.co.uk/books?id=5BQZAQAAIAAJ.
 -/
 
-/-- The first-order language of HF. -/
-def HFLang : Language.{0, 0} where
-  Functions :=
-  fun
-  | 0 => PUnit -- We have one 0-ary function, i.e. a constant term, "for the empty set".
-  | 1 => Empty -- We have no 1-ary functions.
-  | 2 => PUnit -- We have one 2-ary function "for enlargement".
-  | _ + 3 => Empty -- We have no n-ary functions for n > 2.
-  Relations :=
-  fun
-  | 0 => Empty -- We have no 0-ary relations.
-  | 1 => Empty -- We have no unary relations.
-  | 2 => PUnit -- We have one binary relation for "membership"
-  | _ + 3 => Empty -- We have no n-ary relations for n > 2.
+local notation "∅'" => HF.Lang.emptySetSymbol
 
-/-- Empty set: constant symbol. -/
-abbrev HFLang.emptySetSymbol : HFLang.Functions 0 := PUnit.unit
+local notation " ◁' " => HF.Lang.enlargementSymbol
 
-local notation "∅'" => HFLang.emptySetSymbol
-
-/-- Enlargement: 2-ary function symbol. -/
-abbrev HFLang.enlargementSymbol : HFLang.Functions 2 := PUnit.unit
-
-local notation " ◁' " => HFLang.enlargementSymbol
-
-/-- Membership: 2-ary relation symbol. -/
-abbrev HFLang.membershipSymbol : HFLang.Relations 2 := PUnit.unit
-
-local notation t " ∈' " s => HFLang.membershipSymbol.boundedFormula ![t, s]
+local notation t " ∈' " s => HF.Lang.membershipSymbol.boundedFormula ![t, s]
 
 universe u
 
@@ -83,7 +57,7 @@ instance (s) [HF s] : Membership s s := ⟨HF.Mem⟩
 infixl:90 " ◁ " => HF.Enlarging
 
 @[simps]
-instance (s) [HF s] : HFLang.Structure s where
+instance (s) [HF s] : HF.Lang.Structure s where
   funMap {n} _ h := match n with
   | 0 => ∅
   | 2 => h 0 ◁ h 1
@@ -100,7 +74,7 @@ class HFSet (s : Type u) extends HF s where
   ensure induction is over all formulae in the first-order language of HF rather than over all
   predicates.  -/
   induction (α : s → Prop) (base : α ∅) (step : ∀ x y, α x → α y → α (x ◁ y)) (z : s)
-      (n : Nat) (f : Language.BoundedFormula HFLang (Fin n) 1) (t : (Fin n) → s)
+      (n : Nat) (f : Language.BoundedFormula HF.Lang (Fin n) 1) (t : (Fin n) → s)
       (hP : α z ↔ f.Realize t (fun _ ↦ z)) : α z
 
 suppress_compilation
@@ -140,8 +114,8 @@ theorem exten_prop (z : S) (x : S) : x = z ↔ ∀ u, u ∈ x ↔ u ∈ z := by
   | t => exact z
   | hP =>
     simp only [Fin.isValue, Function.comp_apply, Nat.reduceAdd, realize_iff, realize_bdEqual,
-    Term.realize_var, Sum.elim_inr, Sum.elim_inl, realize_all, Nat.succ_eq_add_one, realize_rel,
-    instStructureHFLangOfHF_RelMap, Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons]
+      Term.realize_var, Sum.elim_inr, Sum.elim_inl, realize_all, Nat.succ_eq_add_one, realize_rel,
+      instStructureLangOfHF_RelMap, Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons]
     rfl
 
 instance insert : Insert S S := ⟨fun y x => x ◁ y⟩
@@ -214,7 +188,7 @@ theorem exists_union (x y : S) : ∃(z : S), ∀(u : S), (u ∈ z ↔ (u ∈ x �
   | f => exact ∃' ∀' ((&2 ∈' &1) ⇔ ((&2 ∈' &0) ⊔ (&2 ∈' .var (.inl 0))))
   | t => exact y
   | hP => simp only [Nat.reduceAdd, Fin.isValue, Function.comp_apply, realize_ex,
-    Nat.succ_eq_add_one, realize_all, realize_iff, realize_rel, instStructureHFLangOfHF_RelMap,
+    Nat.succ_eq_add_one, realize_all, realize_iff, realize_rel, instStructureLangOfHF_RelMap,
     Matrix.cons_val_zero, Term.realize_var, Sum.elim_inr, Matrix.cons_val_one, Matrix.head_cons,
     realize_sup, Sum.elim_inl]; rfl
 
@@ -239,7 +213,7 @@ theorem exists_sUnion (x : S) : ∃(z : S), ∀(u : S), (u ∈ z ↔ (∃ y ∈ 
   | f => exact ∃' ∀' ((&2 ∈' &1) ⇔ (∃' ((&3 ∈' &0) ⊓ (&2 ∈' &3))))
   | t => rename_i a; exact Fin.elim0 a
   | hP => simp only [Nat.reduceAdd, Fin.isValue, Function.comp_apply, realize_ex,
-    Nat.succ_eq_add_one, realize_all, realize_iff, realize_rel, instStructureHFLangOfHF_RelMap,
+    Nat.succ_eq_add_one, realize_all, realize_iff, realize_rel, instStructureLangOfHF_RelMap,
     Matrix.cons_val_zero, Term.realize_var, Sum.elim_inr, Matrix.cons_val_one, Matrix.head_cons,
     realize_inf]; rfl
 
@@ -253,7 +227,7 @@ prefix:110 "⋃₀" => sUnion
   revert u
   exact (exists_sUnion x).choose_spec
 
-theorem comp_scheme (x : S) (φ : S → Prop) {n} (f : BoundedFormula HFLang (Fin n) 1)
+theorem comp_scheme (x : S) (φ : S → Prop) {n} (f : BoundedFormula HF.Lang (Fin n) 1)
     (c : Fin n → S) (hφ : ∀ x, φ x ↔ f.Realize c ![x]) :
     ∃ (z : S), ∀ (u : S), (u ∈ z ↔ u ∈ x ∧ φ u) := by
   induction x using induction with
@@ -268,7 +242,7 @@ theorem comp_scheme (x : S) (φ : S → Prop) {n} (f : BoundedFormula HFLang (Fi
   | t => rename_i a; exact c a
   | hP =>
     simp only [Nat.reduceAdd, Fin.isValue, Function.comp_apply, realize_ex, Nat.succ_eq_add_one,
-      realize_all, realize_iff, realize_rel, instStructureHFLangOfHF_RelMap, Matrix.cons_val_zero,
+      realize_all, realize_iff, realize_rel, instStructureLangOfHF_RelMap, Matrix.cons_val_zero,
       Term.realize_var, Sum.elim_inr, Matrix.cons_val_one, Matrix.head_cons, realize_inf]
     convert Iff.rfl
     rw [realize_liftAt (by norm_num), hφ]
@@ -279,10 +253,10 @@ theorem comp_scheme (x : S) (φ : S → Prop) {n} (f : BoundedFormula HFLang (Fi
     rfl
 
 /-- Any definable (defined through a formula φ) sublass of a set x is a set — {u ∈ x : φ(u)}. -/
-def setOfMem (x : S) (φ : S → Prop) (n : ℕ) (f : BoundedFormula HFLang (Fin n) 1) (c : Fin n → S)
+def setOfMem (x : S) (φ : S → Prop) (n : ℕ) (f : BoundedFormula HF.Lang (Fin n) 1) (c : Fin n → S)
     (hφ : ∀ x, φ x ↔ f.Realize c ![x]) : S := (comp_scheme x φ f c hφ).choose
 
-@[simp] lemma mem_setOfMem (x u : S) (φ : S → Prop) (n : ℕ) (f : BoundedFormula HFLang (Fin n) 1)
+@[simp] lemma mem_setOfMem (x u : S) (φ : S → Prop) (n : ℕ) (f : BoundedFormula HF.Lang (Fin n) 1)
     (c : Fin n → S) (hφ : ∀ x, φ x ↔ f.Realize c ![x]) :
     (u ∈ setOfMem x φ n f c hφ ↔ u ∈ x ∧ φ u) := by
   revert u
@@ -318,7 +292,7 @@ lemma inter_enlarge (x y : S) : (x ◁ y) ∩ x = x := by
   simp_all only [true_or]
 
 theorem repl_scheme (x : S) {n} (ψ : S → S → Prop)
-    (f : BoundedFormula HFLang (Fin n) 2)  (qf : f.IsQF)
+    (f : BoundedFormula HF.Lang (Fin n) 2)  (qf : f.IsQF)
     (c : Fin n → S) (hψ : ∀ x y, ψ x y ↔ f.Realize c ![x, y]) :
     (∀ u ∈ x, ∃ v, (ψ u v ∧ ∀ w, (ψ u w → w = v))) → (∃ (z : S), ∀ v, (v ∈ z ↔ ∃ u ∈ x, ψ u v))
     := by
@@ -348,9 +322,9 @@ theorem repl_scheme (x : S) {n} (ψ : S → S → Prop)
   | t => rename_i a; exact c a
   | hP =>
     simp only [Nat.reduceAdd, Fin.isValue, Function.comp_apply, realize_imp, realize_all,
-    Nat.succ_eq_add_one, realize_rel, instStructureHFLangOfHF_RelMap, Matrix.cons_val_zero,
-    Term.realize_var, Sum.elim_inr, Matrix.cons_val_one, Matrix.head_cons, realize_ex, realize_inf,
-    realize_bdEqual, realize_iff]
+      Nat.succ_eq_add_one, realize_rel, instStructureLangOfHF_RelMap, Matrix.cons_val_zero,
+      Term.realize_var, Sum.elim_inr, Matrix.cons_val_one, Matrix.head_cons, realize_ex,
+      realize_inf, realize_bdEqual, realize_iff]
     convert Iff.rfl
     · rw [realize_liftAt (by norm_num), hψ]
       convert Iff.rfl using 1
@@ -376,12 +350,12 @@ theorem repl_scheme (x : S) {n} (ψ : S → S → Prop)
 
 /-- The image of any set x under any definable mapping ψ is a set – {v : ∃ u ∈ x, ψ(u,v)}. -/
 def setOfImage (x : S) (ψ : S → S → Prop) (n : ℕ)
-    (f : BoundedFormula HFLang (Fin n) 2)  (qf : f.IsQF)
+    (f : BoundedFormula HF.Lang (Fin n) 2)  (qf : f.IsQF)
     (c : Fin n → S) (hψ : ∀ x y, ψ x y ↔ f.Realize c ![x, y]) (h : (∀ u ∈ x, ∃! v, ψ u v)) : S
     := (repl_scheme x ψ f qf c hψ h).choose
 
 @[simp] lemma mem_setOfImage (x v : S) (n : ℕ) (ψ : S → S → Prop)
-    (f : BoundedFormula HFLang (Fin n) 2)  (qf : f.IsQF)
+    (f : BoundedFormula HF.Lang (Fin n) 2)  (qf : f.IsQF)
     (c : Fin n → S) (hψ : ∀ x y, ψ x y ↔ f.Realize c ![x, y]) (h : (∀ u ∈ x, ∃! v, ψ u v)) :
     (v ∈ setOfImage x ψ n f qf c hψ h ↔ ∃ u ∈ x, ψ u v) := by
   revert v
@@ -435,7 +409,7 @@ theorem exists_powerset (x : S) : ∃ (z : S), ∀ (u : S), u ∈ z ↔ u ⊆ x 
   | f => exact ∃' ∀' ((&2 ∈' &1) ⇔ (∀' ((&3 ∈' &2) ⟹ (&3 ∈' &0))))
   | t => rename_i a; exact Fin.elim0 a
   | hP => simp only [subset_def, Nat.reduceAdd, Fin.isValue, Function.comp_apply, realize_ex,
-    Nat.succ_eq_add_one, realize_all, realize_iff, realize_rel, instStructureHFLangOfHF_RelMap,
+    Nat.succ_eq_add_one, realize_all, realize_iff, realize_rel, instStructureLangOfHF_RelMap,
     Matrix.cons_val_zero, Term.realize_var, Sum.elim_inr, Matrix.cons_val_one, Matrix.head_cons,
     realize_imp]; rfl
 
@@ -468,7 +442,7 @@ lemma found_prop_aux (x z : S) (h : ∀ w ∈ z, w ∩ z ≠ ∅) : x ∉ z ∧ 
       ((∼(&0 ∈' .var (.inl 0))) ⊓ (∀' ((&1 ∈' &0) ⟹ ∼(&1 ∈' .var (.inl 0)))))
   | t => exact z
   | hP => simp only [exists_prop, Nat.reduceAdd, Fin.isValue, Function.comp_apply, realize_imp,
-    realize_all, Nat.succ_eq_add_one, realize_rel, instStructureHFLangOfHF_RelMap,
+    realize_all, Nat.succ_eq_add_one, realize_rel, instStructureLangOfHF_RelMap,
     Matrix.cons_val_zero, Term.realize_var, Sum.elim_inr, Matrix.cons_val_one, Matrix.head_cons,
     Sum.elim_inl, realize_ex, realize_inf, realize_not]; rfl
 

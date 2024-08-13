@@ -28,11 +28,11 @@ S. Swierczkowski. Finite Sets and Gödel’s Incompleteness Theorems. Dissertati
 mathematicae. IM PAN, 2003. URL https://books.google.co.uk/books?id=5BQZAQAAIAAJ.
 -/
 
-local notation "∅'" => HFLang.emptySetSymbol
+local notation "∅'" => HF.Lang.emptySetSymbol
 
-local notation " ◁' " => HFLang.enlargementSymbol
+local notation " ◁' " => HF.Lang.enlargementSymbol
 
-local notation t " ∈' " s => HFLang.membershipSymbol.boundedFormula ![t, s]
+local notation t " ∈' " s => HF.Lang.membershipSymbol.boundedFormula ![t, s]
 
 universe u
 
@@ -307,9 +307,9 @@ theorem exists_max_of_set (x : S) (set_of_ord : ∀ k ∈ x, IsOrd k) (ne_emp : 
     ((&2 ∈' &1) ⊔ (&2 =' &1))))))
   | t => rename_i a; exact Fin.elim0 a
   | hP => simp only [ne_eq, Nat.reduceAdd, Fin.isValue, Function.comp_apply, realize_imp,
-    realize_all, Nat.succ_eq_add_one, realize_rel, instStructureHFLangOfHF_RelMap,
+    realize_all, Nat.succ_eq_add_one, realize_rel, instStructureLangOfHF_RelMap,
     Matrix.cons_val_zero, Term.realize_var, Sum.elim_inr, Matrix.cons_val_one, Matrix.head_cons,
-    realize_inf, realize_not, realize_bdEqual, Term.realize_func, instStructureHFLangOfHF_funMap,
+    realize_inf, realize_not, realize_bdEqual, Term.realize_func, instStructureLangOfHF_funMap,
     realize_ex, realize_sup]; rfl
 
 lemma exists_min_of_set_aux (x y : S) (set_of_ord : ∀ k ∈ x ◁ y, IsOrd k)
@@ -353,9 +353,9 @@ theorem exists_min_of_set (x : S) (set_of_ord : ∀ k ∈ x, IsOrd k) (ne_emp : 
     ((&1 ∈' &2) ⊔ (&1 =' &2))))))
   | t => rename_i a; exact Fin.elim0 a
   | hP => simp only [ne_eq, Nat.reduceAdd, Fin.isValue, Function.comp_apply, realize_imp,
-    realize_all, Nat.succ_eq_add_one, realize_rel, instStructureHFLangOfHF_RelMap,
+    realize_all, Nat.succ_eq_add_one, realize_rel, instStructureLangOfHF_RelMap,
     Matrix.cons_val_zero, Term.realize_var, Sum.elim_inr, Matrix.cons_val_one, Matrix.head_cons,
-    realize_inf, realize_not, realize_bdEqual, Term.realize_func, instStructureHFLangOfHF_funMap,
+    realize_inf, realize_not, realize_bdEqual, Term.realize_func, instStructureLangOfHF_funMap,
     realize_ex, realize_sup]; rfl
 
 theorem exists_pred (k : S) (ord_k : IsOrd k) (ne_emp : k ≠ ∅) :
@@ -577,7 +577,7 @@ lemma forall_lt_le_pred (k : Ord S) (ne_emp : k ≠ ∅) : ∀ l < k, l ≤ pred
     exact IsOrd.pred_isOrd k.1 k.2 (by simp only [ne_eq, eq_iff] at ne_emp; exact ne_emp)
   · exact l.2
 
-lemma exists_leastOrd (k : Ord S) (φ : S → Prop) (f : BoundedFormula HFLang (Fin 0) 1)
+lemma exists_leastOrd (k : Ord S) (φ : S → Prop) (f : BoundedFormula HF.Lang (Fin 0) 1)
     (c : Fin 0 → S) (hφ : ∀ x, φ x ↔ f.Realize c ![x]) (h : ¬(φ k.1)) :
     ∃ (l : Ord S), ¬(φ l.1) ∧ ((∃ (l_ne_emp : l ≠ ∅), φ (pred l l_ne_emp).1) ∨ l = ∅) := by
   let K := setOfMem (succ k).1 (fun x ↦ ¬(φ x)) 0 (∼f) c

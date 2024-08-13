@@ -4,6 +4,27 @@ import Mathlib.ModelTheory.Semantics
 
 open FirstOrder Language BoundedFormula
 
+/-!
+# The language and logic calculus of the theory of hereditarily finite sets
+
+In this file, parts of Sections 1 and 4 of S. Swierczkowski: 'Finite Sets and Gödel’s Incompleteness
+Theorems' are formalised. It systematically presents the language and logic calculus of the
+theory of hereditarily finite sets.
+
+## Main results
+
+- `...`: ...
+
+## Notation
+
+- `◁` : enlarging, see `HF.Axiom2`.
+
+## References
+
+S. Swierczkowski. Finite Sets and Gödel’s Incompleteness Theorems. Dissertationes
+mathematicae. IM PAN, 2003. URL https://books.google.co.uk/books?id=5BQZAQAAIAAJ.
+-/
+
 namespace HF
 
 /-- The first-order language of HF. -/
@@ -127,7 +148,7 @@ end Equality
 -- | Exists (φ : Lang.BoundedFormula Empty 2) (ψ : Lang.BoundedFormula Empty 1) :
 --     Theorem T (∀' ∀' (φ ⟹ ψ)) → sorry → Theorem T (∀' (∃' φ) ⟹ ψ)
 
-
+-- missing substitution and existential quantifier rules
 inductive thm : Set (Σ n, Lang.Formula (Fin n)) → ℕ → Lang.Formula (Fin n) → Prop
 | Hyp : ⟨n, φ⟩  ∈ T → thm T n φ
 | Ax : ⟨n, φ⟩ ∈ Theory → thm T n φ
@@ -139,9 +160,20 @@ inductive thm : Set (Σ n, Lang.Formula (Fin n)) → ℕ → Lang.Formula (Fin n
 abbrev thm' (T : Set (Σ n, Lang.Formula (Fin n))) (φ : Lang.Formula (Fin n)) : Prop :=
   ∃ n, thm T n φ
 
+infix:51 "⊢" => thm'
+
 prefix:51 "⊢" => thm' {}
 
+@[simp] lemma deduc_iff (T : Set (Σ n, Lang.Formula (Fin n))) (φ : Lang.Formula (Fin n)) :
+    T ⊢ φ ↔ ∃ n, thm T n φ := by rfl
+
 @[simp] lemma thm_iff (φ : Lang.Formula (Fin n)) : ⊢ φ ↔ ∃ n, thm {} n φ := by rfl
+
+-- not sure if this will be necessary
+theorem deduction_theorem (T : Set (Σ n, Lang.Formula (Fin n))) (φ ψ : Lang.Formula (Fin n))
+   (h : T ∪ {⟨n, φ⟩} ⊢ ψ) : T ⊢ (φ ⟹ ψ) := by
+  -- need induction on proof
+  sorry
 
 example : ⊢ Equality.Axiom1 := by
   simp only [thm_iff]
@@ -164,12 +196,12 @@ example : ⊢ Bool.Axiom1 (Axiom1) := by
   use 1; use Axiom1
   simp
 
--- need deduction theorem for this
 example (φ : Lang.Formula (Fin 1)) : ⊢ (Axiom1 ⟹ φ) ⟹ φ := by
-  simp only [thm_iff]
+  apply deduction_theorem
+  simp only [Set.union_singleton, insert_emptyc_eq, deduc_iff]
   use 1
   apply thm.MP Axiom1
-  · sorry
+  · apply thm.Hyp; simp
   · apply thm.Ax
     simp [Theory]
 
