@@ -38,9 +38,9 @@ universe u
 
 suppress_compilation
 
-variable {S : Type u} [HFSet S]
+variable {S : Type u} [HF S]
 
-namespace HFSet
+namespace HF
 
 /-- The set is transitive. -/
 abbrev IsTrans (x : S) : Prop := ∀ y ∈ x, y ⊆ x
@@ -78,7 +78,7 @@ lemma empty_of_mem_and_disjoint (x w : S) (ord : IsOrd x) (w_in_x : w ∈ x)
     (disj : w ∩ x = ∅) : w = ∅ := by
   simp only [exten_prop, mem_inter, in_empty_iff_false, iff_false, not_and] at disj
   apply ord.1 at w_in_x
-  rw [HFSet.empty]
+  rw [HF.empty]
   simp_all
 
 lemma empty_is_mem (x : S) (ord : IsOrd x) (ne_emp : x ≠ ∅) : ∅ ∈ x := by
@@ -306,11 +306,13 @@ theorem exists_max_of_set (x : S) (set_of_ord : ∀ k ∈ x, IsOrd k) (ne_emp : 
     ⟹ (∼(&0 =' (.func ∅' Fin.elim0))) ⟹ (∃' ((&1 ∈' &0) ⊓ ∀' ((&2 ∈' &0) ⟹
     ((&2 ∈' &1) ⊔ (&2 =' &1))))))
   | t => rename_i a; exact Fin.elim0 a
-  | hP => simp only [ne_eq, Nat.reduceAdd, Fin.isValue, Function.comp_apply, realize_imp,
-    realize_all, Nat.succ_eq_add_one, realize_rel, instStructureLangOfHF_RelMap,
-    Matrix.cons_val_zero, Term.realize_var, Sum.elim_inr, Matrix.cons_val_one, Matrix.head_cons,
-    realize_inf, realize_not, realize_bdEqual, Term.realize_func, instStructureLangOfHF_funMap,
-    realize_ex, realize_sup]; rfl
+  | hP =>
+    simp only [ne_eq, Nat.reduceAdd, Fin.isValue, Function.comp_apply, realize_imp, realize_all,
+      Nat.succ_eq_add_one, realize_rel, instStructureLangOfHFLang_RelMap, Matrix.cons_val_zero,
+      Term.realize_var, Sum.elim_inr, Matrix.cons_val_one, Matrix.head_cons, realize_inf,
+      realize_not, realize_bdEqual, Term.realize_func, instStructureLangOfHFLang_funMap, realize_ex,
+      realize_sup]
+    rfl
 
 lemma exists_min_of_set_aux (x y : S) (set_of_ord : ∀ k ∈ x ◁ y, IsOrd k)
     (x_has_min : ∃ l ∈ x, ∀ k ∈ x, (l ∈ k ∨ l = k)) :
@@ -352,11 +354,13 @@ theorem exists_min_of_set (x : S) (set_of_ord : ∀ k ∈ x, IsOrd k) (ne_emp : 
     ⟹ (∼(&0 =' (.func ∅' Fin.elim0))) ⟹ (∃' ((&1 ∈' &0) ⊓ ∀' ((&2 ∈' &0) ⟹
     ((&1 ∈' &2) ⊔ (&1 =' &2))))))
   | t => rename_i a; exact Fin.elim0 a
-  | hP => simp only [ne_eq, Nat.reduceAdd, Fin.isValue, Function.comp_apply, realize_imp,
-    realize_all, Nat.succ_eq_add_one, realize_rel, instStructureLangOfHF_RelMap,
-    Matrix.cons_val_zero, Term.realize_var, Sum.elim_inr, Matrix.cons_val_one, Matrix.head_cons,
-    realize_inf, realize_not, realize_bdEqual, Term.realize_func, instStructureLangOfHF_funMap,
-    realize_ex, realize_sup]; rfl
+  | hP =>
+    simp only [ne_eq, Nat.reduceAdd, Fin.isValue, Function.comp_apply, realize_imp, realize_all,
+      Nat.succ_eq_add_one, realize_rel, instStructureLangOfHFLang_RelMap, Matrix.cons_val_zero,
+      Term.realize_var, Sum.elim_inr, Matrix.cons_val_one, Matrix.head_cons, realize_inf,
+      realize_not, realize_bdEqual, Term.realize_func, instStructureLangOfHFLang_funMap, realize_ex,
+      realize_sup]
+    rfl
 
 theorem exists_pred (k : S) (ord_k : IsOrd k) (ne_emp : k ≠ ∅) :
     ∃! l, succ l = k := by
@@ -436,7 +440,7 @@ def succ (k : Ord S) : Ord S := ⟨_, IsOrd.succ_isOrd _ k.2⟩
 
 lemma ne_succ (k : Ord S) : k ≠ succ k := by
   simp only [ne_eq, eq_iff]
-  exact HFSet.ne_succ k.1
+  exact HF.ne_succ k.1
 
 lemma lt_asymm (k l : Ord S) (k_lt_l : k < l) (l_lt_k : l < k) :
     False := by
@@ -469,7 +473,7 @@ instance : HasSubset (Ord S) := ⟨Subset⟩
 lemma subset_def (k l : Ord S) : k ⊆ l ↔ ∀ m, m < k → m < l := by rfl
 
 lemma subset_iff (k l : Ord S) : k ⊆ l ↔ k.1 ⊆ l.1 := by
-  simp only [subset_def, lt_iff, HFSet.subset_def]
+  simp only [subset_def, lt_iff, HF.subset_def]
   constructor
   · intros h m m_in_k
     specialize h ⟨m, IsOrd.mem_isOrd k.1 m k.2 m_in_k⟩
@@ -485,7 +489,7 @@ instance : HasSSubset (Ord S) := ⟨SSubset⟩
 lemma sSubset_def (k l : Ord S) : k ⊂ l ↔ (∀ m, m < k → m < l) ∧ k ≠ l := by rfl
 
 lemma sSubset_iff (k l : Ord S) : k ⊂ l ↔ k.1 ⊂ l.1 := by
-  simp only [sSubset_def, lt_iff, ne_eq, eq_iff, HFSet.sSubset_def, and_congr_left_iff]
+  simp only [sSubset_def, lt_iff, ne_eq, eq_iff, HF.sSubset_def, and_congr_left_iff]
   intro _
   have := subset_iff k l
   simp [subset_def, lt_iff] at this
@@ -615,4 +619,4 @@ lemma exists_leastOrd (k : Ord S) (φ : S → Prop) (f : BoundedFormula HF.Lang 
     refine (hm.1).elim (IsOrd.mem_isOrd k.1 m k.2 ) (by rintro rfl; exact k.2)
 
 end Ord
-end HFSet
+end HF

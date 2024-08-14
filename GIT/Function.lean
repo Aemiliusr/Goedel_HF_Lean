@@ -35,9 +35,9 @@ universe u
 
 suppress_compilation
 
-variable {S : Type u} [HFSet S]
+variable {S : Type u} [HF S]
 
-namespace HFSet
+namespace HF
 
 /-- The set is a function, i.e. each element of the set is an ordered pair and it assigns exactly
 one output to each input. Here 'input' and 'output' correspond to the first and second argument of
@@ -163,4 +163,4 @@ lemma pFuncTernary_iff (x x' x'' y : S) (φ : S → S → S → S → Prop)
   rw [eq_comm]
   exact (h.choose_spec).2 y
 
-end HFSet
+end HF

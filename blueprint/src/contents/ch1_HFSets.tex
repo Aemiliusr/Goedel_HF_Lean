@@ -13,21 +13,21 @@ The axioms are given by the following formulas.
 
 \begin{axiom}
     \label{ax:empty}
-    \lean{HF.Axiom1, HFSet.empty}
+    \lean{HF.Axiom1, HF.empty}
     \leanok
     $z=\varnothing \leftrightarrow \forall x(x \notin z)$.
 \end {axiom}
 
 \begin{axiom}
     \label{ax:enlarge}
-    \lean{HF.Axiom2, HFSet.enlarge}
+    \lean{HF.Axiom2, HF.enlarge}
     \leanok
     $z=x \lhd y \leftrightarrow \forall u(u \in z \leftrightarrow u \in x \lor u=y)$.
 \end {axiom}
 
 \begin{axiom}
     \label{ax:induction}
-    \lean{HF.Axiom3, HFSet.induction}
+    \lean{HF.Axiom3, HF.induction}
     \leanok
     $(\alpha(\varnothing) \land \forall x \forall y[\alpha(x) \land \alpha(y) \rightarrow 
     \alpha(x \lhd y)]) \rightarrow \forall x \alpha(x)$.
@@ -48,7 +48,7 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{lemma}
     \label{lem:notin_empty+mem_enlarge+mem_enlarge_empty}
-    \lean{HFSet.notin_empty, HFSet.mem_enlarge, HFSet.mem_enlarge_empty}
+    \lean{HF.notin_empty, HF.mem_enlarge, HF.mem_enlarge_empty}
     \leanok
     \uses{ax:empty, ax:enlarge}
     \leavevmode
@@ -73,7 +73,7 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{theorem}[Extensionality Property]
     \label{thm:exten_prop}
-    \lean{HFSet.exten_prop}
+    \lean{HF.exten_prop}
     \leanok
     \uses{ax:empty, ax:enlarge, ax:induction, lem:notin_empty+mem_enlarge+mem_enlarge_empty}
     $\forall x \forall z (x=z \leftrightarrow \forall u (u \in x \leftrightarrow u \in z))$.
@@ -96,7 +96,7 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{definition}
     \label{def:singleton+pair}
-    \lean{HFSet.insert, HFSet.singleton, HFSet.pair}
+    \lean{HF.insert, HF.singleton, HF.pair}
     \leanok
     Denote by $\{x\}$, $\{x,y\}$ and $\langle x,y\rangle$ the following \textit{terms}:
     \begin{enumerate}
@@ -108,7 +108,7 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{lemma}
     \label{lem:mem_singleton+...+pair_inj}
-    \lean{HFSet.mem_singleton, HFSet.mem_pair, HFSet.duplic_pair_eq_single, HFSet.pair_inj}
+    \lean{HF.mem_singleton, HF.mem_pair, HF.duplic_pair_eq_single, HF.pair_inj}
     \leanok
     \uses{lem:notin_empty+mem_enlarge+mem_enlarge_empty, thm:exten_prop, def:singleton+pair}
     \leavevmode
@@ -187,7 +187,7 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{theorem}[Existence of the union of two sets]
     \label{thm:exists_union}
-    \lean{HFSet.exists_union}
+    \lean{HF.exists_union}
     \leanok
     \uses{ax:induction, lem:notin_empty+mem_enlarge+mem_enlarge_empty}
     $\forall x \forall y \exists z \forall u (u \in z \leftrightarrow u \in x \lor u \in y)$.
@@ -214,7 +214,7 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{theorem}[Existence of the union of a set of sets]
     \label{thm:exists_sUnion}
-    \lean{HFSet.exists_sUnion}
+    \lean{HF.exists_sUnion}
     \leanok
     \uses{ax:induction, lem:notin_empty+mem_enlarge+mem_enlarge_empty, thm:exists_union}
     $\forall x \exists z \forall u (u \in z \leftrightarrow \exists (y\in x)[u \in y])$.
@@ -247,7 +247,7 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{theorem}[Comprehension Scheme]
     \label{thm:comp_scheme}
-    \lean{HFSet.comp_scheme}
+    \lean{HF.comp_scheme}
     \leanok
     \uses{ax:induction, lem:notin_empty+mem_enlarge+mem_enlarge_empty}
     $\forall x \exists z \forall u (u\in z \leftrightarrow (u \in x) \land \phi (u))$, 
@@ -280,7 +280,7 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{definition}[Intersection]
     \label{def:inter+sInter}
-    \lean{HFSet.inter, HFSet.sInter}
+    \lean{HF.inter, HF.sInter}
     \leanok
     \uses{thm:exists_sUnion, thm:comp_scheme}
     Introduce the notation:
@@ -292,7 +292,7 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{theorem}[Replacement Scheme]
     \label{thm:repl_scheme}
-    \lean{HFSet.repl_scheme}
+    \lean{HF.repl_scheme}
     %\leanok
     \uses{ax:induction, lem:notin_empty+mem_enlarge+mem_enlarge_empty}
     $$\forall x ([\forall (u \in x) [\exists! v] \psi (u,v)]\rightarrow 
@@ -326,7 +326,7 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{definition}[Subset relation]
     \label{def:Subset+SSubset}
-    \lean{HFSet.Subset, HFSet.SSubset}
+    \lean{HF.Subset, HF.SSubset}
     \leanok
     Introduce the notation:
     \begin{enumerate}
@@ -337,7 +337,7 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{theorem}[Existence of the power set]
     \label{thm:exists_powerset}
-    \lean{HFSet.exists_powerset}
+    \lean{HF.exists_powerset}
     \leanok
     \uses{ax:induction, lem:notin_empty+mem_enlarge+mem_enlarge_empty, thm:exten_prop, 
     def:singleton+pair, lem:mem_singleton+...+pair_inj, thm:exists_union, 
@@ -371,7 +371,7 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{theorem}[Foundation Property]
     \label{thm:found_prop}
-    \lean{HFSet.found_prop}
+    \lean{HF.found_prop}
     \leanok
     \uses{ax:induction, lem:notin_empty+mem_enlarge+mem_enlarge_empty, thm:exten_prop, 
     def:inter+sInter}
@@ -403,7 +403,7 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{corollary}
     \label{cor:mem_irrefl}
-    \lean{HFSet.mem_irrefl}
+    \lean{HF.mem_irrefl}
     \leanok
     \uses{lem:notin_empty+mem_enlarge+mem_enlarge_empty, thm:exten_prop, 
     def:singleton+pair, lem:mem_singleton+...+pair_inj, def:inter+sInter, thm:found_prop}
@@ -421,7 +421,7 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{definition}
     \label{def:IsTrans+IsOrd}
-    \lean{HFSet.IsTrans, HFSet.IsOrd, HFSet.Ord}
+    \lean{HF.IsTrans, HF.IsOrd, HF.Ord}
     \leanok
     \uses{def:Subset+SSubset}
     We say that $x$ is \textit{transitive} if every element of $x$ is a subset of $x$. 
@@ -433,15 +433,15 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{definition}[Successor]
     \label{def:succ}
-    \lean{HFSet.succ, HFSet.Ord.succ}
+    \lean{HF.succ, HF.Ord.succ}
     \leanok
     The \textit{successor} of $x$ is defined as $x \lhd x$, abbreviated by $\operatorname{succ}(x)$.
 \end{definition}
 
 \begin{lemma}
     \label{lem:IsOrd.succ_isOrd+...+IsOrd.empty_is_mem}
-    \lean{HFSet.IsOrd.succ_isOrd, HFSet.IsOrd.mem_isOrd, HFSet.empty_isOrd, 
-    HFSet.IsOrd.empty_of_mem_and_disjoint, HFSet.IsOrd.empty_is_mem, HFSet.Ord.empty_is_lt}
+    \lean{HF.IsOrd.succ_isOrd, HF.IsOrd.mem_isOrd, HF.empty_isOrd, 
+    HF.IsOrd.empty_of_mem_and_disjoint, HF.IsOrd.empty_is_mem, HF.Ord.empty_is_lt}
     \leanok
     \uses{ax:empty, lem:notin_empty+mem_enlarge+mem_enlarge_empty, 
     thm:exten_prop, def:inter+sInter, thm:found_prop, def:IsTrans+IsOrd, def:succ}
@@ -471,7 +471,7 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{theorem}[Comparability of ordinals]
     \label{thm:IsOrd.comparability}
-    \lean{HFSet.IsOrd.comparability, HFSet.Ord.comparability}
+    \lean{HF.IsOrd.comparability, HF.Ord.comparability}
     \leanok
     \uses{ax:empty, lem:notin_empty+mem_enlarge+mem_enlarge_empty, thm:comp_scheme, 
     def:inter+sInter, def:Subset+SSubset, thm:exists_powerset, thm:found_prop, 
@@ -532,9 +532,9 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{corollary}
     \label{cor:IsOrd.exclusive_comparability+...+IsOrd.succ_inj}
-    \lean{HFSet.IsOrd.exclusive_comparability, HFSet.Ord.exclusive_comparability, 
-    HFSet.IsOrd.sSubset_iff_mem, HFSet.Ord.sSubset_iff_lt, HFSet.IsOrd.succ_eq_or_succ_mem, 
-    HFSet.Ord.succ_eq_or_succ_lt, HFSet.IsOrd.succ_inj, HFSet.Ord.succ_inj}
+    \lean{HF.IsOrd.exclusive_comparability, HF.Ord.exclusive_comparability, 
+    HF.IsOrd.sSubset_iff_mem, HF.Ord.sSubset_iff_lt, HF.IsOrd.succ_eq_or_succ_mem, 
+    HF.Ord.succ_eq_or_succ_lt, HF.IsOrd.succ_inj, HF.Ord.succ_inj}
     \leanok
     \uses{lem:notin_empty+mem_enlarge+mem_enlarge_empty, thm:exten_prop, def:Subset+SSubset, 
     cor:mem_irrefl, def:IsTrans+IsOrd, def:succ, lem:IsOrd.succ_isOrd+...+IsOrd.empty_is_mem, 
@@ -571,7 +571,7 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{definition}
     \label{def:Ord.lt+Ord.le}
-    \lean{HFSet.Ord.lt, HFSet.Ord.le}
+    \lean{HF.Ord.lt, HF.Ord.le}
     \leanok
     For ordinals $k,l$, we shall use:
     \begin{enumerate}
@@ -582,7 +582,7 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{theorem}
     \label{thm:Ord.le_totalOrder+Ord.lt_sTotalOrder}
-    \lean{HFSet.Ord.le_totalOrder, HFSet.Ord.lt_sTotalOrder}
+    \lean{HF.Ord.le_totalOrder, HF.Ord.lt_sTotalOrder}
     \uses{cor:mem_irrefl, def:IsTrans+IsOrd, thm:IsOrd.comparability, def:Ord.lt+Ord.le}
     \leanok
     On every set of ordinals, the relation $\leq$ ($<$) is a (strict) total order.
@@ -600,7 +600,7 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{theorem}
     \label{thm:IsOrd.exists_max_of_set+IsOrd.exists_min_of_set}
-    \lean{HFSet.IsOrd.exists_max_of_set, HFSet.IsOrd.exists_min_of_set}
+    \lean{HF.IsOrd.exists_max_of_set, HF.IsOrd.exists_min_of_set}
     \leanok
     \uses{ax:induction, lem:notin_empty+mem_enlarge+mem_enlarge_empty, def:IsTrans+IsOrd, 
     thm:IsOrd.comparability}
@@ -640,7 +640,7 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{corollary}
     \label{cor:IsOrd.exists_pred}
-    \lean{HFSet.IsOrd.exists_pred}
+    \lean{HF.IsOrd.exists_pred}
     \leanok
     \uses{def:IsTrans+IsOrd, def:succ, lem:IsOrd.succ_isOrd+...+IsOrd.empty_is_mem, 
     cor:IsOrd.exclusive_comparability+...+IsOrd.succ_inj, 
@@ -664,7 +664,7 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{definition}[Predecessor]
     \label{def:IsOrd.pred}
-    \lean{HFSet.IsOrd.pred, HFSet.Ord.pred}
+    \lean{HF.IsOrd.pred, HF.Ord.pred}
     \leanok
     \uses{def:succ, cor:IsOrd.exists_pred}
     The unique (if existing) $l$ for which $\operatorname{succ}(l) = k$ is called the 
@@ -675,7 +675,7 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{definition}
     \label{def:IsFunc+IsFunc.dom}
-    \lean{HFSet.IsFunc, HFSet.IsFunc.dom}
+    \lean{HF.IsFunc, HF.IsFunc.dom}
     \leanok
     \uses{def:singleton+pair, thm:exists_sUnion, thm:comp_scheme}
     We say that $x$ is a \textit{function} if every element of $x$ is a an ordered pair and
@@ -695,7 +695,7 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{definition}[Sequence]
     \label{def:IsSeq}
-    \lean{HFSet.IsSeq}
+    \lean{HF.IsSeq}
     \leanok
     \uses{def:IsTrans+IsOrd, def:IsFunc+IsFunc.dom}
     We call $s$ a \textit{sequence} if $s$ is a function and $\operatorname{dom}(s)=k$ 
@@ -707,7 +707,7 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{definition}[Functional]
     \label{def:IsFunctional}
-    \lean{HFSet.IsFunctionalUnary, HFSet.IsFunctionalBinary, HFSet.IsFunctionalTernary}
+    \lean{HF.IsFunctionalUnary, HF.IsFunctionalBinary, HF.IsFunctionalTernary}
     \leanok
     We say an $\mathcal{L}$-formula $\phi$ with $n+1$ free variables is \textit{functional} 
     with respect to a freely occurring variable $y$ if 
@@ -718,7 +718,7 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{definition}[\textit{p}-function]
     \label{def:pFunc}
-    \lean{HFSet.pFuncUnary, HFSet.pFuncBinary, HFSet.pFuncTernary}
+    \lean{HF.pFuncUnary, HF.pFuncBinary, HF.pFuncTernary}
     \leanok
     \uses{def:IsFunctional}
     If $\phi$ has $n+1$ free variables and is functional with respect to $y$, 
