@@ -80,13 +80,13 @@ class HF (s : Type u) extends HFLang s where
 -- use [HF.Model s] instead of [HF s]
 -- and prove instance HF S for instance (s) [HF.Lang.Structure s] [HF.Model s] : HF s
 
--- instance (s) [HF.Lang.Structure s] [HF.Model s] : HF s where
---   EmptySet := sorry
---   Enlarging := sorry
---   Mem := sorry
---   empty := sorry
---   enlarge := sorry
---   induction := sorry
+instance (s) [HF.Lang.Structure s] [HF.Model s] : HF s where
+  EmptySet := sorry
+  Enlarging := sorry
+  Mem := sorry
+  empty := sorry
+  enlarge := sorry
+  induction := sorry
 
 -- instance (s) [HF s] : HF.Model s where
 --   realize_of_mem := by

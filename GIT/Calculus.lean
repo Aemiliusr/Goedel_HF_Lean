@@ -199,12 +199,17 @@ infixl:51 " ⊧ " => models
 class Model (s) [Lang.Structure s] : Prop where
   realize_of_mem : ∀ (φ : Lang.Formula α), φ ∈ Theory → s ⊧ φ
 
+theorem soundness (φ : Lang.Formula α) :
+  ⊢ φ → (∀ (s : Type u) [Lang.Structure s] [Model s], s ⊧ φ) := by
+  sorry
+
 theorem completeness (φ : Lang.Formula α) :
-  (∀ (s : Type u) [Lang.Structure s] [Model s], s ⊧ φ) → ⊢ φ := by
+  (∀ (s : Type u) [Lang.Structure s] [Model s], s ⊧ φ) ↔ ⊢ φ := by
   sorry
 
 example (t : Lang.Term α) : ⊢ ∼(t.relabel .inl ∈' t.relabel .inl) := by
-  -- apply completeness
+  -- apply completeness, but gives weird error about universes
+  -- have inst : HF s := inferInstance (to use results from Basic)
   sorry
 
 end HF
