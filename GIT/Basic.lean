@@ -77,8 +77,52 @@ class HF (s : Type u) extends HFLang s where
       (n : Nat) (f : Language.BoundedFormula HF.Lang (Fin n) 1) (t : (Fin n) → s)
       (hP : α z ↔ f.Realize t (fun _ ↦ z)) : α z
 
+-- use [HF.Model s] instead of [HF s]
+-- and prove instance HF S for instance (s) [HF.Lang.Structure s] [HF.Model s] : HF s
+
+-- instance (s) [HF.Lang.Structure s] [HF.Model s] : HF s where
+--   EmptySet := sorry
+--   Enlarging := sorry
+--   Mem := sorry
+--   empty := sorry
+--   enlarge := sorry
+--   induction := sorry
+
+-- instance (s) [HF s] : HF.Model s where
+--   realize_of_mem := by
+--     intro α φ h c
+--     unfold HF.Theory at h
+--     simp only [Set.iUnion_singleton_eq_range, Set.mem_union, Set.mem_range, Set.mem_iUnion] at h
+--     rcases h with ⟨⟨t, h⟩ | ⟨t1, ⟨t2, ⟨t3, h⟩⟩⟩⟩ | ⟨ψ, h⟩
+--     · let z := t.realize c
+--       have : (z = ∅ ↔ ∀ x, x ∉ z) ↔ φ.Realize c := by
+--         rw [← h]
+--         unfold HF.Axiom1
+--         simp only [Formula.Realize, Nat.reduceAdd, Fin.isValue, Function.comp_apply, realize_iff,
+--           realize_bdEqual, Term.realize_relabel, Sum.elim_comp_inl, Term.realize_func,
+--           instStructureLangOfHFLang_funMap, realize_all, Nat.succ_eq_add_one, realize_not,
+--           realize_rel, instStructureLangOfHFLang_RelMap, Matrix.cons_val_zero, Term.realize_var,
+--           Sum.elim_inr, Matrix.cons_val_one, Matrix.head_cons]
+--         rfl
+--       rw [← this]
+--       exact HF.empty z
+--     · let z := t1.realize c; let x := t2.realize c; let y := t3.realize c
+--       have : (z = x ◁ y ↔ ∀ u, u ∈ z ↔ u ∈ x ∨ u = y) ↔ φ.Realize c := by
+--         rw [← h]
+--         unfold HF.Axiom2
+--         simp only [Formula.Realize, Nat.reduceAdd, Fin.isValue, Function.comp_apply, realize_iff,
+--           realize_bdEqual, Term.realize_relabel, Sum.elim_comp_inl, Term.realize_func,
+--           instStructureLangOfHFLang_funMap, Matrix.cons_val_zero, Matrix.cons_val_one,
+--           Matrix.head_cons, realize_all, Nat.succ_eq_add_one, realize_rel,
+--           instStructureLangOfHFLang_RelMap, Term.realize_var, Sum.elim_inr, realize_sup]
+--         rfl
+--       rw [← this]
+--       exact HF.enlarge x y z
+--     · sorry
+
 suppress_compilation
 
+-- variable {S : Type u} [HF.Lang.Structure S] [HF.Model S]
 variable {S : Type u} [HF S]
 
 namespace HF

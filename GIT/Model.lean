@@ -23,12 +23,11 @@ inductive Const : Lang.Term Empty → Prop
 namespace C
 
 def Equiv : Lang.Term (Fin 0 ⊕ Fin 0) → Lang.Term (Fin 0 ⊕ Fin 0) → Prop
-  | σ, τ => ⊢ σ =' τ
+  | σ, τ => ⊢ σ.relabel .inl =' τ.relabel .inl
 
 -- need reflexivity, symmetry, and transitivity
 instance setoid : Setoid (Lang.Term (Fin 0 ⊕ Fin 0)) :=
   ⟨C.Equiv, sorry⟩
-
 end C
 
 def HFSet : Type := Quotient C.setoid
