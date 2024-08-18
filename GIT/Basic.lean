@@ -1,5 +1,5 @@
 import GIT.FirstOrder_reverse
-import GIT.Calculus
+import GIT.Formal
 
 open FirstOrder Language BoundedFormula
 
@@ -30,34 +30,26 @@ S. Swierczkowski. Finite Sets and Gödel’s Incompleteness Theorems. Dissertati
 mathematicae. IM PAN, 2003. URL https://books.google.co.uk/books?id=5BQZAQAAIAAJ.
 -/
 
-local notation "∅'" => HF.Lang.emptySetSymbol
-
-local notation " ◁' " => HF.Lang.enlargementSymbol
-
-local notation t " ∈' " s => HF.Lang.membershipSymbol.boundedFormula ![t, s]
-
-universe u
-
 /-- HF class with only the language symbols and not yet the axioms. -/
-class HFLang (s : Type u) where
+class HFLang (S : Type) where
   /-- Empty set: constant symbol. -/
-  EmptySet : s
+  EmptySet : S
   /-- Enlargement: 2-ary function symbol. -/
-  Enlarging : s → s → s
+  Enlarging : S → S → S
   /-- Membership: 2-ary relation symbol. -/
-  Mem : s → s → Prop
+  Mem : S → S → Prop
 
 /-- Write `∅` instead of `EmptySet`. -/
-instance (s) [HFLang s] : EmptyCollection s := ⟨HFLang.EmptySet⟩
+instance (S) [HFLang S] : EmptyCollection S := ⟨HFLang.EmptySet⟩
 
 /-- Write `∈` instead of `Mem`. -/
-instance (s) [HFLang s] : Membership s s := ⟨HFLang.Mem⟩
+instance (S) [HFLang S] : Membership S S := ⟨HFLang.Mem⟩
 
 /-- Write `◁` instead of `Enlarging`. -/
 infixl:90 " ◁ " => HFLang.Enlarging
 
 @[simps]
-instance (s) [HFLang s] : HF.Lang.Structure s where
+instance (S) [HFLang S] : HF.Lang.Structure S where
   funMap {n} _ h := match n with
   | 0 => ∅
   | 2 => h 0 ◁ h 1
@@ -65,67 +57,70 @@ instance (s) [HFLang s] : HF.Lang.Structure s where
   | 2 => h 0 ∈ h 1
 
 /-- HF class with both the language and the axioms. -/
-class HF (s : Type u) extends HFLang s where
+class HF (S : Type) extends HFLang S where
   /-- Axiom 1 "for the empty set". -/
-  empty (z : s) : z = ∅ ↔ ∀ x, x ∉ z
+  empty (z : S) : z = ∅ ↔ ∀ x, x ∉ z
   /-- Axiom 2 "for enlargement". -/
-  enlarge (x y z : s) : z = x ◁ y ↔ ∀ u, u ∈ z ↔ u ∈ x ∨ u = y
+  enlarge (x y z : S) : z = x ◁ y ↔ ∀ u, u ∈ z ↔ u ∈ x ∨ u = y
   /-- Axiom 3: the induction principle. The additional four goals (next to base and step)
   ensure induction is over all formulae in the first-order language of HF rather than over all
   predicates.  -/
-  induction (α : s → Prop) (base : α ∅) (step : ∀ x y, α x → α y → α (x ◁ y)) (z : s)
-      (n : Nat) (f : Language.BoundedFormula HF.Lang (Fin n) 1) (t : (Fin n) → s)
+  induction (α : S → Prop) (base : α ∅) (step : ∀ x y, α x → α y → α (x ◁ y)) (z : S)
+      (n : Nat) (f : Language.BoundedFormula HF.Lang (Fin n) 1) (t : (Fin n) → S)
       (hP : α z ↔ f.Realize t (fun _ ↦ z)) : α z
 
--- use [HF.Model s] instead of [HF s]
--- and prove instance HF S for instance (s) [HF.Lang.Structure s] [HF.Model s] : HF s
+namespace HF
 
-instance (s) [HF.Lang.Structure s] [HF.Model s] : HF s where
-  EmptySet := sorry
-  Enlarging := sorry
-  Mem := sorry
-  empty := sorry
+namespace Model
+
+instance (S) [HF.Lang.Structure S] : HFLang S where
+  EmptySet := by
+    rename_i inst
+    exact inst.1 (∅') Fin.elim0
+  Enlarging := by
+    rename_i inst
+    intro x y
+    exact inst.1 (◁') ![x, y]
+  Mem := by
+    rename_i inst;
+    intro x y
+    exact inst.2 HF.Lang.membershipSymbol ![x, y]
+
+example (s : Type) [HFLang s] (v : α → s) : (∀ (z : s), (z = ∅ ↔ ∀ x, x ∉ z)) ↔
+    Formula.Realize ((∀' ((&0 =' (.func ∅' Fin.elim0)) ⇔ ∀' ∼(&1 ∈' &0))) :
+    HF.Lang.Formula α) v := by
+  simp only [Formula.Realize, Nat.reduceAdd, Fin.isValue, Function.comp_apply, realize_all,
+    Nat.succ_eq_add_one, realize_iff, realize_bdEqual, Term.realize_var, Sum.elim_inr,
+    Term.realize_func, instStructureLangOfHFLang_funMap, realize_not, realize_rel,
+    instStructureLangOfHFLang_RelMap, Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons]
+  rfl
+
+example (s : Type) [HFLang s] (v : α → s) :
+    (∀ (x y z : s), (z = x ◁ y ↔ ∀ u, u ∈ z ↔ u ∈ x ∨ u = y)) ↔
+    Formula.Realize (∀' (∀' (∀' ((&0 =' (.func ◁' ![&1, &2]))
+    ⇔ (∀' ((&3 ∈' &0) ⇔ ((&3 ∈' &1) ⊔ (&3 =' &2))))))) :
+    HF.Lang.Formula α) v := by
+  simp only [Formula.Realize, Nat.reduceAdd, Fin.isValue, Function.comp_apply, realize_all,
+    Nat.succ_eq_add_one, realize_iff, realize_bdEqual, Term.realize_var, Sum.elim_inr, Fin.snoc,
+    Fin.val_zero, Nat.ofNat_pos, ↓reduceDIte, Fin.castSucc_castLT, Fin.coe_castLT, zero_lt_one,
+    Nat.zero_eq, Fin.coe_fin_one, lt_self_iff_false, cast_eq, Term.realize_func,
+    instStructureLangOfHFLang_funMap, Matrix.cons_val_zero, Fin.val_one, Nat.one_lt_ofNat,
+    Matrix.cons_val_one, Matrix.head_cons, Fin.val_two, realize_rel,
+    instStructureLangOfHFLang_RelMap, show (3 : Fin 4).1 = 3 by rfl, realize_sup, Nat.lt_succ_self]
+  refine ⟨by simp_all, by simp_all⟩
+
+instance (S) [HF.Model S] : HF S where
+  empty := by
+    rename_i inst; rcases inst with ⟨struc, model⟩
+    sorry
   enlarge := sorry
   induction := sorry
 
--- instance (s) [HF s] : HF.Model s where
---   realize_of_mem := by
---     intro α φ h c
---     unfold HF.Theory at h
---     simp only [Set.iUnion_singleton_eq_range, Set.mem_union, Set.mem_range, Set.mem_iUnion] at h
---     rcases h with ⟨⟨t, h⟩ | ⟨t1, ⟨t2, ⟨t3, h⟩⟩⟩⟩ | ⟨ψ, h⟩
---     · let z := t.realize c
---       have : (z = ∅ ↔ ∀ x, x ∉ z) ↔ φ.Realize c := by
---         rw [← h]
---         unfold HF.Axiom1
---         simp only [Formula.Realize, Nat.reduceAdd, Fin.isValue, Function.comp_apply, realize_iff,
---           realize_bdEqual, Term.realize_relabel, Sum.elim_comp_inl, Term.realize_func,
---           instStructureLangOfHFLang_funMap, realize_all, Nat.succ_eq_add_one, realize_not,
---           realize_rel, instStructureLangOfHFLang_RelMap, Matrix.cons_val_zero, Term.realize_var,
---           Sum.elim_inr, Matrix.cons_val_one, Matrix.head_cons]
---         rfl
---       rw [← this]
---       exact HF.empty z
---     · let z := t1.realize c; let x := t2.realize c; let y := t3.realize c
---       have : (z = x ◁ y ↔ ∀ u, u ∈ z ↔ u ∈ x ∨ u = y) ↔ φ.Realize c := by
---         rw [← h]
---         unfold HF.Axiom2
---         simp only [Formula.Realize, Nat.reduceAdd, Fin.isValue, Function.comp_apply, realize_iff,
---           realize_bdEqual, Term.realize_relabel, Sum.elim_comp_inl, Term.realize_func,
---           instStructureLangOfHFLang_funMap, Matrix.cons_val_zero, Matrix.cons_val_one,
---           Matrix.head_cons, realize_all, Nat.succ_eq_add_one, realize_rel,
---           instStructureLangOfHFLang_RelMap, Term.realize_var, Sum.elim_inr, realize_sup]
---         rfl
---       rw [← this]
---       exact HF.enlarge x y z
---     · sorry
+end Model
 
 suppress_compilation
 
--- variable {S : Type u} [HF.Lang.Structure S] [HF.Model S]
-variable {S : Type u} [HF S]
-
-namespace HF
+variable {S : Type} [HF S]
 
 lemma notin_empty (x : S) : x ∉ (∅ : S) := by revert x; rw [← empty ∅]
 

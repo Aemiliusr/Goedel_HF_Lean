@@ -28,17 +28,9 @@ S. Swierczkowski. Finite Sets and Gödel’s Incompleteness Theorems. Dissertati
 mathematicae. IM PAN, 2003. URL https://books.google.co.uk/books?id=5BQZAQAAIAAJ.
 -/
 
-local notation "∅'" => HF.Lang.emptySetSymbol
-
-local notation " ◁' " => HF.Lang.enlargementSymbol
-
-local notation t " ∈' " s => HF.Lang.membershipSymbol.boundedFormula ![t, s]
-
-universe u
-
 suppress_compilation
 
-variable {S : Type u} [HF S]
+variable {S : Type} [HF S]
 
 namespace HF
 
@@ -392,7 +384,7 @@ end IsOrd
 
 variable (S) in
 /-- The ordinal subtype. -/
-def Ord : Type u := {k : S // IsOrd k}
+def Ord : Type := {k : S // IsOrd k}
 
 namespace Ord
 

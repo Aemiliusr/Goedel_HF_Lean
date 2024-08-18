@@ -1,0 +1,164 @@
+\chapter{The First-Order Theory of Hereditarily Finite Sets}
+
+\section{Language and axioms}
+
+The \textit{first-order theory of HF} is determined by the first-order language of HF, 
+the (non-logical) axioms of HF, the logical axioms, and the deduction rules.
+
+\begin{definition}[The language of HF]
+    \label{def:Lang}
+    \lean{HF.Lang}
+    \leanok
+    The \textit{first-order language of HF}, denoted by $\mathcal{L}$, 
+    has an alphabet of \textit{symbols} given by the 
+    logical constants $=$, $\lor$, $\neg$, $\exists$, the variables denoted by 
+    lower case Latin letters, one binary relation symbol $\in$, one binary function symbol $\lhd$, 
+    and one constant symbol $\varnothing$.
+    The connectives $\land$, $\rightarrow$, $\leftrightarrow$, and $\forall$ are considered 
+    abbreviations.
+\end{definition}
+
+It follows that any \textit{term} of $\mathcal{L}$ arises in the following way:
+any variable is a term, any constant symbol is a term, and if $\tau_1, \tau_2$ are terms, then so is
+$\tau_1 \lhd \tau_2$.
+Furthermore, any \textit{$\mathcal{L}$-formula} arises in the following way:
+any atomic formula is an $\mathcal{L}$-formula, and if $\phi, \psi$ are $\mathcal{L}$-formulas, 
+then so are $\neg \phi$, $\phi \lor \psi$, and $\exists x \phi$.
+Again, $\phi \land \psi$, $\phi \rightarrow \psi$, $\phi \leftrightarrow \psi$ and
+$\forall x \phi$ are treated as definitions.
+
+The axioms of HF consist of two axioms and one scheme. 
+Informally, the first axiom defines $\varnothing$ as the
+empty set, the second axiom defines $\lhd$ as the operation of adjoining an element to a set,
+and the axiom scheme describes proofs by induction.
+
+\begin{definition}[The axioms of HF]
+    \label{def:Axioms}
+    \lean{HF.Axiom1, HF.Axiom2, HF.Axiom3}
+    \uses{def:Lang}
+    \leanok
+    The \textit{axioms of HF} are the following $\mathcal{L}$-formulas:
+    \begin{enumerate}
+        \item $z=\varnothing \leftrightarrow \forall x(x \notin z)$.
+        \item $z=x \lhd y \leftrightarrow \forall u(u \in z \leftrightarrow u \in x \lor u=y)$.
+        \item $(\alpha(\varnothing) \land \forall x \forall y[\alpha(x) \land \alpha(y) \rightarrow 
+        \alpha(x \lhd y)]) \rightarrow \forall x \alpha(x)$,
+    \end{enumerate}
+    where $\alpha$ is any $\mathcal{L}$-formula which contains a 
+    distinguished freely occurring variable $z$ such that $x$ and $y$ are substitutable for $z$.
+\end{definition}
+
+\section{Logical calculus}
+
+This section recalls the logical axioms and deduction rules for a first-order theory, 
+as applied to HF. 
+It can be readily shown that the \textit{logical calculus of HF}, as described below, 
+is equivalent to the logical calculus of a first-order theory in \cite{shoenfield1967mathematical} 
+(when applied to HF), in the sense that they produce the same theorems.
+
+The \textit{logical axioms} are the following $\mathcal{L}$-formulas:
+
+\begin{definition}[Sentential (Boolean) axioms]
+    \label{def:Bool.Axioms}
+    \lean{HF.Bool.Axiom1, HF.Bool.Axiom2, HF.Bool.Axiom3, HF.Bool.Axiom4, HF.Bool.Axiom5}
+    \uses{def:Lang}
+    \leanok
+    For any $\mathcal{L}$-formulas $\varphi, \psi, \mu$:
+    $$
+    \begin{aligned}
+    \varphi & \rightarrow \varphi, \\
+    \varphi & \rightarrow \varphi \lor \psi, \\
+    \varphi \lor \varphi & \rightarrow \varphi, \\
+    \varphi \lor(\psi \lor \mu) & \rightarrow(\varphi \lor \psi) \lor \mu, \\
+    (\varphi \lor \psi) \land(\neg \varphi \lor \mu) & \rightarrow \psi \lor \mu .
+    \end{aligned}
+    $$
+\end{definition}
+
+\begin{definition}[Specialisation axiom]
+    \label{def:Spec.Axiom}
+    \lean{HF.Spec.Axiom}
+    \uses{def:Lang}
+    \leanok
+    For any $\mathcal{L}$-formula $\varphi$ and every $x_i$:
+    $$\varphi \rightarrow \exists x_i \varphi.$$
+\end{definition}
+
+\begin{definition}[Equality axioms]
+    \label{def:Equality.Axioms}
+    \lean{HF.Equality.Axiom1, HF.Equality.Axiom2, HF.Equality.Axiom3, HF.Equality.Axiom4}
+    \uses{def:Lang}
+    \leanok
+    $$
+    \begin{aligned}
+        x_1 & = x_1, \\
+        \left(x_1=x_2\right) \land \left(x_3=x_4\right) & 
+        \rightarrow \left[\left(x_1=x_3\right) \rightarrow \left(x_2=x_4\right)\right], \\
+        \left(x_1=x_2\right) \land \left(x_3=x_4\right) & 
+        \rightarrow \left[\left(x_1 \in x_3\right) \rightarrow \left(x_2 \in x_4\right)\right], \\
+        \left(x_1=x_2\right) \land \left(x_3=x_4\right) & 
+        \rightarrow \left[x_1 \lhd x_3 = x_2 \lhd x_4 \right]. 
+    \end{aligned}
+    $$
+\end{definition}
+
+The \textit{deduction rules} are as follows:
+
+\begin{definition}[Deduction rules]
+    \label{def:prf.MP+Subst+ExIntro}
+    \lean{HF.prf.MP}
+    \uses{def:Lang}
+    For any $\mathcal{L}$-formulas $\varphi, \psi$:
+    \begin{description}
+        \item \textit{Modus Ponens}: 
+        From $\varphi$ and $\varphi \rightarrow \psi$, deduce $\psi$.
+        \item \textit{Substitution}:
+        From $\varphi$, deduce $\varphi[x_i/\tau]$ for any term $\tau$ that is substitutable for
+        $x_i$ in $\varphi$.
+        \item \textit{$\exists$-introduction}:
+        From $\varphi \rightarrow \psi$, deduce $\exists x_i \varphi \rightarrow \psi$ provided
+        $x_i$ does not occur freely in $\psi$.
+    \end{description}
+\end{definition}
+
+These descriptions naturally lead to the notion of formal proof.
+
+\begin{definition}[Theorem of HF]
+    \label{prf}
+    \lean{HF.prf}
+    \uses{def:Lang, def:Axioms, def:Bool.Axioms, def:Spec.Axiom, 
+        def:Equality.Axioms, def:prf.MP+Subst+ExIntro}
+    An $\mathcal{L}$-formula is a \textit{theorem of HF}, denoted by $\vdash \phi$, 
+    if there is a finite sequence of $\mathcal{L}$-formulas — each of which is an axiom of HF, 
+    a logical axiom, or is deduced from previous formulas in the sequence by a deduction rule —
+    terminating with $\phi$.
+\end{definition}
+
+\section{Models, soundness and completeness}
+
+\begin{definition}
+    \label{def:models+Model+valid}
+    \lean{HF.models, HF.Model, HF.valid}
+    \uses{def:Lang, def:Axioms}
+    \leanok
+    Suppose $\mathcal{S}$ is an $\mathcal{L}$-structure and $\phi$ is an $\mathcal{L}$-formula.
+    If every valuation in $\mathcal{S}$ satisfies $\phi$, 
+    say $\mathcal{S}$ is a \textit{model} of $\phi$, denoted by $\mathcal{S} \vdash \phi$.
+
+    If $\mathcal{S}$ is a model of every axiom of HF, say $\mathcal{S}$ is a \textit{model of HF}.
+    
+    An $\mathcal{L}$-formula $\phi$ is called \textit{valid in HF} if 
+    every model of HF is a model of $\phi$, denoted by $\vDash \phi$.
+\end{definition}
+
+The following result holds for any first-order theory; for a proof, the reader is referred to 
+\cite{shoenfield1967mathematical}.
+
+\begin{theorem}[Soundness and completeness]
+    \label{thm:completeness}
+    \lean{HF.completeness}
+    \uses{def:Lang, def:models+Model+valid}
+    \leanok
+    Suppose $\phi$ is an $\mathcal{L}$-formula.
+    Then $\vdash \phi$ if and only if $\vDash \phi$.
+\end{theorem}

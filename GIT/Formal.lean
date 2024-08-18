@@ -2,7 +2,7 @@ import Mathlib.Tactic
 import Mathlib.ModelTheory.Syntax
 import Mathlib.ModelTheory.Semantics
 
-open FirstOrder Language BoundedFormula
+open FirstOrder Language
 
 /-!
 # The language and logical calculus of the theory of hereditarily finite sets
@@ -45,22 +45,21 @@ def Lang : Language.{0, 0} where
 /-- Empty set: constant symbol. -/
 abbrev Lang.emptySetSymbol : Lang.Functions 0 := PUnit.unit
 
-local notation "∅'" => Lang.emptySetSymbol
+notation "∅'" => Lang.emptySetSymbol
 
 /-- Enlargement: 2-ary function symbol. -/
 abbrev Lang.enlargementSymbol : Lang.Functions 2 := PUnit.unit
 
-local notation " ◁' " => Lang.enlargementSymbol
+notation " ◁' " => Lang.enlargementSymbol
 
 /-- Membership: 2-ary relation symbol. -/
 abbrev Lang.membershipSymbol : Lang.Relations 2 := PUnit.unit
 
-local notation t " ∈' " s => Lang.membershipSymbol.boundedFormula ![t, s]
+notation t " ∈' " s => Lang.membershipSymbol.boundedFormula ![t, s]
 
 /-- HF1: z = ∅ ↔ ∀ x, ¬(x ∈ z) -/
 def Axiom1 (t : Lang.Term α) : Lang.Formula α :=
   (t.relabel .inl =' (.func ∅' Fin.elim0)) ⇔ ∀' ∼(&0 ∈' t.relabel .inl)
-
 
 /-- HF2: z = x ◁ y ↔ ∀ u, u ∈ z ↔ u ∈ x ∨ u = y -/
 def Axiom2 (t1 t2 t3 : Lang.Term α) : Lang.Formula α :=
@@ -148,18 +147,6 @@ def Theory :  Set (Lang.Formula α) :=
 
 end Equality
 
--- inductive Theorem : Lang.Theory → Lang.Sentence → Prop
--- | Hyp : φ ∈ T → Theorem T φ
--- | Ax : φ ∈ Theory → Theorem T φ
--- | Bool : φ ∈ Bool.Theory → Theorem T φ
--- | Spec : φ ∈ Spec.Theory → Theorem T φ
--- | Eq : φ ∈ Equality.Theory → Theorem T φ
--- | MP (ψ) : Theorem T (ψ ⟹ φ) → Theorem T ψ → Theorem T φ
--- | Subst (φ : Lang.BoundedFormula Empty 1) (t : Lang.Term (Empty ⊕ Fin 0)) :
---     Theorem T (∀' φ) → Theorem T (sorry) -- not sure how to do this (and if type of t is correct)
--- | Exists (φ : Lang.BoundedFormula Empty 2) (ψ : Lang.BoundedFormula Empty 1) :
---     Theorem T (∀' ∀' (φ ⟹ ψ)) → sorry → Theorem T (∀' (∃' φ) ⟹ ψ)
-
 -- missing substitution and ∃-intro deduction rules
 inductive prf : Set (Lang.Formula (α)) → Lang.Formula α → Prop
 | Hyp : φ ∈ T → prf T φ
@@ -168,6 +155,7 @@ inductive prf : Set (Lang.Formula (α)) → Lang.Formula α → Prop
 | Spec : φ ∈ Spec.Theory → prf T φ
 | Eq : φ ∈ Equality.Theory → prf T φ
 | MP (ψ : Lang.Formula α) (h1 : prf T (ψ ⟹ φ)) (h2 : prf T ψ) : prf T φ
+| Deduc (ψ : Lang.Formula α) (h : prf (T ∪ {ψ}) φ) : prf T (ψ ⟹ φ)
 -- Substition: from φ deduce φ (x/t) for any term t that is substitutable for x in φ
 -- ∃-introduction: from φ → ψ deduce ∃ x φ → ψ provided x is not free in ψ
 
@@ -186,30 +174,33 @@ example (t : Lang.Term Empty) : ⊢ Bool.Axiom1 (Axiom1 t) := by
 example (t : Lang.Term (Empty ⊕ Fin 0)) : ⊢ t.relabel .inl =' t.relabel .inl := by
   apply prf.Eq
   simp [Equality.Theory]
-  apply Or.inl
-  apply Or.inl
-  apply Or.inl
-  apply Exists.intro
-  · apply Eq.refl
+  left; left; left
+  use t
+  rfl
 
-abbrev models (s) [Lang.Structure s] (φ : Lang.Formula α) : Prop := ∀ (c : α → s), φ.Realize c
+abbrev models (S : Type) [Lang.Structure S] (φ : Lang.Formula α) : Prop :=
+  ∀ (v : α → S), φ.Realize v
 
 infixl:51 " ⊧ " => models
 
-class Model (s) [Lang.Structure s] : Prop where
-  realize_of_mem : ∀ (φ : Lang.Formula α), φ ∈ Theory → s ⊧ φ
+lemma models_iff_realize_of_sentence (S : Type) [Lang.Structure S] (φ : Lang.Sentence) :
+    S ⊧ φ ↔ S ⊨ φ := by
+  refine ⟨fun a ↦ a default, ?_⟩
+  intros h v
+  rwa [(Pi.uniqueOfIsEmpty fun _ ↦ S).uniq v]
 
-theorem soundness (φ : Lang.Formula α) :
-  ⊢ φ → (∀ (s : Type u) [Lang.Structure s] [Model s], s ⊧ φ) := by
-  sorry
+class Model (S : Type) where
+  struc : Lang.Structure S
+  realize_of_mem : ∀ (φ : Lang.Formula α), φ ∈ Theory → S ⊧ φ
+
+instance (S : Type) [Model S] : Lang.Structure S := Model.struc
+
+abbrev valid (φ : Lang.Formula α) : Prop := ∀ (S : Type) [Model.{0} S], S ⊧ φ
+
+prefix:51 " ⊧ " => valid
 
 theorem completeness (φ : Lang.Formula α) :
-  (∀ (s : Type u) [Lang.Structure s] [Model s], s ⊧ φ) ↔ ⊢ φ := by
-  sorry
-
-example (t : Lang.Term α) : ⊢ ∼(t.relabel .inl ∈' t.relabel .inl) := by
-  -- apply completeness, but gives weird error about universes
-  -- have inst : HF s := inferInstance (to use results from Basic)
+  ⊢ φ ↔ ⊧ φ := by
   sorry
 
 end HF
