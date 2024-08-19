@@ -1,0 +1,49 @@
+\chapter{The Standard Model of HF}
+
+Text.
+
+\section{Constant terms}
+
+\begin{definition}[Constant term]
+    \lean{HF.C}
+    \label{def:C}
+    \uses{def:Lang}
+    The class of \textit{constant terms}, denoted by $\mathbb{C}$, is the class of terms which
+    contain no variables, i.e. $\mathbb{C}$ is the smallest class of terms such that 
+    $\varnothing \in \mathbb{C}$ and 
+    $\sigma \lhd \tau \in \mathbb{C}$ for any $\sigma, \tau \in \mathbb{C}$.
+
+    For any $\tau \in \mathbb{C}$, the number of appearances of $\lhd$ in $\tau$ is called the
+    \textit{length} of $\tau$, denoted by $l(\tau)$.
+\end{definition}
+
+\section{The model}
+
+\begin{definition}[The standard model of HF]
+    \label{def:stdModel}
+    \lean{HF.stdModel}
+    \uses{def:Lang, def:C}
+    \leanok
+    Introduce the equivalence relation $\equiv$ on $\mathbb{C}$ given by
+    $$
+    \sigma \equiv \tau \leftrightarrow \,\vdash \sigma = \tau.
+    $$
+    Then the $\mathcal{L}-$structure 
+    $\mathfrak{S} = \langle\mathbb{S}, \varnothing, \in, \lhd \rangle$ is defined by the following:
+    \begin{enumerate}
+        \item $\mathbb{S} = \mathbb{C}/{\equiv}$.
+        \item The abbreviation $\varnothing$ for $[\varnothing]$.
+        \item The binary relation $\in$ on $\mathbb{S}$ defined by
+                $$[\sigma] \in [\tau] \leftrightarrow \,\vdash \sigma \in \tau.$$
+        \item The binary operation $\lhd$ on $\mathbb{S}$ defined by
+                $$[\sigma] \lhd [\tau] = [\sigma \lhd \tau].$$
+    \end{enumerate}
+\end{definition}
+
+\begin{theorem}
+    \label{stdModel.model_of_consistent}
+    \lean{HF.stdModel.model_of_consistent}
+    \uses{def:Lang, def:Axioms, def:stdModel}
+    \leanok
+    If HF is consistent, i.e. $\not\vdash\bot$, then $\mathfrak{S}$ is a model of HF.
+\end{theorem}

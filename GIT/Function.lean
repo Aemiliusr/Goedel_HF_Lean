@@ -1,6 +1,6 @@
 import GIT.Ordinal
 
-open FirstOrder Language BoundedFormula Classical
+open FirstOrder Language BoundedFormula Classical HF
 
 /-!
 # Appendix 3: P-functions
@@ -27,9 +27,9 @@ mathematicae. IM PAN, 2003. URL https://books.google.co.uk/books?id=5BQZAQAAIAAJ
 
 suppress_compilation
 
-variable {S : Type} [HF S]
+variable {S : Type} [Lang.Structure S] [HFSet S]
 
-namespace HF
+namespace HFSet
 
 /-- The set is a function, i.e. each element of the set is an ordered pair and it assigns exactly
 one output to each input. Here 'input' and 'output' correspond to the first and second argument of
@@ -155,4 +155,4 @@ lemma pFuncTernary_iff (x x' x'' y : S) (φ : S → S → S → S → Prop)
   rw [eq_comm]
   exact (h.choose_spec).2 y
 
-end HF
+end HFSet

@@ -17,25 +17,22 @@ namespace Equiv
 
 lemma refl (σ : C) : Equiv σ σ := by
   unfold Equiv; simp only
-  apply prf.Eq
-  simp only [Equality.Theory, Set.iUnion_singleton_eq_range, Set.mem_union, Set.mem_range,
-    Set.mem_iUnion]
-  left; left; left
-  use σ
-  rfl
+  rw [completeness]
+  intros s inst1 v
+  simp_all [Formula.Realize]
 
 lemma symm (σ τ : C) : Equiv σ τ → Equiv τ σ := by
   unfold Equiv; simp only
   intro h
   rw [completeness] at *
-  intros s inst1 c; specialize h s c
+  intros s inst1 v; specialize h s v
   simp_all [Formula.Realize]
 
 lemma trans (σ τ ν : C) : Equiv σ τ → Equiv τ ν → Equiv σ ν := by
   unfold Equiv; simp only
   intros h1 h2
   rw [completeness] at *
-  intros s inst1 c; specialize h1 s c; specialize h2 s c
+  intros s inst1 v; specialize h1 s v; specialize h2 s v
   simp_all [Formula.Realize]
 
 end Equiv
@@ -46,42 +43,38 @@ instance setoid : Setoid C :=
 
 end C
 
-def term_model : Type := Quotient C.setoid
+def stdModel : Type := Quotient C.setoid
 
-namespace term_model
+namespace stdModel
 
-instance : Lang.Structure term_model where
+instance : Lang.Structure stdModel where
   funMap {n} _ h := match n with
   | 0 => Quotient.mk C.setoid (.func ∅' Fin.elim0)
   | 2 => Quotient.mk C.setoid (.func ◁' ![(h 0).out, (h 1).out])
   RelMap {n} _ h := match n with
   | 2 => ⊢ (((h 0).out).relabel .inl) ∈' (((h 1).out).relabel .inl)
 
-lemma ax1_aux (cons : ¬(⊢ (⊥ : Lang.Formula α))) (t : Lang.Term α') :
-    term_model ⊧ Axiom1 t := by sorry
+lemma ax1_aux (cons : ¬(⊢ (⊥ : Lang.Formula α))) : models (α := α) stdModel Axiom1 := by sorry
 
-lemma ax2_aux (t1 t2 t3 : Lang.Term α) : term_model ⊧ Axiom2 t1 t2 t3 := by sorry
+lemma ax2_aux : models (α := α) stdModel Axiom2 := by sorry
 
-lemma ax3_aux (ψ : Lang.BoundedFormula α 1) : term_model ⊧ Axiom3 ψ := by sorry
+lemma ax3_aux (ψ : Lang.BoundedFormula α 1) : stdModel ⊧ Axiom3 ψ := by sorry
 
-instance (cons : ¬(⊢ (⊥ : Lang.Formula α))) : Model term_model where
+instance model_of_consistent (cons : ∀ α, ¬(⊢ (⊥ : Lang.Formula α))) : Model stdModel where
   struc := inferInstance
   realize_of_mem := by
     intros α φ ax
     rcases ax with ⟨ax1 | ax2⟩ | ax3
-    · simp only [Set.iUnion_singleton_eq_range, Set.mem_range] at ax1
-      rcases ax1 with ⟨t, ax1⟩
-      rw [← ax1]
-      exact ax1_aux cons t
-    · simp only [Set.iUnion_singleton_eq_range, Set.mem_iUnion, Set.mem_range] at ax2
-      rcases ax2 with ⟨t1, ⟨t2, ⟨t3, ax2⟩⟩⟩
-      rw [← ax2]
-      exact ax2_aux t1 t2 t3
+    · rw [ax1]
+      apply ax1_aux
+      exact cons α
+    · rw [ax2]
+      exact ax2_aux
     · simp only [Set.iUnion_singleton_eq_range, Set.mem_range] at ax3
       rcases ax3 with ⟨ψ, ax3⟩
       rw [← ax3]
       exact ax3_aux ψ
 
-end term_model
+end stdModel
 
 end HF

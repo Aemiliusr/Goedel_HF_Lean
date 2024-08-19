@@ -105,7 +105,7 @@ The \textit{logical axioms} are the following $\mathcal{L}$-formulas:
 The \textit{deduction rules} are as follows:
 
 \begin{definition}[Deduction rules]
-    \label{def:prf.MP+Subst+ExIntro}
+    \label{def:prf.MP+prf.Subst+prf.ExIntro}
     \lean{HF.prf.MP}
     \uses{def:Lang}
     For any $\mathcal{L}$-formulas $\varphi, \psi$:
@@ -124,10 +124,10 @@ The \textit{deduction rules} are as follows:
 These descriptions naturally lead to the notion of formal proof.
 
 \begin{definition}[Theorem of HF]
-    \label{prf}
+    \label{def:prf}
     \lean{HF.prf}
     \uses{def:Lang, def:Axioms, def:Bool.Axioms, def:Spec.Axiom, 
-        def:Equality.Axioms, def:prf.MP+Subst+ExIntro}
+        def:Equality.Axioms, def:prf.MP+prf.Subst+prf.ExIntro}
     An $\mathcal{L}$-formula is a \textit{theorem of HF}, denoted by $\vdash \phi$, 
     if there is a finite sequence of $\mathcal{L}$-formulas — each of which is an axiom of HF, 
     a logical axiom, or is deduced from previous formulas in the sequence by a deduction rule —
@@ -143,7 +143,7 @@ These descriptions naturally lead to the notion of formal proof.
     \leanok
     Suppose $\mathcal{S}$ is an $\mathcal{L}$-structure and $\phi$ is an $\mathcal{L}$-formula.
     If every valuation in $\mathcal{S}$ satisfies $\phi$, 
-    say $\mathcal{S}$ is a \textit{model} of $\phi$, denoted by $\mathcal{S} \vdash \phi$.
+    say $\mathcal{S}$ is a \textit{model} of $\phi$, denoted by $\mathcal{S} \vDash \phi$.
 
     If $\mathcal{S}$ is a model of every axiom of HF, say $\mathcal{S}$ is a \textit{model of HF}.
     
@@ -157,7 +157,7 @@ The following result holds for any first-order theory; for a proof, the reader i
 \begin{theorem}[Soundness and completeness]
     \label{thm:completeness}
     \lean{HF.completeness}
-    \uses{def:Lang, def:models+Model+valid}
+    \uses{def:Lang, def:prf, def:models+Model+valid}
     \leanok
     Suppose $\phi$ is an $\mathcal{L}$-formula.
     Then $\vdash \phi$ if and only if $\vDash \phi$.

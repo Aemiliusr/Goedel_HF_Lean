@@ -1,7 +1,7 @@
 import GIT.FirstOrder_reverse
 import GIT.Formal
 
-open FirstOrder Language BoundedFormula
+open FirstOrder Language BoundedFormula HF
 
 /-!
 # Appendix 1: Axioms and basic results of hereditarily finite set theory
@@ -30,34 +30,51 @@ S. Swierczkowski. Finite Sets and Gödel’s Incompleteness Theorems. Dissertati
 mathematicae. IM PAN, 2003. URL https://books.google.co.uk/books?id=5BQZAQAAIAAJ.
 -/
 
-/-- HF class with only the language symbols and not yet the axioms. -/
-class HFLang (S : Type) where
-  /-- Empty set: constant symbol. -/
-  EmptySet : S
-  /-- Enlargement: 2-ary function symbol. -/
-  Enlarging : S → S → S
-  /-- Membership: 2-ary relation symbol. -/
-  Mem : S → S → Prop
-
 /-- Write `∅` instead of `EmptySet`. -/
-instance (S) [HFLang S] : EmptyCollection S := ⟨HFLang.EmptySet⟩
+instance (S : Type) [Lang.Structure S] : EmptyCollection S :=
+  ⟨(by
+  rename_i inst
+  exact inst.1 (∅') Fin.elim0)⟩
 
 /-- Write `∈` instead of `Mem`. -/
-instance (S) [HFLang S] : Membership S S := ⟨HFLang.Mem⟩
+instance (S : Type) [Lang.Structure S] : Membership S S := ⟨(by
+    rename_i inst;
+    intro x y
+    exact inst.2 HF.Lang.membershipSymbol ![x, y])⟩
 
-/-- Write `◁` instead of `Enlarging`. -/
-infixl:90 " ◁ " => HFLang.Enlarging
+abbrev enlarging {S : Type} [Lang.Structure S] (x y : S) : S := (by
+  rename_i inst
+  exact inst.1 (◁') ![x, y])
 
-@[simps]
-instance (S) [HFLang S] : HF.Lang.Structure S where
-  funMap {n} _ h := match n with
-  | 0 => ∅
-  | 2 => h 0 ◁ h 1
-  RelMap {n} _ h := match n with
-  | 2 => h 0 ∈ h 1
+/-- Write `◁` instead of `enlarging`. -/
+infixl:90 " ◁ " => enlarging
 
-/-- HF class with both the language and the axioms. -/
-class HF (S : Type) extends HFLang S where
+@[simp]
+lemma empty_fun (S : Type) (inst : Lang.Structure S) :
+    ∀ (f : Fin 0 → S), inst.funMap (∅') f = ∅ := by
+  intro f
+  have : f = Fin.elim0 := by ext i; fin_cases i
+  rw [this]
+  rfl
+
+@[simp]
+lemma enlarge_fun (S : Type) (inst : Lang.Structure S) :
+    ∀ (f : Fin 2 → S), inst.funMap (◁') f = (f 0 ◁ f 1) := by
+  intro f
+  have : f = ![f 0, f 1] := by ext i; fin_cases i <;> simp
+  rw [this]
+  rfl
+
+@[simp]
+lemma mem_rel (S : Type) (inst : Lang.Structure S) :
+    ∀ (f : Fin 2 → S), inst.RelMap HF.Lang.membershipSymbol f = (f 0 ∈ f 1) := by
+  intro f
+  have : f = ![f 0, f 1] := by ext i; fin_cases i <;> simp
+  rw [this]
+  rfl
+
+/-- HFSet class with the axioms of HF. -/
+class HFSet (S : Type) [Lang.Structure S] where
   /-- Axiom 1 "for the empty set". -/
   empty (z : S) : z = ∅ ↔ ∀ x, x ∉ z
   /-- Axiom 2 "for enlargement". -/
@@ -65,64 +82,92 @@ class HF (S : Type) extends HFLang S where
   /-- Axiom 3: the induction principle. The additional four goals (next to base and step)
   ensure induction is over all formulae in the first-order language of HF rather than over all
   predicates.  -/
-  induction (α : S → Prop) (base : α ∅) (step : ∀ x y, α x → α y → α (x ◁ y)) (z : S)
+  induction (α : S → Prop) (base : α ∅) (step : ∀ x y, α x → α y → α (x ◁ y))
       (n : Nat) (f : Language.BoundedFormula HF.Lang (Fin n) 1) (t : (Fin n) → S)
-      (hP : α z ↔ f.Realize t (fun _ ↦ z)) : α z
+      (hP : ∀ z, α z ↔ f.Realize t (fun _ ↦ z)) (z : S) : α z
 
-namespace HF
+namespace HFSet
 
 namespace Model
 
-instance (S) [HF.Lang.Structure S] : HFLang S where
-  EmptySet := by
-    rename_i inst
-    exact inst.1 (∅') Fin.elim0
-  Enlarging := by
-    rename_i inst
-    intro x y
-    exact inst.1 (◁') ![x, y]
-  Mem := by
-    rename_i inst;
-    intro x y
-    exact inst.2 HF.Lang.membershipSymbol ![x, y]
-
-example (s : Type) [HFLang s] (v : α → s) : (∀ (z : s), (z = ∅ ↔ ∀ x, x ∉ z)) ↔
-    Formula.Realize ((∀' ((&0 =' (.func ∅' Fin.elim0)) ⇔ ∀' ∼(&1 ∈' &0))) :
-    HF.Lang.Formula α) v := by
+lemma empty_aux (s : Type) [Lang.Structure s] (v : α → s) : (∀ (z : s), (z = ∅ ↔ ∀ x, x ∉ z)) ↔
+    Formula.Realize Axiom1 v := by
+  unfold Axiom1
   simp only [Formula.Realize, Nat.reduceAdd, Fin.isValue, Function.comp_apply, realize_all,
     Nat.succ_eq_add_one, realize_iff, realize_bdEqual, Term.realize_var, Sum.elim_inr,
-    Term.realize_func, instStructureLangOfHFLang_funMap, realize_not, realize_rel,
-    instStructureLangOfHFLang_RelMap, Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons]
+    Term.realize_func, empty_fun, realize_not, realize_rel, mem_rel, Matrix.cons_val_zero,
+    Matrix.cons_val_one, Matrix.head_cons]
   rfl
 
-example (s : Type) [HFLang s] (v : α → s) :
+lemma enlarge_aux (s : Type) [Lang.Structure s] (v : α → s) :
     (∀ (x y z : s), (z = x ◁ y ↔ ∀ u, u ∈ z ↔ u ∈ x ∨ u = y)) ↔
-    Formula.Realize (∀' (∀' (∀' ((&0 =' (.func ◁' ![&1, &2]))
-    ⇔ (∀' ((&3 ∈' &0) ⇔ ((&3 ∈' &1) ⊔ (&3 =' &2))))))) :
-    HF.Lang.Formula α) v := by
-  simp only [Formula.Realize, Nat.reduceAdd, Fin.isValue, Function.comp_apply, realize_all,
-    Nat.succ_eq_add_one, realize_iff, realize_bdEqual, Term.realize_var, Sum.elim_inr, Fin.snoc,
-    Fin.val_zero, Nat.ofNat_pos, ↓reduceDIte, Fin.castSucc_castLT, Fin.coe_castLT, zero_lt_one,
-    Nat.zero_eq, Fin.coe_fin_one, lt_self_iff_false, cast_eq, Term.realize_func,
-    instStructureLangOfHFLang_funMap, Matrix.cons_val_zero, Fin.val_one, Nat.one_lt_ofNat,
-    Matrix.cons_val_one, Matrix.head_cons, Fin.val_two, realize_rel,
-    instStructureLangOfHFLang_RelMap, show (3 : Fin 4).1 = 3 by rfl, realize_sup, Nat.lt_succ_self]
+    Formula.Realize Axiom2 v := by
+  unfold Axiom2
+  simp only [enlarge_fun, Fin.isValue, Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons,
+    Formula.Realize, Nat.reduceAdd, Function.comp_apply, realize_all, Nat.succ_eq_add_one,
+    realize_iff, realize_bdEqual, Term.realize_var, Sum.elim_inr, Fin.snoc, Fin.val_zero,
+    Nat.ofNat_pos, ↓reduceDIte, Fin.castSucc_castLT, Fin.coe_castLT, zero_lt_one, Nat.zero_eq,
+    Fin.coe_fin_one, lt_self_iff_false, cast_eq, Term.realize_func, Fin.val_one, Nat.one_lt_ofNat,
+    Fin.val_two, realize_rel, mem_rel, show (3 : Fin 4).1 = 3 by rfl, realize_sup, Nat.lt_succ_self]
   refine ⟨by simp_all, by simp_all⟩
 
-instance (S) [HF.Model S] : HF S where
-  empty := by
-    rename_i inst; rcases inst with ⟨struc, model⟩
-    sorry
-  enlarge := sorry
-  induction := sorry
+lemma induction_aux (S : Type) [Lang.Structure S] (v : α → S) (φ : Lang.BoundedFormula α 1 )
+    (f : S → Prop) (hP : ∀ z, (f z ↔ φ.Realize v (fun _ ↦ z))) :
+    ((f ∅) → (∀ x y, f x → f y → f (x ◁ y)) → (∀ x, f x))
+    ↔
+    Formula.Realize (Axiom3 φ) v := by
+unfold Axiom3
+simp only [hP, enlarge_fun, Fin.isValue, Matrix.cons_val_zero, Matrix.cons_val_one,
+  Matrix.head_cons, Formula.Realize, Nat.reduceAdd, Function.comp_apply, realize_imp, realize_inf,
+  realize_all, Nat.succ_eq_add_one, realize_bdEqual, Term.realize_var, Sum.elim_inr, Fin.snoc,
+  Fin.coe_fin_one, lt_self_iff_false, ↓reduceDIte, cast_eq, Term.realize_func, empty_fun, forall_eq,
+  le_refl, realize_liftAt, zero_lt_one, ↓reduceIte, zero_add, Nat.one_le_ofNat, Fin.addNat_one,
+  Fin.val_two, Fin.val_zero, Nat.ofNat_pos, Fin.castSucc_castLT, Fin.coe_castLT, Nat.zero_eq,
+  Fin.val_one, Nat.one_lt_ofNat, and_imp]
+constructor <;> intros h1 h2 h3 z <;> specialize h1 h2 <;> apply h1 <;> intros x y hx hy
+  <;> specialize h3 x y <;> exact h3 (by simp only [Fin.isValue, Matrix.cons_val_zero,
+    Matrix.cons_val_one, Matrix.head_cons, enlarge_fun, Fin.castAdd, Fin.castLE, Nat.reduceAdd,
+    Fin.coe_fin_one, Fin.zero_eta] at *; exact hx) (hy)
+
+lemma empty (S) [Model S] : ∀ (z : S), z = ∅ ↔ ∀ (x : S), x ∉ z := by
+  rename_i inst; rcases inst with ⟨struc, model⟩
+  specialize model (α := Fin 0) Axiom1
+  simp only [HF.Theory, Set.iUnion_singleton_eq_range, Set.mem_union, Set.mem_insert_iff,
+    Set.mem_singleton_iff, true_or, Set.mem_range, Fin.forall_fin_zero_pi, true_implies] at model
+  rwa [empty_aux S Fin.elim0]
+
+lemma enlarge (S) [Model S] : ∀ (x y z : S), z = x ◁ y ↔ ∀ (u : S), u ∈ z ↔ u ∈ x ∨ u = y := by
+  rename_i inst; rcases inst with ⟨struc, model⟩
+  specialize model (α := Fin 0) Axiom2
+  simp only [HF.Theory, Set.iUnion_singleton_eq_range, Set.mem_union, Set.mem_insert_iff,
+    Set.mem_singleton_iff, or_true, Set.mem_range,
+    true_or, Fin.forall_fin_zero_pi, true_implies] at model
+  rwa [enlarge_aux S Fin.elim0]
+
+lemma induction (S) [Model S] : ∀ (α : S → Prop), α ∅ → (∀ (x y : S), α x → α y → α (x ◁ y)) →
+    ∀ (n : ℕ) (f : Lang.BoundedFormula (Fin n) 1) (t : Fin n → S),
+    (∀ (z : S), α z ↔ f.Realize t fun _ ↦ z) → ∀ (z : S), α z := by
+  intros f h1 h2 n φ v hP
+  revert h2 h1
+  rw [induction_aux S v φ f hP]
+  rename_i inst; rcases inst with ⟨struc, model⟩
+  specialize model (Axiom3 φ)
+  simp only [HF.Theory, Set.iUnion_singleton_eq_range, Set.mem_union, Set.mem_insert_iff,
+    Set.mem_singleton_iff, Set.mem_range, exists_apply_eq_apply, or_true, true_implies] at model
+  apply model v
+
+instance (S) [Model S] : HFSet S where
+  empty := empty S
+  enlarge := enlarge S
+  induction := induction S
 
 end Model
 
 suppress_compilation
 
-variable {S : Type} [HF S]
+variable {S : Type} [Lang.Structure S] [HFSet S]
 
-lemma notin_empty (x : S) : x ∉ (∅ : S) := by revert x; rw [← empty ∅]
+lemma notin_empty (x : S) : x ∉ (∅ : S) := by revert x; rw [← empty  ∅]
 
 @[simp] lemma in_empty_iff_false (x : S) : x ∈ (∅ : S) ↔ False := by
   refine ⟨by exact notin_empty x, by simp⟩
@@ -154,7 +199,7 @@ theorem exten_prop (z : S) (x : S) : x = z ↔ ∀ u, u ∈ x ↔ u ∈ z := by
   | hP =>
     simp only [Fin.isValue, Function.comp_apply, Nat.reduceAdd, realize_iff, realize_bdEqual,
       Term.realize_var, Sum.elim_inr, Sum.elim_inl, realize_all, Nat.succ_eq_add_one, realize_rel,
-      instStructureLangOfHFLang_RelMap, Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons]
+      mem_rel, Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons]
     rfl
 
 instance insert : Insert S S := ⟨fun y x => x ◁ y⟩
@@ -227,10 +272,9 @@ theorem exists_union (x y : S) : ∃(z : S), ∀(u : S), (u ∈ z ↔ (u ∈ x �
   | f => exact ∃' ∀' ((&2 ∈' &1) ⇔ ((&2 ∈' &0) ⊔ (&2 ∈' .var (.inl 0))))
   | t => exact y
   | hP =>
-    simp only [Nat.reduceAdd, Fin.isValue, Function.comp_apply, realize_ex,
-    Nat.succ_eq_add_one, realize_all, realize_iff, realize_rel, instStructureLangOfHFLang_RelMap,
-    Matrix.cons_val_zero, Term.realize_var, Sum.elim_inr, Matrix.cons_val_one, Matrix.head_cons,
-    realize_sup, Sum.elim_inl]
+    simp only [Nat.reduceAdd, Fin.isValue, Function.comp_apply, realize_ex, Nat.succ_eq_add_one,
+      realize_all, realize_iff, realize_rel, mem_rel, Matrix.cons_val_zero, Term.realize_var,
+      Sum.elim_inr, Matrix.cons_val_one, Matrix.head_cons, realize_sup, Sum.elim_inl]
     rfl
 
 /-- x ∪ y. Defined through z ∈ x ∪ y ↔ (z ∈ x ∨ z ∈ y). -/
@@ -255,8 +299,8 @@ theorem exists_sUnion (x : S) : ∃(z : S), ∀(u : S), (u ∈ z ↔ (∃ y ∈ 
   | t => rename_i a; exact Fin.elim0 a
   | hP =>
     simp only [Nat.reduceAdd, Fin.isValue, Function.comp_apply, realize_ex, Nat.succ_eq_add_one,
-      realize_all, realize_iff, realize_rel, instStructureLangOfHFLang_RelMap, Matrix.cons_val_zero,
-      Term.realize_var, Sum.elim_inr, Matrix.cons_val_one, Matrix.head_cons, realize_inf]
+      realize_all, realize_iff, realize_rel, mem_rel, Matrix.cons_val_zero, Term.realize_var,
+      Sum.elim_inr, Matrix.cons_val_one, Matrix.head_cons, realize_inf]
     rfl
 
 /-- ⋃ x. Defined through z ∈ ⋃ x ↔ (∃ y ∈ x, z ∈ y). -/
@@ -284,8 +328,8 @@ theorem comp_scheme (x : S) (φ : S → Prop) {n} (f : BoundedFormula HF.Lang (F
   | t => rename_i a; exact c a
   | hP =>
     simp only [Nat.reduceAdd, Fin.isValue, Function.comp_apply, realize_ex, Nat.succ_eq_add_one,
-      realize_all, realize_iff, realize_rel, instStructureLangOfHFLang_RelMap, Matrix.cons_val_zero,
-      Term.realize_var, Sum.elim_inr, Matrix.cons_val_one, Matrix.head_cons, realize_inf]
+      realize_all, realize_iff, realize_rel, mem_rel, Matrix.cons_val_zero, Term.realize_var,
+      Sum.elim_inr, Matrix.cons_val_one, Matrix.head_cons, realize_inf]
     convert Iff.rfl
     rw [realize_liftAt (by norm_num), hφ]
     convert Iff.rfl
@@ -364,9 +408,9 @@ theorem repl_scheme (x : S) {n} (ψ : S → S → Prop)
   | t => rename_i a; exact c a
   | hP =>
     simp only [Nat.reduceAdd, Fin.isValue, Function.comp_apply, realize_imp, realize_all,
-      Nat.succ_eq_add_one, realize_rel, instStructureLangOfHFLang_RelMap, Matrix.cons_val_zero,
-      Term.realize_var, Sum.elim_inr, Matrix.cons_val_one, Matrix.head_cons, realize_ex,
-      realize_inf, realize_bdEqual, realize_iff]
+      Nat.succ_eq_add_one, realize_rel, mem_rel, Matrix.cons_val_zero, Term.realize_var,
+      Sum.elim_inr, Matrix.cons_val_one, Matrix.head_cons, realize_ex, realize_inf, realize_bdEqual,
+      realize_iff]
     convert Iff.rfl
     · rw [realize_liftAt (by norm_num), hψ]
       convert Iff.rfl using 1
@@ -452,9 +496,8 @@ theorem exists_powerset (x : S) : ∃ (z : S), ∀ (u : S), u ∈ z ↔ u ⊆ x 
   | t => rename_i a; exact Fin.elim0 a
   | hP =>
     simp only [subset_def, Nat.reduceAdd, Fin.isValue, Function.comp_apply, realize_ex,
-      Nat.succ_eq_add_one, realize_all, realize_iff, realize_rel, instStructureLangOfHFLang_RelMap,
-      Matrix.cons_val_zero, Term.realize_var, Sum.elim_inr, Matrix.cons_val_one, Matrix.head_cons,
-      realize_imp]
+      Nat.succ_eq_add_one, realize_all, realize_iff, realize_rel, mem_rel, Matrix.cons_val_zero,
+      Term.realize_var, Sum.elim_inr, Matrix.cons_val_one, Matrix.head_cons, realize_imp]
     rfl
 
 /-- Power set. Defined through u ∈ powerset x ↔ u ⊆ x. -/
@@ -487,9 +530,9 @@ lemma found_prop_aux (x z : S) (h : ∀ w ∈ z, w ∩ z ≠ ∅) : x ∉ z ∧ 
   | t => exact z
   | hP =>
     simp only [exists_prop, Nat.reduceAdd, Fin.isValue, Function.comp_apply, realize_imp,
-      realize_all, Nat.succ_eq_add_one, realize_rel, instStructureLangOfHFLang_RelMap,
-      Matrix.cons_val_zero, Term.realize_var, Sum.elim_inr, Matrix.cons_val_one, Matrix.head_cons,
-      Sum.elim_inl, realize_ex, realize_inf, realize_not]
+      realize_all, Nat.succ_eq_add_one, realize_rel, mem_rel, Matrix.cons_val_zero,
+      Term.realize_var, Sum.elim_inr, Matrix.cons_val_one, Matrix.head_cons, Sum.elim_inl,
+      realize_ex, realize_inf, realize_not]
     rfl
 
 theorem found_prop (z : S) : z ≠ ∅ → ∃ w, w ∈ z ∧ w ∩ z = ∅ := by
@@ -512,4 +555,4 @@ lemma ne_of_mem (x y : S) (h : x ∈ y) : x ≠ y := by
   subst x
   rwa [← in_itself_iff_false y]
 
-end HF
+end HFSet

@@ -1,6 +1,6 @@
 import GIT.Basic
 
-open FirstOrder Language BoundedFormula Classical
+open FirstOrder Language BoundedFormula Classical HF
 
 /-!
 # Appendix 2: Ordinals
@@ -30,9 +30,9 @@ mathematicae. IM PAN, 2003. URL https://books.google.co.uk/books?id=5BQZAQAAIAAJ
 
 suppress_compilation
 
-variable {S : Type} [HF S]
+variable {S : Type} [Lang.Structure S] [HFSet S]
 
-namespace HF
+namespace HFSet
 
 /-- The set is transitive. -/
 abbrev IsTrans (x : S) : Prop := ∀ y ∈ x, y ⊆ x
@@ -70,7 +70,7 @@ lemma empty_of_mem_and_disjoint (x w : S) (ord : IsOrd x) (w_in_x : w ∈ x)
     (disj : w ∩ x = ∅) : w = ∅ := by
   simp only [exten_prop, mem_inter, in_empty_iff_false, iff_false, not_and] at disj
   apply ord.1 at w_in_x
-  rw [HF.empty]
+  rw [empty]
   simp_all
 
 lemma empty_is_mem (x : S) (ord : IsOrd x) (ne_emp : x ≠ ∅) : ∅ ∈ x := by
@@ -300,10 +300,9 @@ theorem exists_max_of_set (x : S) (set_of_ord : ∀ k ∈ x, IsOrd k) (ne_emp : 
   | t => rename_i a; exact Fin.elim0 a
   | hP =>
     simp only [ne_eq, Nat.reduceAdd, Fin.isValue, Function.comp_apply, realize_imp, realize_all,
-      Nat.succ_eq_add_one, realize_rel, instStructureLangOfHFLang_RelMap, Matrix.cons_val_zero,
-      Term.realize_var, Sum.elim_inr, Matrix.cons_val_one, Matrix.head_cons, realize_inf,
-      realize_not, realize_bdEqual, Term.realize_func, instStructureLangOfHFLang_funMap, realize_ex,
-      realize_sup]
+      Nat.succ_eq_add_one, realize_rel, mem_rel, Matrix.cons_val_zero, Term.realize_var,
+      Sum.elim_inr, Matrix.cons_val_one, Matrix.head_cons, realize_inf, realize_not,
+      realize_bdEqual, Term.realize_func, empty_fun, realize_ex, realize_sup]
     rfl
 
 lemma exists_min_of_set_aux (x y : S) (set_of_ord : ∀ k ∈ x ◁ y, IsOrd k)
@@ -348,10 +347,9 @@ theorem exists_min_of_set (x : S) (set_of_ord : ∀ k ∈ x, IsOrd k) (ne_emp : 
   | t => rename_i a; exact Fin.elim0 a
   | hP =>
     simp only [ne_eq, Nat.reduceAdd, Fin.isValue, Function.comp_apply, realize_imp, realize_all,
-      Nat.succ_eq_add_one, realize_rel, instStructureLangOfHFLang_RelMap, Matrix.cons_val_zero,
-      Term.realize_var, Sum.elim_inr, Matrix.cons_val_one, Matrix.head_cons, realize_inf,
-      realize_not, realize_bdEqual, Term.realize_func, instStructureLangOfHFLang_funMap, realize_ex,
-      realize_sup]
+      Nat.succ_eq_add_one, realize_rel, mem_rel, Matrix.cons_val_zero, Term.realize_var,
+      Sum.elim_inr, Matrix.cons_val_one, Matrix.head_cons, realize_inf, realize_not,
+      realize_bdEqual, Term.realize_func, empty_fun, realize_ex, realize_sup]
     rfl
 
 theorem exists_pred (k : S) (ord_k : IsOrd k) (ne_emp : k ≠ ∅) :
@@ -366,7 +364,8 @@ theorem exists_pred (k : S) (ord_k : IsOrd k) (ne_emp : k ≠ ∅) :
     intro y
     exact succ_inj max_k y ord_max_k
   · specialize h_max_k (succ max_k) succ_max_k_in_k
-    simp [succ_is_not_mem max_k ord_max_k, eq_comm, ne_succ max_k] at h_max_k
+    simp only [succ_is_not_mem max_k ord_max_k, eq_comm, ne_succ max_k] at h_max_k
+    aesop
 
 /-- The predecessor of a non-empty ordinal. -/
 def pred (k : S) (ord : IsOrd k) (ne_emp : k ≠ ∅) : S := (exists_pred k ord ne_emp).choose
@@ -432,7 +431,7 @@ def succ (k : Ord S) : Ord S := ⟨_, IsOrd.succ_isOrd _ k.2⟩
 
 lemma ne_succ (k : Ord S) : k ≠ succ k := by
   simp only [ne_eq, eq_iff]
-  exact HF.ne_succ k.1
+  exact HFSet.ne_succ k.1
 
 lemma lt_asymm (k l : Ord S) (k_lt_l : k < l) (l_lt_k : l < k) :
     False := by
@@ -465,7 +464,7 @@ instance : HasSubset (Ord S) := ⟨Subset⟩
 lemma subset_def (k l : Ord S) : k ⊆ l ↔ ∀ m, m < k → m < l := by rfl
 
 lemma subset_iff (k l : Ord S) : k ⊆ l ↔ k.1 ⊆ l.1 := by
-  simp only [subset_def, lt_iff, HF.subset_def]
+  simp only [subset_def, lt_iff, HFSet.subset_def]
   constructor
   · intros h m m_in_k
     specialize h ⟨m, IsOrd.mem_isOrd k.1 m k.2 m_in_k⟩
@@ -481,7 +480,7 @@ instance : HasSSubset (Ord S) := ⟨SSubset⟩
 lemma sSubset_def (k l : Ord S) : k ⊂ l ↔ (∀ m, m < k → m < l) ∧ k ≠ l := by rfl
 
 lemma sSubset_iff (k l : Ord S) : k ⊂ l ↔ k.1 ⊂ l.1 := by
-  simp only [sSubset_def, lt_iff, ne_eq, eq_iff, HF.sSubset_def, and_congr_left_iff]
+  simp only [sSubset_def, lt_iff, ne_eq, eq_iff, HFSet.sSubset_def, and_congr_left_iff]
   intro _
   have := subset_iff k l
   simp [subset_def, lt_iff] at this
@@ -611,4 +610,4 @@ lemma exists_leastOrd (k : Ord S) (φ : S → Prop) (f : BoundedFormula HF.Lang 
     refine (hm.1).elim (IsOrd.mem_isOrd k.1 m k.2 ) (by rintro rfl; exact k.2)
 
 end Ord
-end HF
+end HFSet

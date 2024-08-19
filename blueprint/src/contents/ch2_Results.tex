@@ -1,61 +1,50 @@
-\chapter{The Theory of Hereditarily Finite Sets}
+\chapter{Results of the Theory}
 
-\section{Language and axioms}
+Need text on informal proofs and the use of completeness theorem in Lean.
 
-The first-order theory of HF is determined by the first-order language of HF and three axioms.
-The language $\mathcal{L}$ has one binary relation symbol $\in$, one binary function symbol $\lhd$, 
-and one constant symbol $\varnothing$.
-Informally, i.e. given an $\mathcal{L}$-structure whose domain consists of sets,  
-$\in$ represents membership, $x \lhd y$ is the result of enlarging the set $x$ by $y$ 
-(think of $x \cup \{y\}$), and $\varnothing$ denotes the empty set.
+\section{Basic results}
 
-The axioms are given by the following formulas.
+Recall the axioms of HF:
 
 \begin{axiom}
-    \label{ax:empty}
-    \lean{HF.Axiom1, HF.empty}
+    \label{ax:empty_axiom}
+    \lean{HF.Axiom1, HFSet.empty}
+    \uses{def:Lang, def:Axioms}
     \leanok
     $z=\varnothing \leftrightarrow \forall x(x \notin z)$.
 \end {axiom}
 
 \begin{axiom}
-    \label{ax:enlarge}
-    \lean{HF.Axiom2, HF.enlarge}
+    \label{ax:enlarge_axiom}
+    \lean{HF.Axiom2, HFSet.enlarge}
+    \uses{def:Lang, def:Axioms}
     \leanok
     $z=x \lhd y \leftrightarrow \forall u(u \in z \leftrightarrow u \in x \lor u=y)$.
 \end {axiom}
 
 \begin{axiom}
-    \label{ax:induction}
-    \lean{HF.Axiom3, HF.induction}
+    \label{ax:induction_axiom}
+    \lean{HF.Axiom3, HFSet.induction}
+    \uses{def:Lang, def:Axioms}
     \leanok
     $(\alpha(\varnothing) \land \forall x \forall y[\alpha(x) \land \alpha(y) \rightarrow 
-    \alpha(x \lhd y)]) \rightarrow \forall x \alpha(x)$.
+    \alpha(x \lhd y)]) \rightarrow \forall x \alpha(x)$. 
 \end {axiom}
 
-The assumption in Axiom 3 — the induction principle — is that $\alpha$ is an $\mathcal{L}$-formula
-and that it contains a distinguished freely occurring variable which is quantified over.
-
-\section{Basic results}
-
-Need text here on not using the logical calculus of HF in these sections. 
-Maybe some text on that the proof of a formula $\phi$ can be regarded on three levels: 
-informally (what is used in the rest of this chapter), formally — as a proof of $\vdash \phi$ — 
-using the logical calculus of HF described in the next chapter, 
-and as a proof of $\vdash \operatorname{Pf}\ulcorner \phi \urcorner$, 
-given a suitable coding system defining $\ulcorner \phi \urcorner$ and a provability predicate 
-$\operatorname{Pf}$ corresponding to the logical calculus and coding system.
+The assumption in Axiom \ref{ax:induction_axiom} is that 
+$\alpha$ is any $\mathcal{L}$-formula which contains a 
+distinguished freely occurring variable $z$ such that $x$ and $y$ are substitutable for $z$.
 
 \begin{lemma}
     \label{lem:notin_empty+mem_enlarge+mem_enlarge_empty}
-    \lean{HF.notin_empty, HF.mem_enlarge, HF.mem_enlarge_empty}
+    \lean{HFSet.notin_empty, HFSet.mem_enlarge, HFSet.mem_enlarge_empty}
     \leanok
-    \uses{ax:empty, ax:enlarge}
+    \uses{ax:empty_axiom, ax:enlarge_axiom}
     \leavevmode
     \begin{enumerate}
-        \item $\forall x (x\notin \varnothing)$.
-        \item $\forall x \forall y \forall u (u \in x \lhd y \leftrightarrow u \in x \lor u=y)$.
-        \item $\forall y \forall z (z\in \varnothing \lhd y \leftrightarrow z = y$).
+        \item $x\notin \varnothing$.
+        \item $u \in x \lhd y \leftrightarrow u \in x \lor u=y$.
+        \item $z\in \varnothing \lhd y \leftrightarrow z = y$.
     \end{enumerate}
 \end{lemma}
 
@@ -63,8 +52,8 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
     \leanok
     \leavevmode
     \begin{enumerate}
-        \item Substitute $\varnothing$ in Axiom \ref{ax:empty}.
-        \item Substitute $x \lhd y$ in Axiom \ref{ax:enlarge}.
+        \item Substitute $\varnothing$ in Axiom \ref{ax:empty_axiom}.
+        \item Substitute $x \lhd y$ in Axiom \ref{ax:enlarge_axiom}.
         \item Substitute $\varnothing$ for $x$ in Lemma 
         \ref{lem:notin_empty+mem_enlarge+mem_enlarge_empty}.2 and use Lemma 
         \ref{lem:notin_empty+mem_enlarge+mem_enlarge_empty}.1.
@@ -73,32 +62,33 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{theorem}[Extensionality Property]
     \label{thm:exten_prop}
-    \lean{HF.exten_prop}
+    \lean{HFSet.exten_prop}
     \leanok
-    \uses{ax:empty, ax:enlarge, ax:induction, lem:notin_empty+mem_enlarge+mem_enlarge_empty}
-    $\forall x \forall z (x=z \leftrightarrow \forall u (u \in x \leftrightarrow u \in z))$.
+    \uses{ax:empty_axiom, ax:enlarge_axiom, ax:induction_axiom, 
+        lem:notin_empty+mem_enlarge+mem_enlarge_empty}
+    $x=z \leftrightarrow \forall u (u \in x \leftrightarrow u \in z)$.
 \end{theorem}
 
 \begin{proof}
     \leanok
-    Pick $x$ and $z$ arbitrarily and let $\alpha (x)$ be the $\mathcal{L}$-formula
+    Let $\alpha (x)$ be the $\mathcal{L}$-formula
     $x=z \leftrightarrow \forall u (u \in x \leftrightarrow u \in z)$.
-    We apply Axiom \ref{ax:induction}.
+    We apply Axiom \ref{ax:induction_axiom}.
     \begin{itemize}
         \item The base case — $\alpha (\varnothing)$ — follows directly from Lemma 
-        \ref{lem:notin_empty+mem_enlarge+mem_enlarge_empty}.1 and Axiom \ref{ax:empty}.
+        \ref{lem:notin_empty+mem_enlarge+mem_enlarge_empty}.1 and Axiom \ref{ax:empty_axiom}.
         \item The induction step — 
         $\forall y[\alpha(x) \land \alpha(y) \rightarrow \alpha(x \lhd y)]$ — 
         follows directly from Lemma \ref{lem:notin_empty+mem_enlarge+mem_enlarge_empty}.2 and 
-        Axiom \ref{ax:enlarge}.
+        Axiom \ref{ax:enlarge_axiom}.
     \end{itemize}
 \end{proof}
 
 \begin{definition}
     \label{def:singleton+pair}
-    \lean{HF.insert, HF.singleton, HF.pair}
+    \lean{HFSet.insert, HFSet.singleton, HFSet.pair}
     \leanok
-    Denote by $\{x\}$, $\{x,y\}$ and $\langle x,y\rangle$ the following \textit{terms}:
+    Abbreviate by $\{x\}$, $\{x,y\}$ and $\langle x,y\rangle$ the following terms:
     \begin{enumerate}
         \item $\{x\} = \varnothing \lhd x$.
         \item $\{x,y\} = \{x\} \lhd y$.
@@ -108,16 +98,15 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{lemma}
     \label{lem:mem_singleton+...+pair_inj}
-    \lean{HF.mem_singleton, HF.mem_pair, HF.duplic_pair_eq_single, HF.pair_inj}
+    \lean{HFSet.mem_singleton, HFSet.mem_pair, HFSet.duplic_pair_eq_single, HFSet.pair_inj}
     \leanok
     \uses{lem:notin_empty+mem_enlarge+mem_enlarge_empty, thm:exten_prop, def:singleton+pair}
     \leavevmode
     \begin{enumerate}
-        \item $\forall x \forall u (u\in \{x\} \leftrightarrow u = x)$.
-        \item $\forall x \forall y \forall u (u \in \{x,y\}\leftrightarrow u=x \lor u=y)$.
-        \item $\forall x (\{x,x\} = \{x\})$.
-        \item $\forall x \forall y \forall u \forall v 
-        (\langle x,y\rangle = \langle u,v\rangle \leftrightarrow x=u \land y=v)$.
+        \item $ u\in \{x\} \leftrightarrow u = x$.
+        \item $u \in \{x,y\}\leftrightarrow u=x \lor u=y$.
+        \item $\{x,x\} = \{x\}$.
+        \item $\langle x,y\rangle = \langle u,v\rangle \leftrightarrow x=u \land y=v$.
     \end{enumerate}
 \end{lemma}
 
@@ -134,7 +123,7 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
         Lemma \ref{lem:mem_singleton+...+pair_inj}.1 and 
         Lemma \ref{lem:mem_singleton+...+pair_inj}.2.
         \item  The proof closely follows an analogous proof from ZF by \cite{enderton1977elements}.
-        Pick $x,y,u$ and $v$ arbitrarily. The $\leftarrow$ direction is trivial.
+        The $\leftarrow$ direction is trivial.
         For the $\rightarrow$ direction, by the definition of ordered pairs, 
         the hypothesis can be rewritten to
         \begin{equation*}
@@ -187,17 +176,17 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{theorem}[Existence of the union of two sets]
     \label{thm:exists_union}
-    \lean{HF.exists_union}
+    \lean{HFSet.exists_union}
     \leanok
-    \uses{ax:induction, lem:notin_empty+mem_enlarge+mem_enlarge_empty}
-    $\forall x \forall y \exists z \forall u (u \in z \leftrightarrow u \in x \lor u \in y)$.
+    \uses{ax:induction_axiom, lem:notin_empty+mem_enlarge+mem_enlarge_empty}
+    $\exists z \forall u (u \in z \leftrightarrow u \in x \lor u \in y)$.
 \end{theorem}
 
 \begin{proof}
     \leanok
-    Pick $x$ and $y$ arbitrarily and let $\alpha (x)$ be the $\mathcal{L}$-formula 
+    Let $\alpha (x)$ be the $\mathcal{L}$-formula 
     $\exists z \forall u (u \in z \leftrightarrow u \in x \lor u \in y)$.
-    We apply Axiom \ref{ax:induction}.
+    We apply Axiom \ref{ax:induction_axiom}.
     \begin{itemize}
         \item For the base case — $\alpha (\varnothing)$ — take $z=y$ and use 
         Lemma \ref{lem:notin_empty+mem_enlarge+mem_enlarge_empty}.1.
@@ -214,17 +203,17 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{theorem}[Existence of the union of a set of sets]
     \label{thm:exists_sUnion}
-    \lean{HF.exists_sUnion}
+    \lean{HFSet.exists_sUnion}
     \leanok
-    \uses{ax:induction, lem:notin_empty+mem_enlarge+mem_enlarge_empty, thm:exists_union}
-    $\forall x \exists z \forall u (u \in z \leftrightarrow \exists (y\in x)[u \in y])$.
+    \uses{ax:induction_axiom, lem:notin_empty+mem_enlarge+mem_enlarge_empty, thm:exists_union}
+    $\exists z \forall u (u \in z \leftrightarrow \exists (y\in x)[u \in y])$.
 \end{theorem}
 
 \begin{proof}
     \leanok
-    Pick $x$ arbitrarily and let $\alpha (x)$ be the $\mathcal{L}$-formula 
+    Let $\alpha (x)$ be the $\mathcal{L}$-formula 
     $\exists z \forall u (u \in z \leftrightarrow \exists (y\in x)[u \in y])$.
-    We apply Axiom \ref{ax:induction}.
+    We apply Axiom \ref{ax:induction_axiom}.
     \begin{itemize}
         \item For the base case — $\alpha (\varnothing)$ — take $z=\varnothing$ and use 
         Lemma \ref{lem:notin_empty+mem_enlarge+mem_enlarge_empty}.1.
@@ -247,18 +236,18 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{theorem}[Comprehension Scheme]
     \label{thm:comp_scheme}
-    \lean{HF.comp_scheme}
+    \lean{HFSet.comp_scheme}
     \leanok
-    \uses{ax:induction, lem:notin_empty+mem_enlarge+mem_enlarge_empty}
-    $\forall x \exists z \forall u (u\in z \leftrightarrow (u \in x) \land \phi (u))$, 
+    \uses{ax:induction_axiom, lem:notin_empty+mem_enlarge+mem_enlarge_empty}
+    $\exists z \forall u (u\in z \leftrightarrow (u \in x) \land \phi (u))$, 
     for any $\mathcal{L}$-formula $\phi$ in which $z$ is not free.
 \end{theorem}
 
 \begin{proof}
     \leanok
-    Pick $x$ arbitrarily and let $\alpha (x)$ be the $\mathcal{L}$-formula 
+    Let $\alpha (x)$ be the $\mathcal{L}$-formula 
     $\exists z \forall u (u\in z \leftrightarrow (u \in x) \land \phi (u))$.
-    We apply Axiom \ref{ax:induction}.
+    We apply Axiom \ref{ax:induction_axiom}.
     \begin{itemize}
         \item For the base case — $\alpha (\varnothing)$ — take $z=\varnothing$ and use L
         emma \ref{lem:notin_empty+mem_enlarge+mem_enlarge_empty}.1.
@@ -280,7 +269,7 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{definition}[Intersection]
     \label{def:inter+sInter}
-    \lean{HF.inter, HF.sInter}
+    \lean{HFSet.inter, HFSet.sInter}
     \leanok
     \uses{thm:exists_sUnion, thm:comp_scheme}
     Introduce the notation:
@@ -292,20 +281,20 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{theorem}[Replacement Scheme]
     \label{thm:repl_scheme}
-    \lean{HF.repl_scheme}
+    \lean{HFSet.repl_scheme}
     %\leanok
-    \uses{ax:induction, lem:notin_empty+mem_enlarge+mem_enlarge_empty}
-    $$\forall x ([\forall (u \in x) [\exists! v] \psi (u,v)]\rightarrow 
-    \exists z \forall v [v\in z \leftrightarrow \exists(u \in x) \psi (u,v)]),$$ 
+    \uses{ax:induction_axiom, lem:notin_empty+mem_enlarge+mem_enlarge_empty}
+    $$[\forall (u \in x) [\exists! v] \psi (u,v)]\rightarrow 
+    \exists z \forall v [v\in z \leftrightarrow \exists(u \in x) \psi (u,v)],$$ 
     for any $\mathcal{L}$-formula $\psi$ in which $z$ is not free.
 \end{theorem}
 
 \begin{proof}
     \leanok
-    Pick $x$ arbitrarily and let $\alpha (x)$ be the $\mathcal{L}$-formula 
+    Let $\alpha (x)$ be the $\mathcal{L}$-formula 
     $[\forall (u \in x) [\exists! v] \psi (u,v)]\rightarrow 
     \exists z \forall v [v\in z \leftrightarrow \exists(u \in x) \psi (u,v)]$.
-    We apply Axiom \ref{ax:induction}.
+    We apply Axiom \ref{ax:induction_axiom}.
     \begin{itemize}
         \item For the base case — $\alpha (\varnothing)$ — take $z=\varnothing$ and use 
         Lemma \ref{lem:notin_empty+mem_enlarge+mem_enlarge_empty}.1.
@@ -326,9 +315,9 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{definition}[Subset relation]
     \label{def:Subset+SSubset}
-    \lean{HF.Subset, HF.SSubset}
+    \lean{HFSet.Subset, HFSet.SSubset}
     \leanok
-    Introduce the notation:
+    Introduce the abbreviations:
     \begin{enumerate}
         \item $y \subseteq x \leftrightarrow \forall v (v\in y \rightarrow v \in x)$.
         \item $y \subset x \leftrightarrow y \subseteq x \land y \neq x$.
@@ -337,19 +326,19 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{theorem}[Existence of the power set]
     \label{thm:exists_powerset}
-    \lean{HF.exists_powerset}
+    \lean{HFSet.exists_powerset}
     \leanok
-    \uses{ax:induction, lem:notin_empty+mem_enlarge+mem_enlarge_empty, thm:exten_prop, 
+    \uses{ax:induction_axiom, lem:notin_empty+mem_enlarge+mem_enlarge_empty, thm:exten_prop, 
     def:singleton+pair, lem:mem_singleton+...+pair_inj, thm:exists_union, 
     thm:repl_scheme, def:Subset+SSubset}
-    $\forall x \exists z \forall u (u\in z \leftrightarrow u \subseteq x).$
+    $\exists z \forall u (u\in z \leftrightarrow u \subseteq x).$
 \end{theorem}
 
 \begin{proof}
     \leanok
-    Pick $x$ arbitrarily and let $\alpha (x)$ be the $\mathcal{L}$-formula 
+    Let $\alpha (x)$ be the $\mathcal{L}$-formula 
     $\exists z \forall u (u\in z \leftrightarrow u \subseteq x)$.
-    We apply Axiom \ref{ax:induction}.
+    We apply Axiom \ref{ax:induction_axiom}.
     \begin{itemize}
         \item For the base case — $\alpha (\varnothing)$ — take $z=\{\varnothing\}$ and use 
         Lemma \ref{lem:notin_empty+mem_enlarge+mem_enlarge_empty}, 
@@ -371,21 +360,20 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{theorem}[Foundation Property]
     \label{thm:found_prop}
-    \lean{HF.found_prop}
+    \lean{HFSet.found_prop}
     \leanok
-    \uses{ax:induction, lem:notin_empty+mem_enlarge+mem_enlarge_empty, thm:exten_prop, 
+    \uses{ax:induction_axiom, lem:notin_empty+mem_enlarge+mem_enlarge_empty, thm:exten_prop, 
     def:inter+sInter}
-    $\forall z (z\neq \varnothing \rightarrow \exists (w \in z)[w\cap z = \varnothing])$.
+    $z\neq \varnothing \rightarrow \exists (w \in z)[w\cap z = \varnothing]$.
 \end{theorem}
 
 \begin{proof}
     \leanok
-    Pick z arbitrarily. 
     We need to show that $\forall (w \in z)[w \cap z \neq \varnothing] \rightarrow z = \varnothing$, 
     which follows if $\forall (w \in z)[w \cap z \neq \varnothing] \rightarrow \forall x \alpha(x)$, 
     where $\alpha(x)$ is the $\mathcal{L}$-formula $(x \notin z) \land (x \cap z = \varnothing)$.
     Thus, assume $\forall (w \in z)[w \cap z \neq \varnothing]$ and pick $x$ arbitrarily.
-    We apply Axiom \ref{ax:induction}.
+    We apply Axiom \ref{ax:induction_axiom}.
     \begin{itemize}
         \item For the base case — $\alpha (\varnothing)$ — the assumption immediately implies that 
         $\varnothing \notin z$, as otherwise $\varnothing \cap z \neq \varnothing$.
@@ -403,11 +391,11 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{corollary}
     \label{cor:mem_irrefl}
-    \lean{HF.mem_irrefl}
+    \lean{HFSet.mem_irrefl}
     \leanok
     \uses{lem:notin_empty+mem_enlarge+mem_enlarge_empty, thm:exten_prop, 
     def:singleton+pair, lem:mem_singleton+...+pair_inj, def:inter+sInter, thm:found_prop}
-    $\forall x (x \notin x)$.
+    $x \notin x$.
 \end{corollary}
 
 \begin{proof}
@@ -421,7 +409,7 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{definition}
     \label{def:IsTrans+IsOrd}
-    \lean{HF.IsTrans, HF.IsOrd, HF.Ord}
+    \lean{HFSet.IsTrans, HFSet.IsOrd, HFSet.Ord}
     \leanok
     \uses{def:Subset+SSubset}
     We say that $x$ is \textit{transitive} if every element of $x$ is a subset of $x$. 
@@ -433,27 +421,25 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{definition}[Successor]
     \label{def:succ}
-    \lean{HF.succ, HF.Ord.succ}
+    \lean{HFSet.succ, HFSet.Ord.succ}
     \leanok
     The \textit{successor} of $x$ is defined as $x \lhd x$, abbreviated by $\operatorname{succ}(x)$.
 \end{definition}
 
 \begin{lemma}
     \label{lem:IsOrd.succ_isOrd+...+IsOrd.empty_is_mem}
-    \lean{HF.IsOrd.succ_isOrd, HF.IsOrd.mem_isOrd, HF.empty_isOrd, 
-    HF.IsOrd.empty_of_mem_and_disjoint, HF.IsOrd.empty_is_mem, HF.Ord.empty_is_lt}
+    \lean{HFSet.IsOrd.succ_isOrd, HFSet.IsOrd.mem_isOrd, HFSet.empty_isOrd, 
+    HFSet.IsOrd.empty_of_mem_and_disjoint, HFSet.IsOrd.empty_is_mem, HFSet.Ord.empty_is_lt}
     \leanok
-    \uses{ax:empty, lem:notin_empty+mem_enlarge+mem_enlarge_empty, 
+    \uses{ax:empty_axiom, lem:notin_empty+mem_enlarge+mem_enlarge_empty, 
     thm:exten_prop, def:inter+sInter, thm:found_prop, def:IsTrans+IsOrd, def:succ}
     \leavevmode
     \begin{enumerate}
-        \item $\forall k(\operatorname{Ord}(k) \rightarrow 
-        \operatorname{Ord}(\operatorname{succ}(k)))$.
-        \item $\forall k \forall l(\operatorname{Ord}(k) \land l \in k \rightarrow 
-        \operatorname{Ord}(l))$.
+        \item $\operatorname{Ord}(k) \rightarrow \operatorname{Ord}(\operatorname{succ}(k))$.
+        \item $\operatorname{Ord}(k) \land l \in k \rightarrow \operatorname{Ord}(l)$.
         \item $\operatorname{Ord}(\varnothing)$.
-        \item $\forall k \forall l ((\operatorname{Ord}(k) \land (k \neq \varnothing) \land 
-        (l \cap k = \varnothing))\rightarrow(l \in k \leftrightarrow l = \varnothing))$.
+        \item $(\operatorname{Ord}(k) \land (k \neq \varnothing) \land 
+        (l \cap k = \varnothing))\rightarrow(l \in k \leftrightarrow l = \varnothing)$.
     \end{enumerate}
 \end{lemma}
 
@@ -462,7 +448,7 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
     \leavevmode
     The proofs of 1, 2 and 3 are immediate from Definitions \ref{def:IsTrans+IsOrd} and 
     \ref{def:succ}.
-    For 4, pick $k$ a non-empty ordinal, $l$ such that $l \cap k = \varnothing$, 
+    For 4, assume $k$ is a non-empty ordinal, $l$ is such that $l \cap k = \varnothing$, 
     and suppose $l \in k$. As $k$ is an ordinal, $l \subseteq k$, and as $l \cap k = \varnothing$, 
     it follows that $l=\varnothing$.
     Conversely, as $k \neq \varnothing$, by Theorem \ref{thm:found_prop} there must exist such 
@@ -471,9 +457,9 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{theorem}[Comparability of ordinals]
     \label{thm:IsOrd.comparability}
-    \lean{HF.IsOrd.comparability, HF.Ord.comparability}
+    \lean{HFSet.IsOrd.comparability, HFSet.Ord.comparability}
     \leanok
-    \uses{ax:empty, lem:notin_empty+mem_enlarge+mem_enlarge_empty, thm:comp_scheme, 
+    \uses{ax:empty_axiom, lem:notin_empty+mem_enlarge+mem_enlarge_empty, thm:comp_scheme, 
     def:inter+sInter, def:Subset+SSubset, thm:exists_powerset, thm:found_prop, 
     cor:mem_irrefl, def:IsTrans+IsOrd, lem:IsOrd.succ_isOrd+...+IsOrd.empty_is_mem}
     Let $k,l$ be ordinals. Then, $k \in l \lor k = l \lor l \in k$.
@@ -532,9 +518,9 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{corollary}
     \label{cor:IsOrd.exclusive_comparability+...+IsOrd.succ_inj}
-    \lean{HF.IsOrd.exclusive_comparability, HF.Ord.exclusive_comparability, 
-    HF.IsOrd.sSubset_iff_mem, HF.Ord.sSubset_iff_lt, HF.IsOrd.succ_eq_or_succ_mem, 
-    HF.Ord.succ_eq_or_succ_lt, HF.IsOrd.succ_inj, HF.Ord.succ_inj}
+    \lean{HFSet.IsOrd.exclusive_comparability, HFSet.Ord.exclusive_comparability, 
+    HFSet.IsOrd.sSubset_iff_mem, HFSet.Ord.sSubset_iff_lt, HFSet.IsOrd.succ_eq_or_succ_mem, 
+    HFSet.Ord.succ_eq_or_succ_lt, HFSet.IsOrd.succ_inj, HFSet.Ord.succ_inj}
     \leanok
     \uses{lem:notin_empty+mem_enlarge+mem_enlarge_empty, thm:exten_prop, def:Subset+SSubset, 
     cor:mem_irrefl, def:IsTrans+IsOrd, def:succ, lem:IsOrd.succ_isOrd+...+IsOrd.empty_is_mem, 
@@ -571,7 +557,7 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{definition}
     \label{def:Ord.lt+Ord.le}
-    \lean{HF.Ord.lt, HF.Ord.le}
+    \lean{HFSet.Ord.lt, HFSet.Ord.le}
     \leanok
     For ordinals $k,l$, we shall use:
     \begin{enumerate}
@@ -582,7 +568,7 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{theorem}
     \label{thm:Ord.le_totalOrder+Ord.lt_sTotalOrder}
-    \lean{HF.Ord.le_totalOrder, HF.Ord.lt_sTotalOrder}
+    \lean{HFSet.Ord.le_totalOrder, HFSet.Ord.lt_sTotalOrder}
     \uses{cor:mem_irrefl, def:IsTrans+IsOrd, thm:IsOrd.comparability, def:Ord.lt+Ord.le}
     \leanok
     On every set of ordinals, the relation $\leq$ ($<$) is a (strict) total order.
@@ -600,9 +586,9 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{theorem}
     \label{thm:IsOrd.exists_max_of_set+IsOrd.exists_min_of_set}
-    \lean{HF.IsOrd.exists_max_of_set, HF.IsOrd.exists_min_of_set}
+    \lean{HFSet.IsOrd.exists_max_of_set, HFSet.IsOrd.exists_min_of_set}
     \leanok
-    \uses{ax:induction, lem:notin_empty+mem_enlarge+mem_enlarge_empty, def:IsTrans+IsOrd, 
+    \uses{ax:induction_axiom, lem:notin_empty+mem_enlarge+mem_enlarge_empty, def:IsTrans+IsOrd, 
     thm:IsOrd.comparability}
     If $x$ is a non-empty set of ordinals, then $x$ has a smallest and a largest element, 
     i.e.
@@ -618,7 +604,7 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
     Let $\alpha(x)$ be the $\mathcal{L}$-formula 
     $$(\forall (k \in x)[\operatorname{Ord} k]) \rightarrow (x \neq \varnothing) \rightarrow 
     (\exists(l \in x) \forall (k \in x) [k \leq l]).$$ 
-    We apply Axiom \ref{ax:induction}.
+    We apply Axiom \ref{ax:induction_axiom}.
     \begin{itemize}
         \item For the base case — $\alpha (\varnothing)$ — obviously, $x = \varnothing$ immediately 
         contradicts $x \neq \varnothing$.
@@ -640,13 +626,13 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{corollary}
     \label{cor:IsOrd.exists_pred}
-    \lean{HF.IsOrd.exists_pred}
+    \lean{HFSet.IsOrd.exists_pred}
     \leanok
     \uses{def:IsTrans+IsOrd, def:succ, lem:IsOrd.succ_isOrd+...+IsOrd.empty_is_mem, 
     cor:IsOrd.exclusive_comparability+...+IsOrd.succ_inj, 
     thm:IsOrd.exists_max_of_set+IsOrd.exists_min_of_set}
-    $\forall k ((\operatorname{Ord}(k) \land k \neq \varnothing) \rightarrow 
-    \exists!l(\operatorname{succ}(l)=k))$.
+    $(\operatorname{Ord}(k) \land k \neq \varnothing) \rightarrow 
+    \exists!l(\operatorname{succ}(l)=k)$.
 \end{corollary}
 
 \begin{proof}
@@ -664,7 +650,7 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{definition}[Predecessor]
     \label{def:IsOrd.pred}
-    \lean{HF.IsOrd.pred, HF.Ord.pred}
+    \lean{HFSet.IsOrd.pred, HFSet.Ord.pred}
     \leanok
     \uses{def:succ, cor:IsOrd.exists_pred}
     The unique (if existing) $l$ for which $\operatorname{succ}(l) = k$ is called the 
@@ -675,7 +661,7 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{definition}
     \label{def:IsFunc+IsFunc.dom}
-    \lean{HF.IsFunc, HF.IsFunc.dom}
+    \lean{HFSet.IsFunc, HFSet.IsFunc.dom}
     \leanok
     \uses{def:singleton+pair, thm:exists_sUnion, thm:comp_scheme}
     We say that $x$ is a \textit{function} if every element of $x$ is a an ordered pair and
@@ -695,7 +681,7 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{definition}[Sequence]
     \label{def:IsSeq}
-    \lean{HF.IsSeq}
+    \lean{HFSet.IsSeq}
     \leanok
     \uses{def:IsTrans+IsOrd, def:IsFunc+IsFunc.dom}
     We call $s$ a \textit{sequence} if $s$ is a function and $\operatorname{dom}(s)=k$ 
@@ -707,7 +693,7 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{definition}[Functional]
     \label{def:IsFunctional}
-    \lean{HF.IsFunctionalUnary, HF.IsFunctionalBinary, HF.IsFunctionalTernary}
+    \lean{HFSet.IsFunctionalUnary, HFSet.IsFunctionalBinary, HFSet.IsFunctionalTernary}
     \leanok
     We say an $\mathcal{L}$-formula $\phi$ with $n+1$ free variables is \textit{functional} 
     with respect to a freely occurring variable $y$ if 
@@ -718,7 +704,7 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
 
 \begin{definition}[\textit{p}-function]
     \label{def:pFunc}
-    \lean{HF.pFuncUnary, HF.pFuncBinary, HF.pFuncTernary}
+    \lean{HFSet.pFuncUnary, HFSet.pFuncBinary, HFSet.pFuncTernary}
     \leanok
     \uses{def:IsFunctional}
     If $\phi$ has $n+1$ free variables and is functional with respect to $y$, 
@@ -751,10 +737,10 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
     lem:IsOrd.succ_isOrd+...+IsOrd.empty_is_mem, def:Ord.lt+Ord.le, 
     thm:IsOrd.exists_max_of_set+IsOrd.exists_min_of_set, def:IsOrd.pred,
     def:IsFunc+IsFunc.dom, def:IsSeq, def:IsFunctional, def:pFunc}
-    Let $k$ be an ordinal. Then, for every ordinal $l$ and \textit{p}-function $G$,
+    Let $k$ be an ordinal. Then, for every constant term $\tau$ and \textit{p}-function $G$,
     there exists a \textit{p}-function $F$ such that:
     \begin{enumerate}
-        \item $k=\varnothing \rightarrow F(k) = l$.
+        \item $k=\varnothing \rightarrow F(k) = \tau$.
         \item $k\neq \varnothing \rightarrow F(k) = G(F(\operatorname{pred}(k)))$.
     \end{enumerate}
 \end{theorem}
@@ -764,13 +750,13 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
     \begin{equation*}
         \begin{split}
     & (k \neq \varnothing \land \exists s [\operatorname{Seq}(s,k) \land 
-    y = G(s_{\operatorname{pred}(k)}) \land \forall (n\,<\,k)[(n=\varnothing \land s_n = l)
+    y = G(s_{\operatorname{pred}(k)}) \land \forall (n\,<\,k)[(n=\varnothing \land s_n = \tau)
     \lor\\ &(n \neq \varnothing \land s_n = G(s_{\operatorname{pred}(n)}))]])
-    \lor (k = \varnothing \land y = l).
+    \lor (k = \varnothing \land y = \tau).
         \end{split}
     \end{equation*}
     We claim that $\phi$ is functional with respect to $y$.
-    Indeed, if $k=\varnothing$, then trivially $y=l$ is unique.
+    Indeed, if $k=\varnothing$, then trivially $y=\tau$ is unique.
     Now suppose, for a contradiction, there exists an ordinal $k\neq \varnothing$ such that there
     is no unique $y$ for which $\phi(k,y)$. 
     Then, by Theorems \ref{thm:comp_scheme} and 
@@ -781,19 +767,19 @@ $\operatorname{Pf}$ corresponding to the logical calculus and coding system.
     \begin{equation*}
         \begin{split}
     &\operatorname{Seq}(s,p) \land y = G(s_{\operatorname{pred}(p)}) \land 
-    \forall (n\,<\,p)[(n=\varnothing \land s_n = l) \lor \\& 
+    \forall (n\,<\,p)[(n=\varnothing \land s_n = \tau) \lor \\& 
     (n \neq \varnothing \land s_n = G(s_{\operatorname{pred}(n)}))].
         \end{split}
     \end{equation*}
     But then $\tilde{s} = s \cup \langle p, G(s_{\operatorname{pred}(p)}) \rangle$ satisfies
     \begin{equation*}
-    \operatorname{Seq}(\tilde{s},m) \land \forall (n\,<\,m)[(n=\varnothing \land \tilde{s}_n = l) 
+    \operatorname{Seq}(\tilde{s},m) \land \forall (n\,<\,m)[(n=\varnothing \land \tilde{s}_n = \tau) 
     \lor (n \neq \varnothing \land \tilde{s}_n = G(\tilde{s}_{\operatorname{pred}(n)}))], 
     \end{equation*}
     and thus $y = G(\tilde{s}_p)$ uniquely satisfies $\phi(m,y)$, a contradiction.
-    Now, suppose $p=\varnothing$. Then $\bar{s}=\langle \varnothing, l \rangle$ satisfies
+    Now, suppose $p=\varnothing$. Then $\bar{s}=\langle \varnothing, \tau \rangle$ satisfies
     \begin{equation*}
-        \operatorname{Seq}(\bar{s},m) \land \forall (n\,<\,m)[(n=\varnothing \land \bar{s}_n = l) 
+        \operatorname{Seq}(\bar{s},m) \land \forall (n\,<\,m)[(n=\varnothing \land \bar{s}_n = \tau) 
         \lor (n \neq \varnothing \land \bar{s}_n = G(\bar{s}_{\operatorname{pred}(n)}))], 
     \end{equation*}
     and thus $y = G(\bar{s}_\varnothing)$ uniquely satisfies $\phi(m,y)$, again a contradiction.
