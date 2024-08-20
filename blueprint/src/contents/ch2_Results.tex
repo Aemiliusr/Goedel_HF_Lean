@@ -1,6 +1,39 @@
 \chapter{Results of the Theory}
 
-Need text on informal proofs and the use of completeness theorem in Lean.
+This chapter presents several results from the theory of HF, 
+including both theorems of HF and definitions. The latter serve as abbreviations, 
+functioning as definitional extensions to the language of HF.
+
+Following \cite{swierczkowski2003finite}, the theorems of HF are presented with informal proofs 
+for the sake of efficiency and clarity. 
+In Lean, however, formalisation, as the term suggests, requires proofs to be fully formal. 
+Fortunately, as explained in the previous chapter, by the completeness theorem 
+(Theorem \ref{thm:completeness}), to demonstrate the existence of a formal syntactic proof of 
+an $\mathcal{L}$-formula $\phi$, 
+it suffices to verify semantically 
+(i.e., using only Lean's native logic and not the proof predicate) that 
+every type satisfying the axioms of HF also satisfies $\phi$. 
+In the latter case, the axioms of HF and $\phi$ are expressed as a proposition type 
+({\ttfamily \small Prop}).
+
+
+More precisely, this mechanism works as follows.
+Within the $\mathcal{L}$-structure type class, the non-logical symbols of $\mathcal{L}$ are 
+declared for the elements of the class. 
+This allows $\mathcal{L}$-formulas to be expressed
+as proposition types where each term becomes an element of an arbitrary $\mathcal{L}$-structure.
+Next, we introduce a new type class, {\ttfamily \small HFSet}, 
+which is inhabited by the axioms of HF expressed as proposition types. 
+It is then shown that every element of the model-of-HF type class 
+(referred to as (model of HF)-element) is an instance of the {\ttfamily \small HFSet} type class.
+Consequently, any proposition type that is semantically proven true for every element of 
+the {\ttfamily \small HFSet} type class is also true for every (model of HF)-element.
+Now, a proposition type is true for every (model of HF)-element if and only if 
+every model of HF is a model of the $\mathcal{L}$-formula corresponding to that proposition type.
+Thus, by the completeness theorem, an $\mathcal{L}$-formula is a theorem of HF if its corresponding 
+proposition type is true for every element of the {\ttfamily \small HFSet} type class.
+
+We start by showing that most of the ZFC axioms are theorems of HF.
 
 \section{Basic results}
 

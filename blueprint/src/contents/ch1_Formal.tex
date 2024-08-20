@@ -1,5 +1,7 @@
 \chapter{The First-Order Theory of Hereditarily Finite Sets}
 
+Text about formal system to first-order theory, and first-order logic in Lean.
+
 \section{Language and axioms}
 
 The \textit{first-order theory of HF} is determined by the first-order language of HF, 
@@ -134,6 +136,19 @@ These descriptions naturally lead to the notion of formal proof.
     terminating with $\phi$.
 \end{definition}
 
+Following the approach outlined by \cite{paulson2014machine}, 
+the syntactic proof system of HF is implemented in Lean as an inductively defined predicate. 
+In this setup, a proof within this system, resulting in a theorem of HF, 
+involves demonstrating in Lean’s native logic that 
+the proof predicate applied to the relevant $\mathcal{L}$-formula evaluates to true.
+However, in practice, working directly within this formal calculus is cumbersome. 
+\cite{paulson2014machine} experienced that even the simplest formal proofs can become extremely 
+tedious and require hundreds of lines of code.
+To streamline the process of obtaining theorems of HF in Lean, 
+we aim to convert semantic proofs (i.e., using only Lean's native logic and not the proof predicate) 
+into proofs within the HF syntactic system. 
+This is possible by applying Gödel's completeness theorem, which applies to any first-order theory.
+
 \section{Models, soundness and completeness}
 
 \begin{definition}
@@ -151,8 +166,8 @@ These descriptions naturally lead to the notion of formal proof.
     every model of HF is a model of $\phi$, denoted by $\vDash \phi$.
 \end{definition}
 
-The following result holds for any first-order theory; for a proof, the reader is referred to 
-\cite{shoenfield1967mathematical}.
+For a proof of the following result for an arbitrary first-order theory, 
+the reader is referred to  \cite{shoenfield1967mathematical}.
 
 \begin{theorem}[Soundness and completeness]
     \label{thm:completeness}
@@ -162,3 +177,14 @@ The following result holds for any first-order theory; for a proof, the reader i
     Suppose $\phi$ is an $\mathcal{L}$-formula.
     Then $\vdash \phi$ if and only if $\vDash \phi$.
 \end{theorem}
+
+It other words, the theorems of HF are precisely the $\mathcal{L}$-formulas that are valid in HF.
+Thus, to prove $\vdash \phi$ for any $\mathcal{L}$-formula $\phi$, it suffices to show that for an 
+arbitrary model of HF, $\mathcal{S}$, we have $\mathcal{S} \vDash \phi$.
+This is the conversion process we previously discussed.
+
+In Lean 3, the completeness theorem for first-order logic was proven as part of the Flypitch project
+\cite{han2020formal}.
+However, there is no proof available in the math library of Lean 4.
+For now, we make use of soundness and completeness by accepting the statement 
+using the {\ttfamily \small sorry} identifier. 
