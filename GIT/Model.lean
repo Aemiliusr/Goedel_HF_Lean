@@ -10,6 +10,33 @@ abbrev C := Lang.Term Empty
 
 namespace C
 
+@[elab_as_elim]
+def rec {motive : C → Type} (h0 : motive (.func ∅' Fin.elim0))
+  (h2 : ∀ {σ} {τ}, motive σ → motive τ → motive (.func ◁' ![σ, τ])) : ∀ σ, motive σ
+| .var x => by cases x
+| @Term.func _ _ 0 f ts => by convert h0
+| @Term.func _ _ 2 f ts => by
+    convert h2 (rec h0 h2 (ts 0)) (rec h0 h2 (ts 1))
+    ext i
+    fin_cases i <;> rfl
+
+@[elab_as_elim]
+theorem ind {motive : C → Prop} (h0 : motive (.func ∅' Fin.elim0))
+  (h2 : ∀ {σ} {τ}, motive σ → motive τ → motive (.func ◁' ![σ, τ])) : ∀ σ, motive σ
+| .var x => by cases x
+| @Term.func _ _ 0 f ts => by convert h0
+| @Term.func _ _ 2 f ts => by
+    convert h2 (ind h0 h2 (ts 0)) (ind h0 h2 (ts 1))
+    ext i
+    fin_cases i <;> rfl
+
+def length : C → ℕ := rec (0) (fun lσ lτ ↦ lσ + lτ + 1)
+
+lemma length_empty : length (.func ∅' Fin.elim0) = 0 := rfl
+
+lemma length_enlarge {σ τ} : length (.func ◁' ![σ, τ]) = length σ + length τ + 1 := rfl
+
+
 def Equiv : C → C → Prop
   | σ, τ => ⊢ σ.relabel .inl =' τ.relabel .inl
 
