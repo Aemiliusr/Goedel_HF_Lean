@@ -5,3 +5,4 @@ import GIT.Basic
 import GIT.Ordinal
 import GIT.Function
 import GIT.Model
+import GIT.Coding

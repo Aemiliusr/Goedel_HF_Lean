@@ -1,6 +1,17 @@
 \chapter{The Standard Model of HF}
 
-Text.
+Gödel's first incompleteness theorem states that, if HF is \textit{consistent}, i.e.
+$\not\vdash\bot$, then there is a sentence $\delta$ such that neither $\vdash \delta$ nor
+$\vdash \neg\delta$. According to the completeness theorem, 
+this implies that there is one model of HF which is
+a model of $\delta$ and another model of HF which does not model $\delta$.
+
+For comparison, in Peano Arithmetic (PA), the 'Gödel sentence' is true in the standard model of 
+the natural numbers but false in some "non-standard" model of PA. 
+Similarly, in HF, the sentence $\delta$ is true in the \textit{standard model of HF}, 
+which we will construct in this chapter.
+
+We will start by establishing some properties of constant terms.
 
 \section{Constant terms}
 
@@ -16,6 +27,61 @@ Text.
     For any $\tau \in \mathbb{C}$, the number of appearances of $\lhd$ in $\tau$ is called the
     \textit{length} of $\tau$, denoted by $l(\tau)$.
 \end{definition}
+
+\begin{lemma}
+    For every non-empty $\tau \in \mathbb{C}$, there are finitely many 
+    $\tau_1, \ldots, \tau_m \in \mathbb{C}$, all shorter than $\tau$, such that
+    $$
+    \vdash (x \in \tau \leftrightarrow x = \tau_1 \lor \ldots \lor x = \tau_m).
+    $$
+\end{lemma}
+
+\begin{proof}
+    The shortest non-empty $\tau$ is $\varnothing \lhd \varnothing$. 
+    We have the theorem of HF
+    $$
+    \vdash (x \in \varnothing \lhd \varnothing \leftrightarrow x \in \varnothing \lor x=\varnothing
+    \leftrightarrow x=\varnothing),
+    $$
+    i.e., $m=1$ and $\tau_1 = \varnothing$. 
+    Now assume that the lemma has been established for all non-zero constant terms shorter 
+    than $\tau$, and let $\tau$ be $\sigma \lhd \mu$. 
+    Then $\sigma$ is shorter than $\tau$, 
+    hence there are $\sigma_1, \ldots, \sigma_n \in \mathbb{C}$ such that
+    $$
+    \vdash (x \in \sigma \leftrightarrow x=\sigma_1 \lor \ldots \lor x=\sigma_n)
+    $$
+    Since $\vdash (x \in \tau \leftrightarrow x \in \sigma \lor x=\mu)$, we get
+    $$
+    \vdash (x \in \tau \leftrightarrow x=\sigma_1 \lor \ldots \lor x=\sigma_n \lor x=\mu).
+    $$
+    By inductive assumption, 
+    each $\sigma_i$ is shorter than $\sigma$, thus also shorter than $\tau$. 
+    Also $\mu$ is shorter than $\tau$.
+\end{proof}
+
+\begin{lemma}
+    Let $\sigma, \tau \in \mathbb{C}$ be such that $\not\vdash \sigma = \tau$. 
+    Then, for some $\nu \in \mathbb{C}$, one of the two possibilities occurs:
+    \begin{enumerate}
+        \item $\vdash \nu \in \sigma \quad \text{and} \quad \nu \notin \tau$.
+        \item $\vdash \nu \notin \sigma \quad \text{and} \quad \nu \in \tau$.
+    \end{enumerate}
+\end{lemma}
+
+\begin{proof}
+    Under construction.
+\end{proof}
+
+\begin{corollary}
+    For every $\sigma, \tau \in \mathbb{C}$, $\not\vdash \sigma = \tau$ implies 
+    $\vdash \sigma \neq \tau$.
+\end{corollary}
+
+\begin{corollary}
+    If $\sigma, \tau \in \mathbb{C}$ are such that $\vdash \nu \in \sigma$ if and only if
+    $\vdash \nu \in \tau$ for every $\nu \in \mathbb{C}$, then $\vdash \sigma = \tau$.
+\end{corollary}
 
 \section{The model}
 
@@ -45,5 +111,9 @@ Text.
     \lean{HF.stdModel.model_of_consistent}
     \uses{def:Lang, def:Axioms, def:stdModel}
     \leanok
-    If HF is consistent, i.e. $\not\vdash\bot$, then $\mathfrak{S}$ is a model of HF.
+    If HF is consistent, then $\mathfrak{S}$ is a model of HF.
 \end{theorem}
+
+\begin{proof}
+    Under construction.
+\end{proof}

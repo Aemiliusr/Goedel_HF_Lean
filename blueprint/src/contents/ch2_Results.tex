@@ -21,14 +21,14 @@ More precisely, this mechanism works as follows.
 Within the $\mathcal{L}$-structure type class, the non-logical symbols of $\mathcal{L}$ are 
 declared for the elements of the class. 
 This allows $\mathcal{L}$-formulas to be expressed
-as proposition types where each term becomes an element of an arbitrary $\mathcal{L}$-structure.
-Next, we introduce a new type class, {\ttfamily \small HFSet}, 
+as proposition types where each term in the formula becomes an element of an 
+arbitrary $\mathcal{L}$-structure. Next, we introduce a new type class, {\ttfamily \small HFSet}, 
 which is inhabited by the axioms of HF expressed as proposition types. 
 It is then shown that every element of the model-of-HF type class 
-(referred to as (model of HF)-element) is an instance of the {\ttfamily \small HFSet} type class.
+(referred to as model type) is an instance of the {\ttfamily \small HFSet} type class.
 Consequently, any proposition type that is semantically proven true for every element of 
-the {\ttfamily \small HFSet} type class is also true for every (model of HF)-element.
-Now, a proposition type is true for every (model of HF)-element if and only if 
+the {\ttfamily \small HFSet} type class is also true for every model type.
+But a proposition type is true for every model type if and only if 
 every model of HF is a model of the $\mathcal{L}$-formula corresponding to that proposition type.
 Thus, by the completeness theorem, an $\mathcal{L}$-formula is a theorem of HF if its corresponding 
 proposition type is true for every element of the {\ttfamily \small HFSet} type class.
