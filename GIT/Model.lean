@@ -1,6 +1,6 @@
 import GIT.Basic
 
-open FirstOrder Language BoundedFormula
+open FirstOrder Language BoundedFormula Classical
 
 suppress_compilation
 
@@ -36,6 +36,65 @@ lemma length_empty : length (.func ∅' Fin.elim0) = 0 := rfl
 
 lemma length_enlarge {σ τ} : length (.func ◁' ![σ, τ]) = length σ + length τ + 1 := rfl
 
+lemma exists_finset_shorter_and_mem_iff_iSup (τ : C) (ne_emp : τ ≠ .func ∅' Fin.elim0) :
+    ∃ (F : Finset C), (∃ ν, ν ∈ F) ∧ (∀ ν ∈ F, length ν < length τ) ∧
+    ⊢ ∀' ((&0 ∈' τ.relabel .inl) ⇔ iSup F (fun ν => (&0 =' ν.relabel .inl))) := by
+    induction τ using ind with
+    | h0 => exfalso; exact ne_emp rfl
+    | h2 hσ _hμ =>
+      rename_i σ μ
+      by_cases σ_eq_emp : σ = .func ∅' Fin.elim0
+      · refine ⟨{μ}, ⟨by simp, ⟨?_, ?_⟩⟩⟩
+        · simp [length_enlarge]
+          linarith
+        · rw [σ_eq_emp, completeness]
+          intros _ _ _
+          simp [Formula.Realize]
+      · apply hσ at σ_eq_emp
+        rcases σ_eq_emp with ⟨F, ⟨_, ⟨hF₂, hF₃⟩⟩⟩
+        refine ⟨insert μ F, ⟨by simp, ⟨?_, ?_⟩⟩⟩
+        · simp [length_enlarge]
+          refine ⟨by linarith, ?_⟩
+          intro ν hν; specialize hF₂ ν hν
+          linarith
+        · rw [completeness] at *
+          intros S inst v; specialize hF₃ S v
+          simp [Formula.Realize, Fin.snoc] at *
+          intro x; specialize hF₃ x
+          rw [hF₃]
+          exact Iff.symm Or.comm
+
+lemma exists_mem_and_notin_of_not_eq (σ τ : C) (h : ¬ ⊢ (σ.relabel .inl =' τ.relabel .inl)) :
+    ∃ (ν : C), (⊢ (ν.relabel .inl ∈' σ.relabel .inl ) ∧ ⊢ ∼(ν.relabel .inl ∈' τ.relabel .inl ))
+    ∨ (⊢ ∼(ν.relabel .inl ∈' σ.relabel .inl ) ∧ ⊢ (ν.relabel .inl ∈' τ.relabel .inl )) := by
+  sorry
+
+lemma ne_of_not_eq (σ τ : C) (h : ¬ ⊢ (σ.relabel .inl =' τ.relabel .inl)) :
+    ⊢ ∼(σ.relabel .inl =' τ.relabel .inl) := by
+  apply exists_mem_and_notin_of_not_eq at h
+  rcases h with ⟨ν, ⟨h1, h2⟩ | ⟨h1, h2⟩⟩
+  <;> rw [completeness] at *
+  <;> intros S inst v
+  <;> specialize h1 S v <;> specialize h2 S v
+  <;> simp only [Formula.Realize, realize_rel, mem_rel, Fin.isValue, Matrix.cons_val_zero,
+    Term.realize_relabel, Sum.elim_comp_inl, Matrix.cons_val_one, Matrix.head_cons, realize_not,
+    realize_bdEqual] at *
+  <;> rw [HFSet.exten_prop] <;> push_neg
+  <;> use Term.realize v ν
+  <;> simp_all
+
+lemma eq_of_forall_mem_iff_mem (σ τ : C) (cons : ¬ ∃ (φ : Lang.Sentence), ⊢ φ ∧ ⊢ ∼φ)
+    (h : ∀ (ν : C), ⊢ (ν.relabel .inl ∈' σ.relabel .inl) ↔ ⊢ (ν.relabel .inl ∈' τ.relabel .inl)) :
+    ⊢ σ.relabel .inl =' τ.relabel .inl := by
+  by_contra contra
+  apply exists_mem_and_notin_of_not_eq at contra
+  rcases contra with ⟨μ, ⟨h1, h2⟩ | ⟨h1, h2⟩⟩ <;> specialize h μ
+  · rw [h] at h1
+    apply cons
+    use (μ.relabel .inl ∈' τ.relabel .inl)
+  · rw [← h] at h2
+    apply cons
+    use (μ.relabel .inl ∈' σ.relabel .inl)
 
 def Equiv : C → C → Prop
   | σ, τ => ⊢ σ.relabel .inl =' τ.relabel .inl

@@ -1,0 +1,106 @@
+\chapter{Gödel Coding}
+
+In the general sense, a Gödel coding is a function that assigns to each symbol, each term and
+each formula of some formal language a unique code, called its Gödel code.
+More text on coding.
+
+\begin{definition}
+    \lean{HF.IsInΓ0, HF.IsInΓ, HF.Code}
+    \label{def:IsInΓ0+IsInΓ+Code}
+    \leanok
+    \uses{def:Lang, def:C}
+    We denote by $\Gamma_0$ the least family of constant terms such that
+    \begin{enumerate}
+        \item $\varnothing \in \Gamma_0$.
+        \item If $\sigma \in \Gamma_0$, then $\sigma \lhd \sigma \in \Gamma_0$.
+    \end{enumerate}
+    Furthermore, we denote by $\Gamma$ the least family of constant terms such that 
+    $\Gamma_0 \subseteq \Gamma$ and 
+    \begin{enumerate}\setcounter{enumi}{2} %does not work in web
+        \item If $\sigma, \tau \in \Gamma$, then $\langle\sigma, \tau\rangle \in \Gamma$.
+    \end{enumerate}
+\end{definition}
+
+\begin{theorem}
+    \lean{HF.ne_of_isInΓ_and_distinct}
+    \label{thm:ne_of_isInΓ_and_distinct}
+    \leanok
+    \uses{def:C, def:IsInΓ0+IsInΓ+Code}
+    Let $\sigma, \tau \in \Gamma$ be distinct constant terms, i.e. they are different strings of
+    symbols. Then $\vdash \sigma \neq \tau$.
+\end{theorem}
+
+\begin{proof}
+    Under construction.
+\end{proof}
+
+Need text on what langle rangle with more than 2 inputs means.
+
+\begin{definition}[Coding of symbols]
+    \lean{HF.Code.Mem, HF.Code.Enlarge, HF.Code.Eq, HF.Code.Or, HF.Code.Neg, HF.Code.Ex}
+    \label{def:Code.Symbols}
+    \leanok
+    \uses{def:IsInΓ0+IsInΓ+Code}
+    We begin by assigning to each symbol of the language a unique code, denoted by
+    $\ulcorner \cdot\urcorner$
+    In particular, these are the following constant terms belonging to $\Gamma$:
+    $$
+    \begin{aligned}
+    \ulcorner{\varnothing}\urcorner & =\varnothing, \\
+    \ulcorner{\in}\urcorner & =\langle \varnothing,\varnothing\rangle, \\
+    \ulcorner{\lhd}\urcorner & =\langle \varnothing,\varnothing,\varnothing\rangle, \\
+    \ulcorner{=}\urcorner & =\langle \varnothing,\varnothing,\varnothing,\varnothing\rangle, \\
+    \ulcorner{\lor}\urcorner & =
+    \langle \varnothing,\varnothing,\varnothing,\varnothing,\varnothing\rangle, \\
+    \ulcorner{\neg}\urcorner & =
+    \langle \varnothing,\varnothing,\varnothing,\varnothing,\varnothing,\varnothing\rangle, \\
+    \ulcorner{\exists}\urcorner & =
+    \langle \varnothing,\varnothing,\varnothing,\varnothing,\varnothing,\varnothing,
+    \varnothing\rangle,\\
+    \ulcorner{x_1}\urcorner & = \varnothing \lhd \varnothing, \quad 
+    \ulcorner{x_2}\urcorner = \ulcorner{x_1}\urcorner \lhd \ulcorner{x_1}\urcorner,\quad\ldots\quad,
+    \ulcorner{x_{k+1}}\urcorner = \ulcorner{x_k}\urcorner \lhd \ulcorner{x_k}\urcorner.
+    \end{aligned}
+    $$
+\end{definition}
+
+\begin{definition}[Coding of terms]
+    \lean{HF.Code.Term}
+    \label{def:Code.Term}
+    \uses{def:IsInΓ0+IsInΓ+Code, def:Code.Symbols}
+    The terms $\varnothing$ and $x_k$ have been code already. 
+    The remaining case follows the inductive definition
+    $$
+    \ulcorner{\sigma \lhd \tau}\urcorner = 
+    \langle\ulcorner{\lhd}\urcorner, \ulcorner{\sigma}\urcorner, \ulcorner{\tau}\urcorner \rangle.
+    $$
+\end{definition}
+
+\begin{definition}[Coding of formulas]
+    \lean{HF.Code.Formula}
+    \label{def:Code.Formula}
+    \leanok
+    \uses{def:IsInΓ0+IsInΓ+Code, def:Code.Symbols, def:Code.Term}
+    Given terms $\sigma, \tau$, the codes of atomic formulas are
+    $$
+    \ulcorner{\sigma = \tau}\urcorner = 
+    \langle\ulcorner{=}\urcorner, \ulcorner{\sigma}\urcorner, \ulcorner{\tau}\urcorner \rangle
+    \quad \text{and} \quad
+    \ulcorner{\sigma \in \tau}\urcorner = 
+    \langle\ulcorner{\in}\urcorner, \ulcorner{\sigma}\urcorner, \ulcorner{\tau}\urcorner \rangle.
+    $$
+    Non-atomic formulas follow the inductive definition
+    $$
+    \begin{aligned}
+        \ulcorner{\neg\varphi}\urcorner & = 
+        \langle\ulcorner{\neg}\urcorner, \ulcorner{\varphi}\urcorner \rangle, \\
+        \ulcorner{\varphi \lor \psi}\urcorner & = 
+        \langle\ulcorner{\lor}\urcorner, \ulcorner{\varphi}\urcorner, 
+        \ulcorner{\psi}\urcorner \rangle, \\
+        \ulcorner{\exists x_k \varphi}\urcorner & = 
+        \langle\ulcorner{\exists}\urcorner, \ulcorner{x_k}\urcorner, 
+        \ulcorner{\varphi}\urcorner \rangle.
+    \end{aligned}
+    $$
+\end{definition}
+

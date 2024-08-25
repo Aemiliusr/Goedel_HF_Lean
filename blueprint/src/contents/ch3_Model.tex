@@ -1,10 +1,10 @@
 \chapter{The Standard Model of HF}
 
-Gödel's first incompleteness theorem states that, if HF is \textit{consistent}, i.e.
-$\not\vdash\bot$, then there is a sentence $\delta$ such that neither $\vdash \delta$ nor
-$\vdash \neg\delta$. According to the completeness theorem, 
-this implies that there is one model of HF which is
-a model of $\delta$ and another model of HF which does not model $\delta$.
+Gödel's first incompleteness theorem states that, if HF is \textit{consistent}, 
+then there is a sentence $\delta$ such that neither $\vdash \delta$ nor
+$\vdash \neg\delta$. According to soundness, 
+this implies there exists model of HF which is
+a model of $\delta$ and there exists another model of HF which doesn't model $\delta$.
 
 For comparison, in Peano Arithmetic (PA), the 'Gödel sentence' is true in the standard model of 
 the natural numbers but false in some "non-standard" model of PA. 
@@ -16,8 +16,9 @@ We will start by establishing some properties of constant terms.
 \section{Constant terms}
 
 \begin{definition}[Constant term]
-    \lean{HF.C}
-    \label{def:C}
+    \lean{HF.C, HF.C.length}
+    \label{def:C+C.length}
+    \leanok
     \uses{def:Lang}
     The class of \textit{constant terms}, denoted by $\mathbb{C}$, is the class of terms which
     contain no variables, i.e. $\mathbb{C}$ is the smallest class of terms such that 
@@ -29,6 +30,10 @@ We will start by establishing some properties of constant terms.
 \end{definition}
 
 \begin{lemma}
+    \lean{HF.C.exists_finset_shorter_and_mem_iff_iSup}
+    \label{lem:C.exists_finset_shorter_and_mem_iff_iSup}
+    \leanok
+    \uses{def:prf, thm:completeness, lem:notin_empty+mem_enlarge+mem_enlarge_empty, def:C+C.length}
     For every non-empty $\tau \in \mathbb{C}$, there are finitely many 
     $\tau_1, \ldots, \tau_m \in \mathbb{C}$, all shorter than $\tau$, such that
     $$
@@ -37,6 +42,7 @@ We will start by establishing some properties of constant terms.
 \end{lemma}
 
 \begin{proof}
+    \leanok
     The shortest non-empty $\tau$ is $\varnothing \lhd \varnothing$. 
     We have the theorem of HF
     $$
@@ -61,11 +67,15 @@ We will start by establishing some properties of constant terms.
 \end{proof}
 
 \begin{lemma}
+    \lean{HF.C.exists_mem_and_notin_of_not_eq}
+    \label{lem:C.exists_mem_and_notin_of_not_eq}
+    \leanok
+    \uses{def:prf, thm:completeness, def:C+C.length, lem:C.exists_finset_shorter_and_mem_iff_iSup}
     Let $\sigma, \tau \in \mathbb{C}$ be such that $\not\vdash \sigma = \tau$. 
     Then, for some $\nu \in \mathbb{C}$, one of the two possibilities occurs:
     \begin{enumerate}
-        \item $\vdash \nu \in \sigma \quad \text{and} \quad \nu \notin \tau$.
-        \item $\vdash \nu \notin \sigma \quad \text{and} \quad \nu \in \tau$.
+        \item $\vdash \nu \in \sigma \quad \text{and} \quad \vdash \nu \notin \tau$.
+        \item $\vdash \nu \notin \sigma \quad \text{and} \quad \vdash \nu \in \tau$.
     \end{enumerate}
 \end{lemma}
 
@@ -74,14 +84,36 @@ We will start by establishing some properties of constant terms.
 \end{proof}
 
 \begin{corollary}
+    \lean{HF.C.ne_of_not_eq}
+    \label{cor:C.ne_of_not_eq}
+    \leanok
+    \uses{def:prf, thm:completeness, thm:exten_prop, def:C+C.length, 
+        lem:C.exists_mem_and_notin_of_not_eq}
     For every $\sigma, \tau \in \mathbb{C}$, $\not\vdash \sigma = \tau$ implies 
     $\vdash \sigma \neq \tau$.
 \end{corollary}
 
+\begin{proof}
+    \leanok
+    Follows directly from Lemma \ref{lem:C.exists_mem_and_notin_of_not_eq} and 
+    Theorem \ref{thm:exten_prop}.
+\end{proof}
+
 \begin{corollary}
+    \lean{HF.C.eq_of_forall_mem_iff_mem}
+    \label{cor:C.eq_of_forall_mem_iff_mem}
+    \uses{def:prf, def:C+C.length, lem:C.exists_mem_and_notin_of_not_eq}
+    \leanok
     If $\sigma, \tau \in \mathbb{C}$ are such that $\vdash \nu \in \sigma$ if and only if
-    $\vdash \nu \in \tau$ for every $\nu \in \mathbb{C}$, then $\vdash \sigma = \tau$.
+    $\vdash \nu \in \tau$ for every $\nu \in \mathbb{C}$, and HF is consistent, 
+    then $\vdash \sigma = \tau$.
 \end{corollary}
+
+\begin{proof}
+    \leanok
+    Follows directly from Lemma \ref{lem:C.exists_mem_and_notin_of_not_eq} 
+    using proof by contradiction.
+\end{proof}
 
 \section{The model}
 
