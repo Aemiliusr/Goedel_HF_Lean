@@ -6,3 +6,4 @@ import GIT.Ordinal
 import GIT.Function
 import GIT.Model
 import GIT.Coding
+import GIT.Sigma
