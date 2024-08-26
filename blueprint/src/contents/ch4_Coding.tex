@@ -1,8 +1,34 @@
-\chapter{Gödel Coding}
+\chapter{Coding}
 
-In the general sense, a Gödel coding is a function that assigns to each symbol, each term and
-each formula of some formal language a unique code, called its Gödel code.
-More text on coding.
+Gödel's original proof of the first incompleteness theorem, 
+as detailed in \cite{godel1931formal}, 
+involves a crucial step where statements about a formal system are mapped onto statements that 
+exist within that system itself. 
+This mapping gives rise to the development of metamathematics, that is, 
+it enables the formal system to make assertions about its own content.
+
+Specifically, in the original paper, symbols, terms and formulas of the formal language are encoded 
+as natural numbers, referred to as \textit{Gödel numbers}. 
+This encoding is useful because properties of formulas in the language 
+— such as being a theorem or not — 
+can be analysed by examining the properties of their corresponding Gödel numbers. 
+This approach leads to the formulation of a formula that effectively says, 
+"formula $\phi$ is provable within the system", which applies to any formula $\phi$ in the language.
+
+For HF, we adopt a similar strategy by encoding symbols, terms, and formulas 
+as constant terms within the language itself. Why choose constant terms?
+Firstly, we want to apply set-theoretical formulas to these codes, 
+so it is important that each code corresponds naturally to a set. 
+Additionally, as demonstrated in the proof of Gödel’s Diagonal Lemma (discussed in Chapter 6), 
+we must be able to encode a code itself. 
+This means assigning a code to the code $\ulcorner{\varphi}\urcorner$ of an 
+$\mathcal{L}$-formula $\varphi$. 
+To achieve this, the codes must be objects within the language $\mathcal{L}$. 
+Constant terms are the simplest objects in the language that are naturally associated with sets, 
+making them the ideal choice for codes.
+
+However, we want the mapping from objects in the language to their codes to be one-to-one.
+Therefore we restrict the codes to a certain family of constant terms, denoted by $\Gamma$.
 
 \begin{definition}
     \lean{HF.IsInΓ0, HF.IsInΓ, HF.Code}
@@ -34,7 +60,10 @@ More text on coding.
     Under construction.
 \end{proof}
 
-Need text on what langle rangle with more than 2 inputs means.
+In the following definitions, $\langle \sigma, \tau, \mu \rangle$ is a shorthand for the ordered
+pair $\langle \langle \sigma, \tau \rangle, \mu \rangle$,
+$\langle \sigma, \tau, \mu, \nu \rangle$ is a shorthand for 
+$\langle \langle \sigma, \tau, \mu \rangle, \nu \rangle$, and so on.
 
 \begin{definition}[Coding of symbols]
     \lean{HF.Code.Mem, HF.Code.Enlarge, HF.Code.Eq, HF.Code.Or, HF.Code.Neg, HF.Code.Ex}

@@ -43,17 +43,21 @@ We will start by establishing some properties of constant terms.
 
 \begin{proof}
     \leanok
-    The shortest non-empty $\tau$ is $\varnothing \lhd \varnothing$. 
+    We apply induction on the length $l(\tau)$.
+    The case $l(\tau) = 0$, i.e. $\tau = \varnothing$, is trivial.
+    Now assume that the lemma has been established for all non-zero constant terms shorter 
+    than $\tau$, and let $\tau$ be $\sigma \lhd \mu$.
+    If $\sigma = \varnothing$, then $\tau = \varnothing \lhd \mu$, 
+    where $\mu$ is shorter than $\tau$.
     We have the theorem of HF
     $$
-    \vdash (x \in \varnothing \lhd \varnothing \leftrightarrow x \in \varnothing \lor x=\varnothing
-    \leftrightarrow x=\varnothing),
+    \vdash (x \in \varnothing \lhd \mu \leftrightarrow x \in \varnothing \lor x=\mu
+    \leftrightarrow x=\mu),
     $$
-    i.e., $m=1$ and $\tau_1 = \varnothing$. 
-    Now assume that the lemma has been established for all non-zero constant terms shorter 
-    than $\tau$, and let $\tau$ be $\sigma \lhd \mu$. 
-    Then $\sigma$ is shorter than $\tau$, 
-    hence there are $\sigma_1, \ldots, \sigma_n \in \mathbb{C}$ such that
+    i.e. $m=1$ and $\tau_1 = \mu$. 
+   
+    Now suppose $\sigma \neq \varnothing$. As $\sigma$ is shorter than $\tau$,
+    there are $\sigma_1, \ldots, \sigma_n \in \mathbb{C}$ such that
     $$
     \vdash (x \in \sigma \leftrightarrow x=\sigma_1 \lor \ldots \lor x=\sigma_n)
     $$
@@ -63,14 +67,15 @@ We will start by establishing some properties of constant terms.
     $$
     By inductive assumption, 
     each $\sigma_i$ is shorter than $\sigma$, thus also shorter than $\tau$. 
-    Also $\mu$ is shorter than $\tau$.
+    Also, $\mu$ is shorter than $\tau$.
 \end{proof}
 
 \begin{lemma}
     \lean{HF.C.exists_mem_and_notin_of_not_eq}
     \label{lem:C.exists_mem_and_notin_of_not_eq}
     \leanok
-    \uses{def:prf, thm:completeness, def:C+C.length, lem:C.exists_finset_shorter_and_mem_iff_iSup}
+    \uses{def:prf, thm:completeness, thm:exten_prop, def:C+C.length, 
+        lem:C.exists_finset_shorter_and_mem_iff_iSup}
     Let $\sigma, \tau \in \mathbb{C}$ be such that $\not\vdash \sigma = \tau$. 
     Then, for some $\nu \in \mathbb{C}$, one of the two possibilities occurs:
     \begin{enumerate}
@@ -80,7 +85,47 @@ We will start by establishing some properties of constant terms.
 \end{lemma}
 
 \begin{proof}
-    Under construction.
+    First, consider the case where $\sigma = \varnothing$ or $\tau = \varnothing$.
+    Suppose $\sigma = \varnothing$.
+    Then $\not\vdash \sigma = \tau$ implies $\tau \neq \varnothing$, and thus
+    $\tau = \mu \lhd \nu$ for some constant terms $\mu, \nu$.
+    It follows that $\vdash \nu \in \tau$ and $\vdash \nu \notin \sigma$, 
+    and thus possibility 1. holds.
+    Analogously, if $\tau = \varnothing$, possibility 2. holds.
+
+    Now, we apply induction on the length $l(\sigma)$.
+    The case $l(\sigma) = 0$ has been considered already.
+    For $l(\sigma) > 0$, suppose the lemma has been established for all non-zero constant terms 
+    shorter than $\sigma$, and assume $\tau$ is such that $\not\vdash \sigma = \tau$.
+    The case $\tau = \varnothing$ has been dealt with.
+    It remains to consider the case where neither $\sigma$ nor $\tau$ is $\varnothing$.
+    By Lemma \ref{lem:C.exists_finset_shorter_and_mem_iff_iSup}, there are finitely many
+    $\sigma_1, \ldots, \sigma_m \in \mathbb{C}$, all shorter than $\sigma$, and finitely many
+    $\tau_1, \ldots, \tau_n \in \mathbb{C}$, all shorter than $\tau$, such that
+    $$
+    \vdash (x \in \sigma \leftrightarrow x = \sigma_1 \lor \ldots \lor x = \sigma_m)
+    \quad \text{and} \quad 
+    \vdash (x \in \tau \leftrightarrow x = \tau_1 \lor \ldots \lor x = \tau_n).
+    $$
+    If for every $\sigma_i$ there exists exactly one $\tau_j$ such that $\vdash \sigma_i = \tau_j$,
+    then $\vdash (x \in \sigma \leftrightarrow x \in \tau)$, and thus, 
+    by Theorem \ref{thm:exten_prop}, $\vdash \sigma = \tau$, a contradiction.
+    Hence, either there is some $\sigma_i$ such that for every $\tau_j$ we have
+    $\not\vdash \sigma_i = \tau_j$, or there is some $\tau_j$ such that for every $\sigma_i$ we have
+    $\not\vdash \sigma_i = \tau_j$.
+
+    Suppose the first case.
+    Since this $\sigma_i$ is shorter than $\sigma$, by inductive assumption, 
+    either possibility 1. or 2. holds for $\sigma_i$ and every $\tau_j$, for suitable $\nu_j$.
+    Thus, by Theorem \ref{thm:exten_prop}, $\vdash \sigma_i \neq \tau_j$ for all $j$.
+    We now substitute $\sigma_i$ for $x$ in 
+    $$
+    \vdash (x \notin \tau \leftrightarrow x \neq \tau_1 \land \ldots \land x \neq \tau_n),
+    $$
+    which implies $\vdash \sigma_i \notin \tau$.
+    But $\vdash \sigma_i \in \sigma$, so possibility 1. holds with $\nu = \sigma_i$.
+    The second case where there exists some $\tau_j$ such that for every $\sigma_i$ we have
+    $\not\vdash \sigma_i = \tau_j$ is analogous and implies possibility 2.
 \end{proof}
 
 \begin{corollary}
@@ -119,7 +164,7 @@ We will start by establishing some properties of constant terms.
 
 \begin{definition}[The standard model of HF]
     \label{def:stdModel}
-    \lean{HF.stdModel}
+    \lean{HF.stdModel, HF.stdModel.struc}
     \uses{def:Lang, def:C}
     \leanok
     Introduce the equivalence relation $\equiv$ on $\mathbb{C}$ given by
@@ -147,5 +192,20 @@ We will start by establishing some properties of constant terms.
 \end{theorem}
 
 \begin{proof}
-    Under construction.
+    We check that the axioms of HF are modeled by $\mathfrak{S}$.
+
+    \textit{Axiom 1.} Suppose $[\sigma] \in \mathbb{S}$ is such that 
+    $\mathfrak{S} \vDash [\tau] \notin [\sigma]$ for every constant term $\tau$.
+    Then $\sigma$ cannot be of the form $\mu \lhd \nu$ for some constant terms $\mu, \nu$,
+    as otherwise $\mathfrak{S} \vDash [\nu] \in [\sigma]$ by \ref{def:stdModel}.3.
+    Thus, $\sigma = \varnothing$.
+    Conversely, we have $\mathfrak{S} \vDash [\tau] \notin [\varnothing]$ for all $\tau$,
+    as, by \ref{def:stdModel}.3, $\mathfrak{S} \vDash [\tau] \in [\varnothing]$ if and only if
+    $\vdash \tau \in \varnothing$, and the latter contradicts 
+    Lemma \ref{lem:notin_empty+mem_enlarge+mem_enlarge_empty} and the assumption of consistency.
+
+    \textit{Axiom 2.} ...
+
+    \textit{Axiom 3.} ...
+
 \end{proof}

@@ -174,11 +174,4 @@ theorem completeness (φ : Lang.Formula α) :
   ⊢ φ ↔ ⊧ φ := by
   sorry
 
-theorem consistent : ¬ ∃ (φ : Lang.Formula α), ⊢ φ ∧ ⊢ ∼φ := by
-  by_contra!
-  rcases this with ⟨φ, ⟨h1, h2⟩⟩
-  rw [completeness] at *
-  -- need a model?
-  sorry
-
 end HF
