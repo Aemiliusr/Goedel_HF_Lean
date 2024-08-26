@@ -234,7 +234,7 @@ lemma ax1_aux (cons : ¬(∃ (φ : Lang.Sentence), ⊢ φ ∧ ⊢ ∼φ)) :
   · rintro rfl
     intros τ h
     rw [mem_iff, empty_out_relabel_eq_of_consistent cons] at h
-    have : prf (α := Empty) {} (∼(((τ.out).relabel .inl) ∈' .func ∅' Fin.elim0)) :=
+    have : prf (α := Empty) (n := 0) {} (∼(((τ.out).relabel .inl) ∈' .func ∅' Fin.elim0)) :=
       by rw [completeness]; intros _ _ _; simp [Formula.Realize]
     apply cons
     use (((τ.out).relabel .inl) ∈' .func ∅' Fin.elim0)

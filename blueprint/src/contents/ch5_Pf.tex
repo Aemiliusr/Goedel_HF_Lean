@@ -1,1 +1,64 @@
 \chapter{The Provability Formula}
+
+For any $\mathcal{L}$-formula $\varphi$, we now aim to define a condition applicable to
+its code $\ulcorner\varphi\urcorner$ that holds true if and only if $\varphi$ is a theorem of HF, 
+i.e. $\varphi$ is provable. 
+Specifically, we seek to identify an $\mathcal{L}$-formula $\operatorname{Pf}(x)$,
+referred to as the \textit{provability formula}, such that
+$$
+\vdash \varphi \,\text{ if and only if } \vdash \operatorname{Pf}(\ulcorner{\varphi}\urcorner).
+$$
+To establish this equivalence, we shall invoke $\mathfrak{S}$, the standard model of HF,
+by ensuring that $\vdash \operatorname{Pf}(\ulcorner{\varphi}\urcorner)$ if and only if
+$\mathfrak{S} \models \operatorname{Pf}(\ulcorner{\varphi}\urcorner)$. 
+Then it remains to define $\operatorname{Pf}(x)$ in such a way that
+$$
+\vdash \varphi \,\text{ if and only if } 
+\mathfrak{S} \models \operatorname{Pf}(\ulcorner{\varphi}\urcorner),
+$$
+a process that is tedious but straightforward once the appropriate definitions and results 
+are in place.
+
+By soundness, we have that $\vdash \varphi$ implies 
+$\mathfrak{S} \models \varphi$ for any $\mathcal{L}$-formula $\varphi$.
+However, the converse does not hold in general, with the sentence in Gödel's first incompleteness
+theorem as an example.
+Fortunately, there is a substantial class of sentences for which being modelled by $\mathfrak{S}$
+is equivalent to being a theorem of HF.
+We call these sentences $\Sigma$-sentences, and it follows that, given an $\mathcal{L}$-formula 
+$\varphi$, the provability formula $\operatorname{Pf}(\ulcorner{\varphi}\urcorner)$ should be
+a $\Sigma$-sentence.
+
+\section{\(\Sigma\)-formulas}
+
+To begin, we introduce strict $\Sigma$-formulas, 
+which are $\mathcal{L}$-formulas that only include bounded universal quantifiers, variables, 
+and the symbols $\in, \lor, \land, \exists$.
+
+\begin{definition}[Strict $\Sigma$-formula]
+\label{def:IsInSSigma}
+\lean{HF.IsInSSigma}
+\leanok
+\uses{def:Lang}
+The class $\Sigma$ of \textit{strict $\Sigma$-formulas} is the smallest class of 
+$\mathcal{L}$-formulas such that
+\begin{enumerate}
+    \item The atomic formula $x_i \in x_j$ is in $\Sigma$ for all variables $x_i, x_j$.
+    \item If $\varphi, \psi$ are in $\Sigma$, then so are 
+        $\varphi \lor \psi$ and $\varphi \land \psi$.
+    \item If $\varphi$ is in $\Sigma$, then so are $\exists x_i \varphi$ and 
+        $\forall (x_i \in x_j) \varphi$ for all distinct variables $x_i, x_j$.
+\end{enumerate}
+\end{definition}
+
+\begin{definition}[$\Sigma$-formula]
+    \label{def:IsSigma}
+    \lean{HF.IsSigma}
+    \leanok
+    \uses{def:IsInSSigma}
+    Say an $\mathcal{L}$-formula $\varphi$ is a \textit{$\Sigma$-formula} 
+    if there exists a strict $\Sigma$-formula $\psi$ such that 
+    $\vdash \varphi \leftrightarrow \psi$.
+\end{definition}
+
+

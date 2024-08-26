@@ -4,7 +4,7 @@ Gödel's original proof of the first incompleteness theorem,
 as detailed in \cite{godel1931formal}, 
 involves a crucial step where statements about a formal system are mapped onto statements that 
 exist within that system itself. 
-This mapping gives rise to the development of metamathematics, that is, 
+This mapping gives rise to the development of a meta-theory, that is, 
 it enables the formal system to make assertions about its own content.
 
 Specifically, in the original paper, symbols, terms and formulas of the formal language are encoded 
@@ -31,8 +31,8 @@ However, we want the mapping from objects in the language to their codes to be o
 Therefore we restrict the codes to a certain family of constant terms, denoted by $\Gamma$.
 
 \begin{definition}
-    \lean{HF.IsInΓ0, HF.IsInΓ, HF.Code}
-    \label{def:IsInΓ0+IsInΓ+Code}
+    \lean{HF.C.IsInΓ0, HF.C.IsInΓ, HF.Code}
+    \label{def:C.IsInΓ0+C.IsInΓ+Code}
     \leanok
     \uses{def:Lang, def:C}
     We denote by $\Gamma_0$ the least family of constant terms such that
@@ -40,7 +40,7 @@ Therefore we restrict the codes to a certain family of constant terms, denoted b
         \item $\varnothing \in \Gamma_0$.
         \item If $\sigma \in \Gamma_0$, then $\sigma \lhd \sigma \in \Gamma_0$.
     \end{enumerate}
-    Furthermore, we denote by $\Gamma$ the least family of constant terms such that 
+    Furthermore, we denote by $\Gamma$ the least family of constant terms such that
     $\Gamma_0 \subseteq \Gamma$ and 
     \begin{enumerate}\setcounter{enumi}{2} %does not work in web
         \item If $\sigma, \tau \in \Gamma$, then $\langle\sigma, \tau\rangle \in \Gamma$.
@@ -48,8 +48,8 @@ Therefore we restrict the codes to a certain family of constant terms, denoted b
 \end{definition}
 
 \begin{theorem}
-    \lean{HF.ne_of_isInΓ_and_distinct}
-    \label{thm:ne_of_isInΓ_and_distinct}
+    \lean{HF.C.ne_of_isInΓ_and_distinct}
+    \label{thm:C.ne_of_isInΓ_and_distinct}
     \leanok
     \uses{def:C, def:IsInΓ0+IsInΓ+Code}
     Let $\sigma, \tau \in \Gamma$ be distinct constant terms, i.e. they are different strings of
@@ -96,6 +96,7 @@ $\langle \langle \sigma, \tau, \mu \rangle, \nu \rangle$, and so on.
 \begin{definition}[Coding of terms]
     \lean{HF.Code.Term}
     \label{def:Code.Term}
+    \leanok
     \uses{def:IsInΓ0+IsInΓ+Code, def:Code.Symbols}
     The terms $\varnothing$ and $x_k$ have been code already. 
     The remaining case follows the inductive definition

@@ -6,6 +6,8 @@ suppress_compilation
 
 namespace HF
 
+namespace C
+
 abbrev pair (σ τ : C) : C :=
   .func ◁' ![(.func ◁' ![.func ∅' Fin.elim0, .func ◁' ![.func ∅' Fin.elim0, σ] ]),
   .func ◁' ![.func ◁' ![.func ∅' Fin.elim0, σ] ,τ] ]
@@ -47,6 +49,20 @@ lemma tuple7_isInΓ (hσ : IsInΓ σ) (hτ : IsInΓ τ) (hμ : IsInΓ μ) (hν :
     (hζ : IsInΓ ζ) (hη : IsInΓ η) : IsInΓ (tuple7 σ τ μ ν ξ ζ η) :=
   IsInΓ.pair (tuple6_isInΓ hσ hτ hμ hν hξ hζ) hη
 
+def Ord : ℕ → C
+| 0 => .func ∅' Fin.elim0
+| Nat.succ n => .func ◁' ![(Ord n), (Ord n)]
+
+lemma ord_isInΓ (n : ℕ) : IsInΓ (Ord n) := by
+  apply IsInΓ.isInΓ0
+  induction n with
+  | zero => apply IsInΓ0.empty
+  | succ n h => exact IsInΓ0.enlarge h
+
+end C
+
+open C
+
 def Code : Type := {τ : C // IsInΓ τ}
 
 namespace Code
@@ -80,13 +96,13 @@ abbrev Ex : Code :=
     (IsInΓ.isInΓ0 IsInΓ0.empty) (IsInΓ.isInΓ0 IsInΓ0.empty) (IsInΓ.isInΓ0 IsInΓ0.empty)
     (IsInΓ.isInΓ0 IsInΓ0.empty)⟩
 
-def Term : Lang.Term (α : Type) → Code
-| .var x => sorry
-| @Term.func _ _ 0 f ts => ⟨.func ∅' Fin.elim0, IsInΓ.isInΓ0 IsInΓ0.empty⟩
-| @Term.func _ _ 2 f ts => ⟨pair (Term (ts 1)).1 (Term (ts 2)).1,
-    IsInΓ.pair ((Term (ts 1)).2) (Term (ts 2)).2⟩
+def Term [Fintype α] : Lang.Term (α : Type) → Code
+| .var i => ⟨Ord ((Fintype.equivFin α) i), ord_isInΓ ((Fintype.equivFin α) i)⟩
+| @Term.func _ _ 0 _ _ => ⟨.func ∅' Fin.elim0, IsInΓ.isInΓ0 IsInΓ0.empty⟩
+| @Term.func _ _ 2 _ ts => ⟨tuple3 Enlarge.1 (Term (ts 1)).1 (Term (ts 2)).1,
+    tuple3_isInΓ Enlarge.2 ((Term (ts 1)).2) (Term (ts 2)).2⟩
 
-def Formula : Lang.BoundedFormula (α : Type) n → Code
+def Formula [Fintype α] : Lang.BoundedFormula (α : Type) n → Code
 | .falsum => ⟨pair Neg.1 (tuple3 Eq.1 (.func ∅' Fin.elim0) (.func ∅' Fin.elim0)),
   IsInΓ.pair Neg.2 (tuple3_isInΓ Eq.2 (IsInΓ.isInΓ0 IsInΓ0.empty) (IsInΓ.isInΓ0 IsInΓ0.empty))⟩ -- ¬ (0 = 0)
 | .equal σ τ => ⟨tuple3 Eq.1 (Term σ).1 (Term τ).1, tuple3_isInΓ Eq.2 (Term σ).2 (Term τ).2⟩

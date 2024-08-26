@@ -165,11 +165,11 @@ We will start by establishing some properties of constant terms.
 \begin{definition}[The standard model of HF]
     \label{def:stdModel}
     \lean{HF.stdModel, HF.stdModel.struc}
-    \uses{def:Lang, def:C}
+    \uses{def:Lang, def:C+C.length}
     \leanok
     Introduce the equivalence relation $\equiv$ on $\mathbb{C}$ given by
     $$
-    \sigma \equiv \tau \leftrightarrow \,\vdash \sigma = \tau.
+    \sigma \equiv \tau \,\text{ if and only if } \vdash \sigma = \tau.
     $$
     Then the $\mathcal{L}-$structure 
     $\mathfrak{S} = \langle\mathbb{S}, \varnothing, \in, \lhd \rangle$ is defined by the following:
@@ -186,7 +186,8 @@ We will start by establishing some properties of constant terms.
 \begin{theorem}
     \label{stdModel.model_of_consistent}
     \lean{HF.stdModel.model_of_consistent}
-    \uses{def:Lang, def:Axioms, def:stdModel}
+    \uses{def:Lang, def:Axioms, thm:completeness, lem:notin_empty+mem_enlarge+mem_enlarge_empty, 
+        thm:exten_prop, def:stdModel}
     \leanok
     If HF is consistent, then $\mathfrak{S}$ is a model of HF.
 \end{theorem}

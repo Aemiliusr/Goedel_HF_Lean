@@ -66,7 +66,7 @@ def Axiom2 : Lang.Formula (α : Type) :=
   ∀' ∀' ∀' ((&0 =' .func ◁' ![&1, &2]) ⇔ (∀' ((&3 ∈' &0) ⇔ ((&3 ∈' &1) ⊔ (&3 =' &2)))))
 
 /-- HF3: (α(∅) ∧ ∀ x y, α(x) → α(y) → α(x ◁ y)) → ∀ x α(x) -/
-def Axiom3 (φ : Lang.BoundedFormula (α : Type) 1 ) : Lang.Formula α :=
+def Axiom3 (φ : Lang.BoundedFormula (α : Type) 1) : Lang.Formula α :=
   ((∀' ((&0 =' .func ∅' Fin.elim0) ⟹ φ))
   ⊓ (∀' ∀' ((φ.liftAt 1 1 ⊓ (φ.liftAt 1 0))
   ⟹ (∀' ((&2 =' .func ◁' ![&0, &1]) ⟹ φ.liftAt 2 0)))))
@@ -135,19 +135,17 @@ def Theory :  Set (Lang.Formula α) := {Axiom1, Axiom2, Axiom3, Axiom4}
 end Equality
 
 -- missing substitution and ∃-intro deduction rules
-inductive prf : Set (Lang.Formula α) → Lang.Formula α → Prop
+inductive prf : Set (Lang.BoundedFormula α n) → Lang.BoundedFormula α n → Prop
 | Hyp : φ ∈ T → prf T φ
 | Ax : φ ∈ Theory → prf T φ
 | Bool : φ ∈ Bool.Theory → prf T φ
 | Spec : φ ∈ Spec.Theory → prf T φ
 | Eq : φ ∈ Equality.Theory → prf T φ
-| MP (ψ : Lang.Formula α) (h1 : prf T (ψ ⟹ φ)) (h2 : prf T ψ) : prf T φ
+| MP (ψ : Lang.BoundedFormula α n) (h1 : prf T (ψ ⟹ φ)) (h2 : prf T ψ) : prf T φ
 -- Substition: from φ deduce φ (x/t) for any term t that is substitutable for x in φ
 -- ∃-introduction: from φ → ψ deduce ∃ x φ → ψ provided x is not free in ψ
 
-infix:51 "⊢" => prf
-
-prefix:51 "⊢" => prf {}
+prefix:51 "⊢" => prf (n := 0) {}
 
 abbrev models (S : Type) [Lang.Structure S] (φ : Lang.Formula (α : Type)) : Prop :=
   ∀ (v : α → S), φ.Realize v
