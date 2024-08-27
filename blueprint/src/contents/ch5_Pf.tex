@@ -10,17 +10,17 @@ $$
 $$
 To establish this equivalence, we shall invoke $\mathfrak{S}$, the standard model of HF,
 by ensuring that $\vdash \operatorname{Pf}(\ulcorner{\varphi}\urcorner)$ if and only if
-$\mathfrak{S} \models \operatorname{Pf}(\ulcorner{\varphi}\urcorner)$. 
+$\mathfrak{S} \vDash \operatorname{Pf}(\ulcorner{\varphi}\urcorner)$. 
 Then it remains to define $\operatorname{Pf}(x)$ in such a way that
 $$
 \vdash \varphi \,\text{ if and only if } 
-\mathfrak{S} \models \operatorname{Pf}(\ulcorner{\varphi}\urcorner),
+\mathfrak{S} \vDash \operatorname{Pf}(\ulcorner{\varphi}\urcorner),
 $$
 a process that is tedious but straightforward once the appropriate definitions and results 
 are in place.
 
 By soundness, we have that $\vdash \varphi$ implies 
-$\mathfrak{S} \models \varphi$ for any $\mathcal{L}$-formula $\varphi$.
+$\mathfrak{S} \vDash \varphi$ for any $\mathcal{L}$-formula $\varphi$.
 However, the converse does not hold in general, with the sentence in Gödel's first incompleteness
 theorem as an example.
 Fortunately, there is a substantial class of sentences for which being modelled by $\mathfrak{S}$
@@ -62,4 +62,140 @@ $\mathcal{L}$-formulas such that
     $\vdash \varphi \leftrightarrow \psi$.
 \end{definition}
 
+\begin{lemma}
+    \label{lem:subset_isSigma+...+empty_mem_isSigma}
+    \uses{lem:notin_empty+mem_enlarge+mem_enlarge_empty, thm:exten_prop, def:Subset+SSubset, 
+        cor:mem_irrefl, def:IsSigma}
+    The $\mathcal{L}$-formulas $x \subseteq y$, $x = y$, $z = x \lhd y$, $x=0$, $x\in 0$,
+    $0 \in x$ and all atomic formulas are $\Sigma$-formulas.
+\end{lemma}
 
+\begin{proof}
+    The following are theorems of HF:
+    \begin{enumerate}
+        \item $x \subseteq y \leftrightarrow \forall (u \in x)[u \in y]$.
+        \item $x = y \leftrightarrow x \subseteq y \land y \subseteq x$.
+        \item $z = x \lhd y \leftrightarrow \forall(u \in z)[u \in x \lor u = y] 
+        \land (x \subseteq z) \land (y \in z)$.
+        \item $x = 0 \leftrightarrow \forall (u \in x)[u \in u]$ (see Lemma 
+        \ref{lem:notin_empty+mem_enlarge+mem_enlarge_empty} and Corollary \ref{cor:mem_irrefl}).
+        \item $x \in 0 \leftrightarrow x \in x$ (see Corollary \ref{cor:mem_irrefl}).
+        \item $0 \in x \leftrightarrow \exists y (y = 0 \land y \in x)$.
+    \end{enumerate}
+    It follows from Definition \ref{def:IsInSSigma}.1, 
+    Lemma \ref{lem:subset_isSigma+...+empty_mem_isSigma}.2 and 
+    Lemma \ref{lem:subset_isSigma+...+empty_mem_isSigma}.3 that every atomic formula is a
+    $\Sigma$-formula.
+\end{proof}
+
+\begin{lemma}
+    \label{lem:Ord_isSigma+Seq_isSigma+LstSeq_isSigma}
+    \uses{def:IsTrans+IsOrd, def:IsSeq, def:IsSigma, lem:subset_isSigma+...+empty_mem_isSigma}
+    Introduce the $\mathcal{L}$-formula $\operatorname{LstSeq}(s,k,y)$, which means
+    $\operatorname{Seq}(s,k)$ and $s$ terminates with $y$.
+    
+    The $\mathcal{L}$-formulas $\operatorname{Ord}(x)$, $\operatorname{Seq}(s,k)$ and
+    $\operatorname{LstSeq}(s,k,y)$ are $\Sigma$-formulas.
+\end{lemma}
+
+\begin{proof}
+    The following are theorems of HF:
+    \begin{enumerate}
+        \item $\operatorname{Ord}(x) \leftrightarrow 
+        \forall(y \in x)\{[y \subseteq x] \land \forall(z \in y)[z \subseteq y]\}$ (see 
+        Definition \ref{def:IsTrans+IsOrd} and 
+        Lemma \ref{lem:subset_isSigma+...+empty_mem_isSigma}).
+        \item $\operatorname{Seq}(s, k) \leftrightarrow \operatorname{Ord}(k) 
+            \land \varnothing \in k \land \forall(n \in k) \exists u[\langle n, u\rangle \in s] 
+            \land$
+            $\forall(y, z \in s) \exists(m, n \in k) \exists u \exists v[y=\langle m, u\rangle 
+            \land z=\langle n, v\rangle \land(m \neq n \lor u=v)]$.
+        \item $\operatorname{LstSeq}(s, k, y) \leftrightarrow \operatorname{Seq}(s, k) 
+            \land \exists n(n \lhd n=k \land\langle n, y\rangle \in s)$ 
+            (see Lemma \ref{lem:subset_isSigma+...+empty_mem_isSigma}).
+    \end{enumerate}
+    Observe that, in 2., $m \neq n$ is a $\Sigma$-formula if $m,n$ are ordinals, as
+    it is equivalent to $m \in n \lor n \in m$ 
+    (see Corollary \ref{cor:IsOrd.exclusive_comparability+...+IsOrd.succ_inj}).
+\end{proof}
+
+A \textit{$\Sigma$-sentence} is a $\Sigma$-formula that is a sentence, 
+i.e. it has no free variables. 
+As discussed earlier, the key property of $\Sigma$-sentences is that 
+being modelled by $\mathfrak{S}$ is equivalent to being a theorem of HF.
+In order to establish this, we need the class of $\Sigma_{\lhd}$-formulas.
+
+\begin{definition}
+    \label{def:IsSigma_lhd}
+    \uses{def:Lang, def:IsSigma}
+    Say an $\mathcal{L}$-formula is a \textit{$\Sigma_{\lhd}$-formula} if it is made up
+    of terms, the symbols ${\varnothing}$, ${=}$, ${\in}$, ${\lor}$, ${\land}$, ${\exists x_i}$,
+    and ${\forall(x_i \in \tau)}$, where $\tau$ is any term that does not contain $x_i$.
+
+    For a $\Sigma_{\lhd}$-formula $\alpha$, its length $\lambda(\alpha)$ is defined to be 
+    the total number of occurrences of the symbols $\lor$, $\land$, $\exists$, and $\forall$.
+\end{definition}
+
+\begin{theorem}
+    \label{thm:stdModel.prf_iff_models}
+    \uses{def:IsSigma_lhd}
+    For every $\Sigma$-sentence $\alpha$, 
+    $$
+    \vdash \alpha \,\text{ if and only if } 
+    \mathfrak{S} \vDash \alpha.
+    $$
+\end{theorem}
+
+\begin{proof}
+    By soundness, it remains to show that for every $\Sigma$-sentence $\alpha$,
+    $\mathfrak{S} \vDash \alpha$ implies $\vdash \alpha$.
+    Furthermore, since every strict $\Sigma$-sentence is a $\Sigma_{\lhd}$-sentence, 
+    it suffices to prove the result for every $\Sigma_{\lhd}$-sentence $\alpha$.
+    We proceed by induction on the length $\lambda (\alpha)$.
+
+    Suppose $\lambda(\alpha) = 0$. Then $\alpha$ must be of the form $\sigma \in \tau$ or 
+    $\sigma = \tau$ for some constant terms $\sigma, \tau$.
+    The result follows directly from the definition of ${\in}$ and ${=}$ in $\mathfrak{S}$,
+    i.e. in Definition \ref{def:stdModel}.
+
+    Now assume $\lambda(\alpha) > 0$ and suppose the result holds for all $\Sigma_{\lhd}$-sentences 
+    of length less than $\lambda (\alpha)$.
+    We consider the following cases:
+    \begin{itemize}
+        \item $\alpha$ is $\beta \lor \gamma$. By the inductive assumption,
+        \begin{equation*}
+            \mathfrak{S} \vDash \alpha \rightarrow 
+            (\mathfrak{S} \vDash \beta \text{ or } \mathfrak{S} \vDash \gamma) \rightarrow
+            (\vdash \beta \text{ or } \vdash \gamma) \rightarrow 
+            \vdash \beta \lor \gamma.
+        \end{equation*}
+        \item $\alpha$ is $\beta \land \gamma$. Analogous to the previous case.
+        \item $\alpha$ is $\exists x \beta (x)$.
+        If $\mathfrak{S} \vDash \alpha$, then there exists a term $\tau$ such that
+        $\mathfrak{S} \vDash \beta(\tau)$. 
+        Since $\lambda(\beta(\tau)) = \lambda(\beta) < \lambda(\alpha)$, it follows from
+        the inductive assumption that $\vdash \beta(\tau)$, 
+        and hence $\vdash \exists x \beta (x)$.
+        \item $\alpha$ is $\forall (x \in \tau) \beta(x)$, where $\tau$ is a term that does not
+        contain $x$. Since there are no free variables in $\alpha$, $\tau$ must be a constant term.
+        By Lemma \ref{lem:C.exists_finset_shorter_and_mem_iff_iSup}, there are 
+        $\tau_1, \ldots, \tau_m \in \mathbb{C}$ such that
+        $$
+        \vdash \forall (x \in \tau) \beta(x) \leftrightarrow
+        \beta(\tau_1) \land \ldots \land \beta(\tau_m).
+        $$
+        Since $\lambda(\beta(\tau_j)) = \lambda(\beta(x)) < \lambda(\alpha)$, it follows 
+        from the inductive assumption that
+        \begin{equation*}
+            \begin{split}
+                & \mathfrak{S} \vDash \alpha \rightarrow 
+                \mathfrak{S} \vDash \beta(\tau_1) \text{ and } \ldots \text{ and } 
+                \mathfrak{S} \vDash \beta(\tau_m) \rightarrow \\
+                &\vdash \beta(\tau_1) \text{ and } \ldots \text{ and } \vdash \beta(\tau_m) 
+                \rightarrow
+                \vdash \beta(\tau_1) \land \ldots \land \beta(\tau_m) \rightarrow
+                \vdash \forall (x \in \tau) \beta(x).
+            \end{split}
+        \end{equation*}
+    \end{itemize}
+\end{proof}
