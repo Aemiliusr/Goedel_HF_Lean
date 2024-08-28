@@ -1,4 +1,4 @@
-import GIT.Model
+import GIT.Coding
 
 open FirstOrder Language
 

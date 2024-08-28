@@ -208,4 +208,205 @@ In order to establish this, we need the class of $\Sigma_{\lhd}$-formulas.
 
 \section{The formula Pf}
 
-Under construction.
+In this section, we summarise the the more detailed work required to construct the 
+$\Sigma$-formula $\operatorname{Pf}(x)$.
+Ultimately, we want the latter to \textit{mean} that $x$ codes an $\mathcal{L}$-formula 
+that is a theorem of HF.
+Here, by 'to mean' we imply the equivalence between $\vdash \operatorname{Pf}(x)$ and
+$x$ coding a theorem of HF.
+
+The remaining work of establishing $\operatorname{Pf}(x)$ essentially boils down to verifying 
+that all fundamental relationships between variables, terms, and formulas that 
+underlie a proof in HF can be expressed by a $\Sigma$-formula that only involves codes as arguments.
+By the latter we mean that the $\Sigma$-formula is expressed in such a way that the arguments 
+necessarily be codes if the $\Sigma$-formula is a theorem of HF.
+In the following definitions, 
+we will present the abbreviations and the \textit{meanings} of all these relevant 
+$\Sigma$-formulas, which are sub-formulas of $\operatorname{Pf}(x)$.
+For the corresponding written-out $\Sigma$-formulas themselves, the reader is
+referred to Chapter 3 and 4 of \cite{swierczkowski2003finite}, where they are described in detail.
+
+For the sake of readability, the definitions of the relevant $\Sigma$-formulas are presented
+as lemmas.
+
+\begin{lemma}
+    \label{lem:IsSigma.Relations}
+    \uses{def:Lang, def:IsTrans+IsOrd, def:IsSeq, def def:IsSigma, 
+        lem:Ord_isSigma+Seq_isSigma+LstSeq_isSigma}
+    There exist 25 $\Sigma$-formulas, solely involving codes as arguments, that express certain
+    relationships between variables, terms, and formulas.
+\end{lemma}
+
+\begin{proof}
+    Introduce the following abbreviations of $\Sigma$-formulas:
+    \begin{enumerate}
+        \item $\operatorname{Var}(x)$\\
+        Means: $x$ is the code of a variable.
+        \item $\operatorname{SeqTerm}(s,k,t)$\\
+        Means: $s$ is a sequence of length $k$ and $s$ terminates with the code $t$ of a term.
+        \item $\operatorname{Term}(t)$\\
+        Means: $t$ is the code of a term.
+        \item $\operatorname{Const}(t)$\\
+        Means: $t$ is the code of a constant term.
+        \item $\operatorname{NecSeqTerm}(s,k,t)$\\
+        Means: $s$ is a sequence of length $k$, $s$ terminates with the code $t$ of a term and
+        all terms whose codes appear in $s$ are sub-terms of the term coded by $t$.
+        \item $\operatorname{VarOccTerm}(v,t)$\\
+        Means: $v$ codes a variable, $t$ codes a term and 
+        the variable coded by $v$ occurs in the term coded by $t$.
+        \item $\operatorname{VarOccTerm}(v,t)$\\
+        Means: $v$ codes a variable, $t$ codes a term and 
+        the variable coded by $v$ does not occur in the term coded by $t$.
+        \item $\operatorname{At}(y)$\\
+        Means: $y$ is the code of an atomic formula.
+        \item $\operatorname{VarOccAt}(v,y)$\\
+        Means: $v$ codes a variable, $y$ codes an atomic formula and 
+        the variable coded by $v$ occurs in the atomic formula coded by $y$.
+        \item $\operatorname{VarNonOccAt}(v,y)$\\
+        Means: $v$ codes a variable, $y$ codes an atomic formula and 
+        the variable coded by $v$ does not occur in the atomic formula coded by $y$.
+        \item $\operatorname{MakeForm}(u,w,v,y)$\\
+        Means: $v$ codes a variable and if $u,w$ are codes of $\mathcal{L}$-formulas, 
+        then $y$ is the code of an $\mathcal{L}$-formula created from one or 
+        both $\mathcal{L}$-formulas coded by $u$, $w$ and possibly the variable coded by $v$ 
+        by a single application of ${\lor}$, ${\neg}$ or ${\exists}$.
+        \item $\operatorname{SeqForm}(s,k,y)$\\
+        Means: $s$ is a sequence of length $k$ and $s$ terminates with the code $y$ of a 
+        $\mathcal{L}$-formula.
+        \item $\operatorname{Form}(y)$\\
+        Means: $y$ is the code of an $\mathcal{L}$-formula.
+        \item $\operatorname{NonAt}(y)$\\
+        Means: $y$ is the code of a non-atomic formula.
+        \item $\operatorname{VarTopForm}(v,y)$\\
+        Means: $y$ is the code of an $\mathcal{L}$-formula beginning with $\exists x_i$,
+        where $v$ codes the variable $x_i$.
+        \item $\operatorname{SeqVarTopForm}(v,z,n,y)$\\
+        Means: $y$ is the code of an $\mathcal{L}$-formula and $z$ is a sequence of length $n$ 
+        showing how the $\mathcal{L}$-formula coded by $y$ is made up of $\mathcal{L}$-formulas 
+        beginning with $\exists x_i$ — where $v$ codes the variable $x_i$ — and of atomic formulas,
+        by using ${\lor}$, ${\neg}$ and ${\exists x_j}$, where $j\neq i$.
+        \item $\operatorname{NecSeqVarTopForm}(v,z,n,y)$\\
+        Means: as above, but additionally all $\mathcal{L}$-formulas whose codes appear in $z$
+        are sub-formulas of the $\mathcal{L}$-formula coded by $y$.
+        \item $\operatorname{VarOccFreeForm}(v,y)$\\
+        Means: $v$ codes a variable, $y$ codes an $\mathcal{L}$-formula and the variable coded by
+        $v$ occurs freely in the $\mathcal{L}$-formula coded by $y$.
+        \item $\operatorname{VarNonOccFreeForm}(v,y)$\\
+        Means: $v$ codes a variable, $y$ codes an $\mathcal{L}$-formula and the variable coded by
+        $v$ does not occur freely in the $\mathcal{L}$-formula coded by $y$.
+        \item $\operatorname{TermsSubsVarForm}(t,v,y)$\\
+        Means: $t$ codes a term, $v$ codes a variable, $y$ codes an $\mathcal{L}$-formula, and
+        the term coded by $t$ is a substitutable for the variable coded by $v$ in the 
+        $\mathcal{L}$-formula coded by $y$.
+        \item $\operatorname{SeqRepVarTermTerm}(s, s^\prime, k, v, t, u, u^\prime)$\\
+        Means: $v$ codes a variable, $t$ codes a term, $u$ and $u^\prime$ are coding terms 
+        and $s$ and $s^\prime$ are sequences of length $k$ such that $s$ terminates with $u$ 
+        and $s^\prime$ terminates with $u^\prime$ and the term coded by $u^\prime$ is obtained from 
+        that coded by $u$ by replacing each occurrence of the variable coded by $v$ by the term 
+        coded by $t$.
+        \item $\operatorname{RepVarTermTerm}(v, t, u, u^\prime)$\\
+        Means: $v$ codes a variable, $t$ codes a term, $u$ and $u^\prime$ code terms and 
+        replacing in the term coded by $u$ the variable coded by $v$, at all of its occurrences, 
+        by the term coded by $t$ one obtains the term coded by $u^\prime$.
+        \item $\operatorname{RepVarTermAt}(v, t, y, y^\prime)$\\
+        Means: $v$ codes a variable, $t$ codes a term, $y$ and $y^\prime$ are coding atomic formulas 
+        and replacing the variable coded by $v$ by the term coded by $t$, 
+        at all occurrences of this variable in the atomic formula coded by $y$, 
+        one obtains the atomic formula coded by $y^\prime$.
+        \item $\operatorname{SeqRepVarTermForm}(s, s^\prime, k, v, t, y, y^\prime)$\\
+        Means: $v$ codes a variable, $t$ codes a term, $y$ and $y^\prime$ code 
+        $\mathcal{L}$-formulas and $s$ and $s^\prime$ are sequences of length $k$ such that $s$ 
+        terminates with $y$ and $s^\prime$ terminates with $y^\prime$ and the $\mathcal{L}$-formula
+        coded by $y^\prime$ is obtained from that coded by $y$ by replacing each free occurrence of 
+        the variable coded by $v$ by the term coded by $t$.
+        \item $\operatorname{RepVarTermForm}(v, t, y, y^\prime)$\\
+        Means: $v$ codes a variable, $t$ codes a term, $y$ and $y^\prime$ code atomic 
+        $\mathcal{L}$-formulas and replacing the variable coded by $v$ by the term coded by $t$, 
+        at all free occurrences of this variable in the $\mathcal{L}$-formula coded by $y$, 
+        one obtains the $\mathcal{L}$-formula coded by $y^\prime$.
+    \end{enumerate}
+\end{proof}
+
+With these $\Sigma$-formulas in place, 
+we can now construct the provability formula $\operatorname{Pf}(x)$.
+To that end, we need eight other $\Sigma$-formulas that express arguments being 
+a code of an axiom or of a deduction rule, which directly yield $\operatorname{Pf}(x)$.
+
+\begin{lemma}[The formula Pf]
+    \label{lem:IsSigma.Ax+...+IsSigma.Pf}
+    \lean{HF.IsSigma.Pf}
+    \uses{def:Lang, def:Axioms, def:Bool.Axioms, def:Spec.Axiom, def:Equality.Axioms,
+        def:prf.MP+prf.Subst+prf.ExIntro, def:IsSigma, lem:IsSigma.Relations}
+    There exist eight $\Sigma$-formulas, solely involving codes as arguments, that, together with
+    the $\Sigma$-formulas in Lemma \ref{lem:IsSigma.Relations}, are sub-formulas of
+    the provability formula $\operatorname{Pf}(x)$.
+\end{lemma}
+
+\begin{proof}
+    Introduce the following abbreviations of $\Sigma$-formulas:
+    \begin{enumerate}
+        \item $\operatorname{Ax}(y)$\\
+        Means: $y$ is the code of the first axiom of HF, the second axiom of HF, or
+        of an equality axiom 
+        (see Definition \ref{def:Axioms} and Definition \ref{def:Equality.Axioms}).
+        \item $\operatorname{Ind}(x)$\\
+        Means: $y$ is the code of an instance of the induction scheme.
+        \item $\operatorname{Sent}(x)$\\
+        Means: $x$ is the code of an $\mathcal{L}$-formula that is an instance 
+        of one of the five sentential axioms (see Definition \ref{def:Bool.Axioms}).
+        \item $\operatorname{Spec}(x)$\\
+        Means: $x$ is the code of a specialisation axiom (see Definition \ref{def:Spec.Axiom}).
+        \item $\operatorname{ModPon}(x,y,y^\prime)$\\
+        Means: If $x,y,y^\prime$ are codes of $\mathcal{L}$-formulas, 
+        then $y^\prime$ codes an $\mathcal{L}$-formula which follows from the $\mathcal{L}$-formulas
+        coded by $x$ and $y$ by an application of the Modus Ponens rule 
+        (see Definition \ref{def:prf.MP+prf.Subst+prf.ExIntro}).
+        \item $\operatorname{Subst}(y,y^\prime)$\\
+        Means: $y,y^\prime$ are codes of $\mathcal{L}$-formulas and
+        the $\mathcal{L}$-formula coded by $y^\prime$ is obtained from that coded by $y$ by
+        an application of the substitution rule.
+        \item $\operatorname{ExIntro}(y, y^\prime)$\\
+        Means: $y,y^\prime$ are codes of $\mathcal{L}$-formulas and
+        the $\mathcal{L}$-formula coded by $y^\prime$ is obtained from that coded by $y$ by
+        an application of the $\exists$-introduction rule.
+        \item $\operatorname{Prf}(s, k, y)$\\
+        Means: $s$ is a sequence of length $k$ of codes of $\mathcal{L}$-formulas 
+        such that the corresponding sequence of formulas is a proof of the 
+        $\mathcal{L}$-formula coded by $y$.
+        \item $\operatorname{Pf}(y)$\\
+        Means: $y$ is the code of an $\mathcal{L}$-formula that is a theorem of HF.
+    \end{enumerate}
+\end{proof}
+
+\begin{theorem}[Proof formalisation condition]
+    \label{thm:prf_iff_prf_Pf_code}
+    \lean{HF.prf_iff_prf_Pf_code}
+    \uses{thm:stdModel.prf_iff_models, lem:IsSigma.Relations, lem:IsSigma.Ax+...+IsSigma.Pf}
+    If HF is consistent, then, for any $\mathcal{L}$-formula $\varphi$,
+    $$
+    \vdash \varphi \,\text{ if and only if } \vdash \operatorname{Pf}(\ulcorner{\varphi}\urcorner).
+    $$
+\end{theorem}
+
+\begin{proof}
+    Assume HF is consistent. First, suppose $\vdash \varphi$.
+    Then there is a finite sequence of $\mathcal{L}$-formulas, $\varphi_{\varnothing}, \ldots, 
+    \varphi_p$, that forms a proof of $\varphi$.
+    If $s = \{\langle l, \ulcorner{\varphi_l}\urcorner \rangle : l \in \operatorname{succ}(p) \}$,
+    then $s \in \mathbb{S}$ (the domain of $\mathfrak{S}$, see Definition \ref{def:stdModel}) and
+    $\mathfrak{S} \vDash \operatorname{Prf}(s, \operatorname{succ}(p), 
+    \ulcorner{\varphi}\urcorner)$, 
+    so that $\mathfrak{S} \vDash \operatorname{Pf}(\ulcorner{\varphi}\urcorner)$.
+    Since $\operatorname{Pf}(\ulcorner{\varphi}\urcorner)$ is a $\Sigma$-sentence,
+    by Theorem \ref{thm:stdModel.prf_iff_models}, 
+    $\vdash \operatorname{Pf}(\ulcorner{\varphi}\urcorner)$.
+    
+    Now suppose $\vdash \operatorname{Pf}(\ulcorner{\varphi}\urcorner)$.
+    Then, by Theorem \ref{thm:stdModel.prf_iff_models}, 
+    $\mathfrak{S} \vDash \operatorname{Pf}(\ulcorner{\varphi}\urcorner)$.
+    This means there exists a sequence $s \in \mathbb{S}$ of length $k$,
+    where each $s_l$ codes some $\mathcal{L}$-formula $\phi_l$, 
+    so that $\phi_{\operatorname{pred}(k)}$ equals $\varphi$ and the sequence
+    $\phi_{\varnothing}, \ldots, \phi_{\operatorname{pred}(k)}$ is a proof of $\varphi$.
+    Thus $\vdash \varphi$.
+\end{proof}
