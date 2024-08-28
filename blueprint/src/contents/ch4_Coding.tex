@@ -34,7 +34,7 @@ Therefore we restrict the codes to a certain family of constant terms, denoted b
     \lean{HF.C.IsInΓ0, HF.C.IsInΓ, HF.Code}
     \label{def:C.IsInΓ0+C.IsInΓ+Code}
     \leanok
-    \uses{def:Lang, def:C}
+    \uses{def:Lang, def:C+C.length}
     We denote by $\Gamma_0$ the least family of constant terms such that
     \begin{enumerate}
         \item $\varnothing \in \Gamma_0$.
@@ -51,7 +51,7 @@ Therefore we restrict the codes to a certain family of constant terms, denoted b
     \lean{HF.C.ne_of_isInΓ_and_distinct}
     \label{thm:C.ne_of_isInΓ_and_distinct}
     \leanok
-    \uses{def:C, def:IsInΓ0+IsInΓ+Code}
+    \uses{def:C+C.length, def:IsInΓ0+IsInΓ+Code}
     Let $\sigma, \tau \in \Gamma$ be distinct constant terms, i.e. they are different strings of
     symbols. Then $\vdash \sigma \neq \tau$.
 \end{theorem}
@@ -67,9 +67,9 @@ $\langle \langle \sigma, \tau, \mu \rangle, \nu \rangle$, and so on.
 
 \begin{definition}[Coding of symbols]
     \lean{HF.Code.Mem, HF.Code.Enlarge, HF.Code.Eq, HF.Code.Or, HF.Code.Neg, HF.Code.Ex}
-    \label{def:Code.Symbols}
+    \label{def:Code.Symbol}
     \leanok
-    \uses{def:IsInΓ0+IsInΓ+Code}
+    \uses{def:C.IsInΓ0+C.IsInΓ+Code}
     We begin by assigning to each symbol of the language a unique code, denoted by
     $\ulcorner \cdot\urcorner$
     In particular, these are the following constant terms belonging to $\Gamma$:
@@ -97,7 +97,7 @@ $\langle \langle \sigma, \tau, \mu \rangle, \nu \rangle$, and so on.
     \lean{HF.Code.Term}
     \label{def:Code.Term}
     \leanok
-    \uses{def:IsInΓ0+IsInΓ+Code, def:Code.Symbols}
+    \uses{def:C.IsInΓ0+C.IsInΓ+Code, def:Code.Symbol}
     The terms $\varnothing$ and $x_k$ have been code already. 
     The remaining case follows the inductive definition
     $$
@@ -110,7 +110,7 @@ $\langle \langle \sigma, \tau, \mu \rangle, \nu \rangle$, and so on.
     \lean{HF.Code.Formula}
     \label{def:Code.Formula}
     \leanok
-    \uses{def:IsInΓ0+IsInΓ+Code, def:Code.Symbols, def:Code.Term}
+    \uses{def:C.IsInΓ0+C.IsInΓ+Code, def:Code.Symbol, def:Code.Term}
     Given terms $\sigma, \tau$, the codes of atomic formulas are
     $$
     \ulcorner{\sigma = \tau}\urcorner = 

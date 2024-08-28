@@ -231,7 +231,7 @@ as lemmas.
 
 \begin{lemma}
     \label{lem:IsSigma.Relations}
-    \uses{def:Lang, def:IsTrans+IsOrd, def:IsSeq, def def:IsSigma, 
+    \uses{def:Lang, def:IsTrans+IsOrd, def:IsSeq, def:Code.Term, def:Code.Formula, def:IsSigma, 
         lem:Ord_isSigma+Seq_isSigma+LstSeq_isSigma}
     There exist 25 $\Sigma$-formulas, solely involving codes as arguments, that express certain
     relationships between variables, terms, and formulas.
@@ -330,13 +330,14 @@ as lemmas.
 With these $\Sigma$-formulas in place, 
 we can now construct the provability formula $\operatorname{Pf}(x)$.
 To that end, we need eight other $\Sigma$-formulas that express arguments being 
-a code of an axiom or of a deduction rule, which directly yield $\operatorname{Pf}(x)$.
+a code of an axiom or a deduction rule, which directly yield $\operatorname{Pf}(x)$.
 
 \begin{lemma}[The formula Pf]
     \label{lem:IsSigma.Ax+...+IsSigma.Pf}
     \lean{HF.IsSigma.Pf}
     \uses{def:Lang, def:Axioms, def:Bool.Axioms, def:Spec.Axiom, def:Equality.Axioms,
-        def:prf.MP+prf.Subst+prf.ExIntro, def:IsSigma, lem:IsSigma.Relations}
+        def:prf.MP+prf.Subst+prf.ExIntro, def:Code.Formula, 
+        def:IsSigma, lem:IsSigma.Relations}
     There exist eight $\Sigma$-formulas, solely involving codes as arguments, that, together with
     the $\Sigma$-formulas in Lemma \ref{lem:IsSigma.Relations}, are sub-formulas of
     the provability formula $\operatorname{Pf}(x)$.
@@ -346,8 +347,8 @@ a code of an axiom or of a deduction rule, which directly yield $\operatorname{P
     Introduce the following abbreviations of $\Sigma$-formulas:
     \begin{enumerate}
         \item $\operatorname{Ax}(y)$\\
-        Means: $y$ is the code of the first axiom of HF, the second axiom of HF, or
-        of an equality axiom 
+        Means: $y$ is the code of the first axiom of HF, the second axiom of HF, or 
+        an equality axiom 
         (see Definition \ref{def:Axioms} and Definition \ref{def:Equality.Axioms}).
         \item $\operatorname{Ind}(x)$\\
         Means: $y$ is the code of an instance of the induction scheme.
@@ -381,7 +382,9 @@ a code of an axiom or of a deduction rule, which directly yield $\operatorname{P
 \begin{theorem}[Proof formalisation condition]
     \label{thm:prf_iff_prf_Pf_code}
     \lean{HF.prf_iff_prf_Pf_code}
-    \uses{thm:stdModel.prf_iff_models, lem:IsSigma.Relations, lem:IsSigma.Ax+...+IsSigma.Pf}
+    \leanok
+    \uses{def:Code.Formula, thm:stdModel.prf_iff_models, lem:IsSigma.Relations, 
+        lem:IsSigma.Ax+...+IsSigma.Pf}
     If HF is consistent, then, for any $\mathcal{L}$-formula $\varphi$,
     $$
     \vdash \varphi \,\text{ if and only if } \vdash \operatorname{Pf}(\ulcorner{\varphi}\urcorner).
