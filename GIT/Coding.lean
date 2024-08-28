@@ -21,7 +21,7 @@ inductive IsInΓ : C → Prop where
 | pair (hσ : IsInΓ σ) (hτ : IsInΓ τ) : IsInΓ (pair σ τ)
 
 lemma ne_of_isInΓ_and_distinct (σ τ : C) (hσ : IsInΓ σ) (hτ : IsInΓ τ) (h : σ ≠ τ) :
-    ⊢ ∼(σ.relabel .inl =' τ.relabel .inl) := sorry
+    ⊢ (∼(σ.relabel .inl =' τ.relabel .inl) : Lang.Sentence) := sorry
 
 abbrev tuple3 (σ τ μ : C) : C := pair (pair σ τ) μ
 

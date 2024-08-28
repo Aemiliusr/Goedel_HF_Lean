@@ -39,7 +39,8 @@ lemma exist_terms_enlarge_of_ne_empty (σ : C) (h : σ ≠ .func ∅' Fin.elim0)
     use σ; use τ
 
 lemma realize_eq_of_eq (σ τ : C) (S : Type) [Model S] (v : Empty → S)
-    (h : ⊢ (σ.relabel .inl =' τ.relabel .inl)) : Term.realize v σ = Term.realize v τ := by
+    (h : ⊢ ((σ.relabel .inl =' τ.relabel .inl) : Lang.Sentence)) :
+    Term.realize v σ = Term.realize v τ := by
   rw [completeness] at h
   specialize h S v
   simp [Formula.Realize] at h
@@ -53,7 +54,7 @@ lemma length_enlarge {σ τ} : length (.func ◁' ![σ, τ]) = length σ + lengt
 
 lemma exists_finset_shorter_and_mem_iff_iSup (τ : C) (ne_emp : τ ≠ .func ∅' Fin.elim0) :
     ∃ (F : Finset C), (∃ ν, ν ∈ F) ∧ (∀ ν ∈ F, length ν < length τ) ∧
-    ⊢ ∀' ((&0 ∈' τ.relabel .inl) ⇔ iSup F (fun ν => (&0 =' ν.relabel .inl))) := by
+    ⊢ (∀' ((&0 ∈' τ.relabel .inl) ⇔ iSup F (fun ν => (&0 =' ν.relabel .inl))) : Lang.Sentence) := by
     induction τ using ind with
     | h0 => exfalso; exact ne_emp rfl
     | h2 hσ _hμ =>
@@ -79,18 +80,21 @@ lemma exists_finset_shorter_and_mem_iff_iSup (τ : C) (ne_emp : τ ≠ .func ∅
           rw [hF₃]
           exact Iff.symm Or.comm
 
-lemma exists_mem_and_notin_of_not_eq (σ τ : C) (h : ¬ ⊢ (σ.relabel .inl =' τ.relabel .inl)) :
-    ∃ (ν : C), (⊢ (ν.relabel .inl ∈' σ.relabel .inl ) ∧ ⊢ ∼(ν.relabel .inl ∈' τ.relabel .inl ))
-    ∨ (⊢ ∼(ν.relabel .inl ∈' σ.relabel .inl ) ∧ ⊢ (ν.relabel .inl ∈' τ.relabel .inl )) := by
+lemma exists_mem_and_notin_of_not_eq (σ τ : C)
+    (h : ¬ ⊢ ((σ.relabel .inl =' τ.relabel .inl) : Lang.Sentence)) :
+    ∃ (ν : C), (⊢ (ν.relabel .inl ∈' σ.relabel .inl : Lang.Sentence) ∧
+    ⊢ (∼(ν.relabel .inl ∈' τ.relabel .inl) : Lang.Sentence))
+    ∨ (⊢ (∼(ν.relabel .inl ∈' σ.relabel .inl) : Lang.Sentence) ∧
+    ⊢ (ν.relabel .inl ∈' τ.relabel .inl : Lang.Sentence)) := by
   sorry
 
-lemma ne_of_not_eq (σ τ : C) (h : ¬ ⊢ (σ.relabel .inl =' τ.relabel .inl)) :
-    ⊢ ∼(σ.relabel .inl =' τ.relabel .inl) := by
+lemma ne_of_not_eq (σ τ : C) (h : ¬ ⊢ (σ.relabel .inl =' τ.relabel .inl : Lang.Sentence)) :
+    ⊢ (∼(σ.relabel .inl =' τ.relabel .inl) : Lang.Sentence) := by
   apply exists_mem_and_notin_of_not_eq at h
   rcases h with ⟨ν, ⟨h1, h2⟩ | ⟨h1, h2⟩⟩
   <;> rw [completeness] at *
-  <;> intros S inst v
-  <;> specialize h1 S v <;> specialize h2 S v
+  <;> intros S inst v xs
+  <;> specialize h1 S v xs <;> specialize h2 S v xs
   <;> simp only [Formula.Realize, realize_rel, mem_rel, Fin.isValue, Matrix.cons_val_zero,
     Term.realize_relabel, Sum.elim_comp_inl, Matrix.cons_val_one, Matrix.head_cons, realize_not,
     realize_bdEqual] at *
@@ -99,8 +103,9 @@ lemma ne_of_not_eq (σ τ : C) (h : ¬ ⊢ (σ.relabel .inl =' τ.relabel .inl))
   <;> simp_all
 
 lemma eq_of_forall_mem_iff_mem (σ τ : C) (cons : ¬ ∃ (φ : Lang.Sentence), ⊢ φ ∧ ⊢ ∼φ)
-    (h : ∀ (ν : C), ⊢ (ν.relabel .inl ∈' σ.relabel .inl) ↔ ⊢ (ν.relabel .inl ∈' τ.relabel .inl)) :
-    ⊢ σ.relabel .inl =' τ.relabel .inl := by
+    (h : ∀ (ν : C), ⊢ (ν.relabel .inl ∈' σ.relabel .inl : Lang.Sentence) ↔
+    ⊢ (ν.relabel .inl ∈' τ.relabel .inl : Lang.Sentence)) :
+    ⊢ (σ.relabel .inl =' τ.relabel .inl : Lang.Sentence) := by
   by_contra contra
   apply exists_mem_and_notin_of_not_eq at contra
   rcases contra with ⟨μ, ⟨h1, h2⟩ | ⟨h1, h2⟩⟩ <;> specialize h μ
@@ -112,13 +117,14 @@ lemma eq_of_forall_mem_iff_mem (σ τ : C) (cons : ¬ ∃ (φ : Lang.Sentence), 
     use (μ.relabel .inl ∈' σ.relabel .inl)
 
 def Equiv : C → C → Prop
-  | σ, τ => ⊢ σ.relabel .inl =' τ.relabel .inl
+  | σ, τ => ⊢ (σ.relabel .inl =' τ.relabel .inl : Lang.Sentence)
 
 instance : HasEquiv C := ⟨Equiv⟩
 
 namespace Equiv
 
-@[simp] lemma equiv_iff (σ τ : C) : σ ≈ τ ↔ ⊢ σ.relabel .inl =' τ.relabel .inl := Iff.rfl
+@[simp] lemma equiv_iff (σ τ : C) : σ ≈ τ ↔ ⊢ (σ.relabel .inl =' τ.relabel .inl : Lang.Sentence) :=
+  Iff.rfl
 
 lemma refl (σ : C) : σ ≈ σ := by
   simp only [equiv_iff]
@@ -159,17 +165,18 @@ instance struc : Lang.Structure stdModel where
   | 0 => Quotient.mk setoid (.func ∅' Fin.elim0)
   | 2 => Quotient.mk setoid (.func ◁' ![(h 0).out, (h 1).out])
   RelMap {n} _ h := match n with
-  | 2 => ⊢ (((h 0).out).relabel .inl) ∈' (((h 1).out).relabel .inl)
+  | 2 => ⊢ ((((h 0).out).relabel .inl) ∈' (((h 1).out).relabel .inl) : Lang.Sentence)
 
-lemma mem_iff (σ τ : stdModel) : σ ∈ τ ↔ ⊢ ((σ.out).relabel .inl) ∈' ((τ.out).relabel .inl) :=
+lemma mem_iff (σ τ : stdModel) : σ ∈ τ ↔
+    ⊢ (((σ.out).relabel .inl) ∈' ((τ.out).relabel .inl) : Lang.Sentence) :=
   Eq.to_iff rfl
 
 lemma empty_iff_of_consistent_aux (σ τ : C) (cons : ¬(∃ (φ : Lang.Sentence), ⊢ φ ∧ ⊢ ∼φ))
     (h : ⊢ ((@Term.relabel Lang Empty (Empty ⊕ Fin 0) Sum.inl (func ◁' ![σ, τ])) ='
     (@Term.relabel Lang Empty (Empty ⊕ Fin 0) Sum.inl (func ∅' Fin.elim0)))) : False := by
-  have : ⊢ ∼(∃' ((&0 ∈' σ.relabel .inl) ⊔ (&0 =' τ.relabel .inl))) := by
+  have : ⊢ (∼(∃' ((&0 ∈' σ.relabel .inl) ⊔ (&0 =' τ.relabel .inl))) : Lang.Sentence) := by
     simp only [completeness] at *
-    intros S inst v; specialize h S v
+    intros S inst v xs; specialize h S v xs
     simp only [not_exists, not_and, not_forall, Formula.Realize, realize_not, Decidable.not_not,
       realize_bdEqual, Term.realize_func, enlarge_fun, Fin.isValue, Matrix.cons_val_zero,
       Term.realize_relabel, Sum.elim_comp_inl, Matrix.cons_val_one, Matrix.head_cons, empty_fun,
@@ -226,10 +233,10 @@ lemma ax1_aux_aux (ν μ : C) :
   simp
 
 lemma ax1_aux (cons : ¬(∃ (φ : Lang.Sentence), ⊢ φ ∧ ⊢ ∼φ)) :
-    models (α := α) stdModel Axiom1 := by
+    stdModel ⊧ Axiom1 := by
   unfold models Axiom1
   simp [Formula.Realize, Fin.snoc]
-  intro _ σ
+  intro σ
   constructor
   · rintro rfl
     intros τ h
@@ -248,25 +255,27 @@ lemma ax1_aux (cons : ¬(∃ (φ : Lang.Sentence), ⊢ φ ∧ ⊢ ∼φ)) :
     subst σ
     apply h (Quotient.mk C.setoid ν) (ax1_aux_aux ν μ)
 
-lemma ax2_aux : models (α := α) stdModel Axiom2 := by sorry
+lemma ax2_aux : stdModel ⊧ Axiom2 := by sorry
 
 lemma ax3_aux (ψ : Lang.BoundedFormula α 1) : stdModel ⊧ Axiom3 ψ := by sorry
 
 instance model_of_consistent (cons : ¬(∃ (φ : Lang.Sentence), ⊢ φ ∧ ⊢ ∼φ)) :
     Model stdModel where
   struc := inferInstance
-  realize_of_mem := by
-    intros α φ ax
-    rcases ax with ⟨ax1 | ax2⟩ | ax3
+  realize_of_mem_theory := by
+    intros φ ax v xs
+    rcases ax with ax1 | ax2
     · rw [ax1]
       apply ax1_aux
       exact cons
     · rw [ax2]
-      exact ax2_aux
-    · simp only [Set.iUnion_singleton_eq_range, Set.mem_range] at ax3
-      rcases ax3 with ⟨ψ, ax3⟩
-      rw [← ax3]
-      exact ax3_aux ψ
+      apply ax2_aux
+  realize_of_mem_scheme := by
+    intros α φ ax v xs
+    simp only [Scheme, Set.iUnion_singleton_eq_range, Set.mem_range] at ax
+    rcases ax with ⟨ψ, ax⟩
+    rw [← ax]
+    apply ax3_aux
 
 end stdModel
 

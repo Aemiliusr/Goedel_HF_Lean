@@ -90,25 +90,26 @@ namespace HFSet
 
 namespace Model
 
-lemma empty_aux (s : Type) [Lang.Structure s] (v : α → s) : (∀ (z : s), (z = ∅ ↔ ∀ x, x ∉ z)) ↔
-    Formula.Realize Axiom1 v := by
+lemma empty_aux (s : Type) [Lang.Structure s] : (∀ (z : s), (z = ∅ ↔ ∀ x, x ∉ z)) ↔
+    Sentence.Realize s Axiom1  := by
   unfold Axiom1
-  simp only [Formula.Realize, Nat.reduceAdd, Fin.isValue, Function.comp_apply, realize_all,
-    Nat.succ_eq_add_one, realize_iff, realize_bdEqual, Term.realize_var, Sum.elim_inr,
+  simp only [Sentence.Realize, Formula.Realize, Nat.reduceAdd, Fin.isValue, Function.comp_apply,
+    realize_all, Nat.succ_eq_add_one, realize_iff, realize_bdEqual, Term.realize_var, Sum.elim_inr,
     Term.realize_func, empty_fun, realize_not, realize_rel, mem_rel, Matrix.cons_val_zero,
     Matrix.cons_val_one, Matrix.head_cons]
   rfl
 
-lemma enlarge_aux (s : Type) [Lang.Structure s] (v : α → s) :
+lemma enlarge_aux (s : Type) [Lang.Structure s] :
     (∀ (x y z : s), (z = x ◁ y ↔ ∀ u, u ∈ z ↔ u ∈ x ∨ u = y)) ↔
-    Formula.Realize Axiom2 v := by
+    Sentence.Realize s Axiom2  := by
   unfold Axiom2
   simp only [enlarge_fun, Fin.isValue, Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons,
-    Formula.Realize, Nat.reduceAdd, Function.comp_apply, realize_all, Nat.succ_eq_add_one,
-    realize_iff, realize_bdEqual, Term.realize_var, Sum.elim_inr, Fin.snoc, Fin.val_zero,
-    Nat.ofNat_pos, ↓reduceDIte, Fin.castSucc_castLT, Fin.coe_castLT, zero_lt_one, Nat.zero_eq,
-    Fin.coe_fin_one, lt_self_iff_false, cast_eq, Term.realize_func, Fin.val_one, Nat.one_lt_ofNat,
-    Fin.val_two, realize_rel, mem_rel, show (3 : Fin 4).1 = 3 by rfl, realize_sup, Nat.lt_succ_self]
+    Sentence.Realize, Formula.Realize, Nat.reduceAdd, Function.comp_apply, realize_all,
+    Nat.succ_eq_add_one, realize_iff, realize_bdEqual, Term.realize_var, Sum.elim_inr, Fin.snoc,
+    Fin.val_zero, Nat.ofNat_pos, ↓reduceDIte, Fin.castSucc_castLT, Fin.coe_castLT, zero_lt_one,
+    Nat.zero_eq, Fin.coe_fin_one, lt_self_iff_false, cast_eq, Term.realize_func, Fin.val_one,
+    Nat.one_lt_ofNat, Fin.val_two, realize_rel, mem_rel, show (3 : Fin 4).1 = 3 by rfl, realize_sup,
+    Nat.lt_succ_self]
   refine ⟨by simp_all, by simp_all⟩
 
 lemma induction_aux (S : Type) [Lang.Structure S] (v : α → S) (φ : Lang.BoundedFormula α 1 )
@@ -131,18 +132,18 @@ constructor <;> intros h1 h2 h3 z <;> specialize h1 h2 <;> apply h1 <;> intros x
 
 lemma empty (S) [Model S] : ∀ (z : S), z = ∅ ↔ ∀ (x : S), x ∉ z := by
   rename_i inst; rcases inst with ⟨struc, model⟩
-  specialize model (α := Fin 0) Axiom1
+  specialize model Axiom1
   simp only [HF.Theory, Set.iUnion_singleton_eq_range, Set.mem_union, Set.mem_insert_iff,
     Set.mem_singleton_iff, true_or, Set.mem_range, Fin.forall_fin_zero_pi, true_implies] at model
-  rwa [empty_aux S Fin.elim0]
+  rwa [empty_aux S, models_iff_realize_of_sentence]
 
 lemma enlarge (S) [Model S] : ∀ (x y z : S), z = x ◁ y ↔ ∀ (u : S), u ∈ z ↔ u ∈ x ∨ u = y := by
   rename_i inst; rcases inst with ⟨struc, model⟩
-  specialize model (α := Fin 0) Axiom2
+  specialize model Axiom2
   simp only [HF.Theory, Set.iUnion_singleton_eq_range, Set.mem_union, Set.mem_insert_iff,
     Set.mem_singleton_iff, or_true, Set.mem_range,
     true_or, Fin.forall_fin_zero_pi, true_implies] at model
-  rwa [enlarge_aux S Fin.elim0]
+  rwa [enlarge_aux S, models_iff_realize_of_sentence]
 
 lemma induction (S) [Model S] : ∀ (α : S → Prop), α ∅ → (∀ (x y : S), α x → α y → α (x ◁ y)) →
     ∀ (n : ℕ) (f : Lang.BoundedFormula (Fin n) 1) (t : Fin n → S),
@@ -150,10 +151,10 @@ lemma induction (S) [Model S] : ∀ (α : S → Prop), α ∅ → (∀ (x y : S)
   intros f h1 h2 n φ v hP
   revert h2 h1
   rw [induction_aux S v φ f hP]
-  rename_i inst; rcases inst with ⟨struc, model⟩
+  rename_i inst; rcases inst with ⟨struc, _, model⟩
   specialize model (Axiom3 φ)
-  simp only [HF.Theory, Set.iUnion_singleton_eq_range, Set.mem_union, Set.mem_insert_iff,
-    Set.mem_singleton_iff, Set.mem_range, exists_apply_eq_apply, or_true, true_implies] at model
+  simp only [Scheme, Set.iUnion_singleton_eq_range, Set.mem_range, exists_apply_eq_apply,
+    true_implies] at model
   apply model v
 
 instance (S) [Model S] : HFSet S where

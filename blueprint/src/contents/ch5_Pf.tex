@@ -63,9 +63,12 @@ $\mathcal{L}$-formulas such that
 \end{definition}
 
 \begin{lemma}
+    \lean{HF.subset_isSigma, HF.eq_isSigma, HF.enlarge_isSigma, HF.eq_empty_isSigma, 
+        HF.mem_empty_isSigma, HF.empty_mem_isSigma}
     \label{lem:subset_isSigma+...+empty_mem_isSigma}
-    \uses{lem:notin_empty+mem_enlarge+mem_enlarge_empty, thm:exten_prop, def:Subset+SSubset, 
-        cor:mem_irrefl, def:IsSigma}
+    \leanok
+    \uses{thm:completeness, lem:notin_empty+mem_enlarge+mem_enlarge_empty, thm:exten_prop, 
+        def:Subset+SSubset, cor:mem_irrefl, def:IsSigma}
     The $\mathcal{L}$-formulas $x \subseteq y$, $x = y$, $z = x \lhd y$, $x=0$, $x\in 0$,
     $0 \in x$ and all atomic formulas are $\Sigma$-formulas.
 \end{lemma}
@@ -137,9 +140,11 @@ In order to establish this, we need the class of $\Sigma_{\lhd}$-formulas.
 \end{definition}
 
 \begin{theorem}
+    \lean{HF.stdModel.prf_iff_models}
     \label{thm:stdModel.prf_iff_models}
-    \uses{def:IsSigma_lhd}
-    For every $\Sigma$-sentence $\alpha$, 
+    \uses{thm:completeness, def:C, lem:C.exists_finset_shorter_and_mem_iff_iSup, 
+        def:stdModel, def:IsSigma, def:IsSigma_lhd}
+    If HF is consistent, then, for every $\Sigma$-sentence $\alpha$, 
     $$
     \vdash \alpha \,\text{ if and only if } 
     \mathfrak{S} \vDash \alpha.
@@ -147,7 +152,8 @@ In order to establish this, we need the class of $\Sigma_{\lhd}$-formulas.
 \end{theorem}
 
 \begin{proof}
-    By soundness, it remains to show that for every $\Sigma$-sentence $\alpha$,
+    By consistency, $\mathfrak{S}$ is a model of HF.
+    Then, by soundness, it remains to show that for every $\Sigma$-sentence $\alpha$,
     $\mathfrak{S} \vDash \alpha$ implies $\vdash \alpha$.
     Furthermore, since every strict $\Sigma$-sentence is a $\Sigma_{\lhd}$-sentence, 
     it suffices to prove the result for every $\Sigma_{\lhd}$-sentence $\alpha$.
@@ -199,3 +205,7 @@ In order to establish this, we need the class of $\Sigma_{\lhd}$-formulas.
         \end{equation*}
     \end{itemize}
 \end{proof}
+
+\section{The formula Pf}
+
+Under construction.
