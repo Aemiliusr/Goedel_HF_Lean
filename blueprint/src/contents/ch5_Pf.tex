@@ -140,8 +140,8 @@ In order to establish this, we need the class of $\Sigma_{\lhd}$-formulas.
 \end{definition}
 
 \begin{theorem}
-    \lean{HF.stdModel.prf_iff_models}
     \label{thm:stdModel.prf_iff_models}
+    \lean{HF.stdModel.prf_iff_models}
     \uses{thm:completeness, def:C, lem:C.exists_finset_shorter_and_mem_iff_iSup, 
         def:stdModel, def:IsSigma, def:IsSigma_lhd}
     If HF is consistent, then, for every $\Sigma$-sentence $\alpha$, 
@@ -340,7 +340,7 @@ a code of an axiom or a deduction rule, which directly yield $\operatorname{Pf}(
         def:IsSigma, lem:IsSigma.Relations}
     There exist eight $\Sigma$-formulas, solely involving codes as arguments, that, together with
     the $\Sigma$-formulas in Lemma \ref{lem:IsSigma.Relations}, are sub-formulas of
-    the provability formula $\operatorname{Pf}(x)$.
+    the $\Sigma$-formula $\operatorname{Pf}(x)$.
 \end{lemma}
 
 \begin{proof}

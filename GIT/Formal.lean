@@ -166,6 +166,11 @@ lemma models_iff_realize_of_sentence (S : Type) [Lang.Structure S] (φ : Lang.Se
   have : xs = default := by ext i; fin_cases i
   rwa [(Pi.uniqueOfIsEmpty fun _ ↦ S).uniq v, this]
 
+lemma neg_models_iff_models_neg_of_sentence (S : Type) [Lang.Structure S] (φ : Lang.Sentence) :
+    ¬S ⊧ φ ↔ S ⊧ ∼φ := by
+  simp_rw [← models_iff_realize_of_sentence]
+  exact Iff.symm (Sentence.realize_not S)
+
 class Model (S : Type) where
   struc : Lang.Structure S
   realize_of_mem_theory : ∀ (φ : Lang.Sentence), φ ∈ Theory → S ⊧ φ
@@ -180,5 +185,33 @@ prefix:51 " ⊧ " => valid
 theorem completeness (φ : Lang.BoundedFormula α n) :
   ⊢ φ ↔ ⊧ φ := by
   sorry
+
+lemma prf_iff_prf_of_prf_iff (φ ψ : Lang.BoundedFormula α n) (iff: ⊢ φ ⇔ ψ) : (⊢ φ ↔ ⊢ ψ) := by
+  constructor
+  <;> intro prf
+  <;> rw [completeness] at *
+  <;> intros S _ v xs
+  <;> specialize iff S v xs
+  <;> specialize prf S v xs
+  <;> simp_all
+
+lemma prf_neg_iff_of_prf_iff (φ ψ : Lang.BoundedFormula α n) (iff: ⊢ φ ⇔ ψ) : ⊢ ∼φ ⇔ ∼ψ := by
+  rw [completeness] at *
+  intros S _ v xs
+  specialize iff S v xs
+  simp_all
+
+lemma prf_of_prf_neg_neg (φ : Lang.BoundedFormula α n) (h : ⊢ ∼(∼φ)) : ⊢ φ := by
+  rw [completeness] at *
+  intros S _ v xs
+  specialize h S v xs
+  simp_all
+
+lemma models_iff_of_prf_iff (S : Type) [Model S] (φ ψ : Lang.BoundedFormula α n) (h : ⊢ φ ⇔ ψ) :
+    S ⊧ φ ↔ S ⊧ ψ := by
+  rw [completeness] at h
+  specialize h S
+  simp [models] at *
+  aesop
 
 end HF

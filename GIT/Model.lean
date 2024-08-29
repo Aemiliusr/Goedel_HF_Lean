@@ -277,6 +277,23 @@ instance model_of_consistent (cons : ¬(∃ (φ : Lang.Sentence), ⊢ φ ∧ ⊢
     rw [← ax]
     apply ax3_aux
 
+lemma sound (cons : ¬(∃ (φ : Lang.Sentence), ⊢ φ ∧ ⊢ ∼φ)) (φ : Lang.Sentence) (h : ⊢ φ) :
+    stdModel ⊧ φ := by
+  have := model_of_consistent cons
+  rw [completeness] at h
+  specialize h stdModel
+  -- exact h
+  -- weird error
+  sorry
+
+lemma models_iff_of_prf_iff (cons : ¬(∃ (φ : Lang.Sentence), ⊢ φ ∧ ⊢ ∼φ))
+    (φ ψ : Lang.BoundedFormula α n) (h : ⊢ φ ⇔ ψ) :
+    stdModel ⊧ φ ↔ stdModel ⊧ ψ := by
+  have := model_of_consistent cons
+  -- exact HF.models_iff_of_prf_iff stdModel φ ψ h
+  -- weird error
+  sorry
+
 end stdModel
 
 end HF

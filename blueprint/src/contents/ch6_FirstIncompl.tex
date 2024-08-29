@@ -1,0 +1,162 @@
+\chapter{Gödel’s First Incompleteness Theorem}
+
+\section{The replacement function}
+
+\section{Incompleteness}
+
+In this section, we prove Gödel’s diagonal lemma followed by his first incompleteness theorem.
+To establish the former, we first need to construct, for every variable $x_i$, 
+a $p$-function $K$ such that for every $\mathcal{L}$-formula $\varphi(x_i)$,
+$$
+\vdash K (\ulcorner{\varphi}\urcorner) = \ulcorner{\varphi(\ulcorner {\varphi} \urcorner)}\urcorner.
+$$
+This is done by letting $K$ be the replacement function introduced in the previous section.
+However, to prove this property of $K$, we first need a unary $p$-function $H$
+that satisfies $H(\mu) = \ulcorner {\mu} \urcorner$ for any code $\mu$, which in turn requires
+another unary $p$-function $W$ that is the restriction of $H$ to the codes of variables.
+
+\begin{lemma}
+    \label{lem:Code.exists_pFunc_forall_var_eq_code}
+    \uses{def:pFunc, def:Ord.pFuncRecursive, def:C+C.length, def:Code.Symbol}
+    There exists a unary $p$-function $W$ such that, for any variable $x_i$,
+    $$
+    \vdash W(\ulcorner{x_i}\urcorner) = \ulcorner{(\ulcorner{x_i}\urcorner)}\urcorner.
+    $$
+\end{lemma}
+
+\begin{proof}
+    Recall that the codes of variables are defined as 
+    $\ulcorner{x_1}\urcorner = \varnothing \lhd \varnothing, \quad 
+    \ulcorner{x_2}\urcorner = \ulcorner{x_1}\urcorner \lhd \ulcorner{x_1}\urcorner,\quad\ldots\quad,
+    \ulcorner{x_{k+1}}\urcorner = \ulcorner{x_k}\urcorner \lhd \ulcorner{x_k}\urcorner$.\\
+    Define $W$ recursively on ordinals (see Definition \ref{def:Ord.pFuncRecursive}):
+    $$
+    W(x) = \begin{cases}
+        \varnothing & \text{if } x = \varnothing, \\
+        \langle \ulcorner{\lhd}\urcorner, W(\operatorname{pred}(x)), W(\operatorname{pred}(x)) 
+        \rangle & \text{otherwise}.
+    \end{cases}
+    $$ 
+    We apply induction on the index of the ordinal $x_i$, i.e. on its length 
+    (see Definition \ref{def:C+C.length}).
+    First,
+    \begin{equation*}
+        \begin{split}
+    W(\ulcorner(x_1)\urcorner) &= W(\operatorname{succ}(\varnothing)) =
+    \langle \ulcorner{\lhd}\urcorner, W(\varnothing), W(\varnothing) \rangle =
+    \langle \ulcorner{\lhd}\urcorner, \varnothing, \varnothing \rangle \\ & = 
+    \ulcorner{\varnothing \lhd \varnothing}\urcorner = 
+    \ulcorner{(\ulcorner{x_1}\urcorner)}\urcorner.
+    \end{split}
+    \end{equation*}
+    Now, suppose that $W(\ulcorner{x_i}\urcorner) = \ulcorner{(\ulcorner{x_i}\urcorner)}\urcorner$.
+    Then,
+    \begin{equation*}
+        \begin{split}
+    W(\ulcorner{x_{i+1}}\urcorner) & = W(\operatorname{succ}(\ulcorner{x_i}\urcorner)) =
+    \langle \ulcorner{\lhd}\urcorner, W(\ulcorner{x_i}\urcorner), W(\ulcorner{x_i}\urcorner) \rangle
+    \\ & = \langle \ulcorner{\lhd}\urcorner, \ulcorner{(\ulcorner{x_i}\urcorner)}\urcorner,
+    \ulcorner{(\ulcorner{x_i}\urcorner)}\urcorner \rangle 
+    = \ulcorner{(\ulcorner{x_i}\urcorner \lhd \ulcorner{x_i}\urcorner)}\urcorner =
+    \ulcorner{(\ulcorner{x_{i+1}}\urcorner)}\urcorner.
+        \end{split}
+    \end{equation*}
+\end{proof}
+
+\begin{lemma}
+    \label{lem:Code.exists_pFunc_eq_code}
+    \uses{def:pFunc, def:C+C.length, def:Code.Term, lem:Code.exists_pFunc_forall_var_eq_code}
+    There exists a unary $p$-function $H$ such that, for any code $\mu$,
+    $$
+    \vdash H(\mu) = \ulcorner{\mu}\urcorner.
+    $$
+\end{lemma}
+
+\begin{proof}
+    Under construction. Needs Appendix 4.
+\end{proof}
+
+\begin{lemma}
+    \label{lem:Code.exists_pFunc_forall_form_eq_code_form}
+    \uses{def:pFunc, def:C+C.length, def:Code.Formula, lem:Code.exists_pFunc_eq_code}
+    For every variable $x_i$, there exists a unary $p$-function $K$ such that, 
+    for any $\mathcal{L}$-formula $\varphi(x_i)$,
+    $$
+    \vdash K (\ulcorner{\varphi}\urcorner) = 
+    \ulcorner{\varphi(\ulcorner {\varphi} \urcorner)}\urcorner.
+    $$
+\end{lemma}
+
+\begin{proof}
+    Under construction. Needs REPL.
+\end{proof}
+
+\begin{theorem}[Gödel's Diagonal Lemma]
+    \label{thm:diagonal}
+    \lean{HF.diagonal}
+    \uses{lem:Code.exists_pFunc_forall_form_eq_code_form}
+    \leanok
+    For any $\mathcal{L}$-formula $\alpha(x_i)$, there exists an $\mathcal{L}$-formula 
+    $\delta$ such that 
+    $$
+    \vdash \alpha \leftrightarrow \alpha(\ulcorner{\delta}\urcorner).
+    $$
+\end{theorem}
+
+\begin{proof}
+    Substitute $K(x_i)$ (see Lemma \ref{lem:Code.exists_pFunc_forall_form_eq_code_form}) 
+    for $x_i$ in $\alpha(x_i)$, and denote by $\beta(x_i)$ the resulting $\mathcal{L}$-formula.
+    Thus,
+    $$
+    \vdash \beta(x_i) \leftrightarrow \alpha(K(x_i)),
+    $$
+    and if we substitute $\ulcorner{\beta}\urcorner$ for $x_i$, 
+    $$
+    \vdash \beta(\ulcorner{\beta}\urcorner) \leftrightarrow 
+    \alpha(\ulcorner{\beta(\ulcorner{\beta}\urcorner)}\urcorner).
+    $$
+    Thus $\delta = \beta(\ulcorner{\beta}\urcorner)$ satisfies the required property.
+\end{proof}
+
+\begin{theorem}[Gödel's First Incompleteness Theorem]
+    \label{thm:first_incompleteness}
+    \lean{HF.first_incompleteness}
+    \uses{thm:stdModel.prf_iff_models, thm:prf_iff_prf_Pf_code, thm:diagonal}
+    \leanok
+    If HF is consistent, then there exists a sentence $\delta$ such that
+    neither $\vdash \delta$ nor $\vdash \neg \delta$. 
+    Furthermore, $\mathfrak{S} \vDash \delta$.
+\end{theorem}
+
+\setcounter{equation}{0}
+\begin{proof}
+    \leanok
+    We apply Theorem \ref{thm:diagonal} to the negation of the provability formula, 
+    $\neg\operatorname{Pf}(x)$.
+    Then, there exists a sentence $\delta$ such that
+    \begin{equation}
+        \label{eq:diag}
+        \vdash \delta \leftrightarrow \neg \operatorname{Pf}(\ulcorner{\delta}\urcorner).
+    \end{equation}
+    \begin{itemize}
+        \item Suppose $\vdash \delta$. Then, by Theorem \ref{thm:prf_iff_prf_Pf_code},
+        $\vdash \operatorname{Pf}(\ulcorner{\delta}\urcorner)$.
+        On the other hand, by \ref{eq:diag}, 
+        $\vdash \neg \operatorname{Pf}(\ulcorner{\delta}\urcorner)$.
+        This contradicts the assumption of consistency.
+        \item Suppose $\vdash \neg \delta$. Then, by \ref{eq:diag},
+        $\vdash \operatorname{Pf}(\ulcorner{\delta}\urcorner)$, and hence, by
+        Theorem \ref{thm:prf_iff_prf_Pf_code}, $\vdash \delta$.
+        This contradicts the assumption of consistency.
+        \item Suppose $\mathfrak{S} \not\vDash \delta$. 
+        Then, as $\delta$ is a sentence, $\mathfrak{S} \vDash \neg\delta$, and hence,
+        by \ref{eq:diag}, $\mathfrak{S} \vDash \operatorname{Pf}(\ulcorner{\delta}\urcorner)$.
+        As $\operatorname{Pf}(\ulcorner{\delta}\urcorner)$ is a $\Sigma$-sentence, it follows from 
+        Theorem \ref{thm:stdModel.prf_iff_models} that
+        $\vdash \operatorname{Pf}(\ulcorner{\delta}\urcorner)$. 
+        But then, by Theorem \ref{thm:prf_iff_prf_Pf_code}, $\vdash \delta$,
+        which, by soundness, yields $\mathfrak{S} \vDash \delta$.
+        This contradicts the assumption that $\mathfrak{S} \not\vDash \delta$.
+    \end{itemize}
+
+\end{proof}
