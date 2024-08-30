@@ -95,16 +95,6 @@ lemma apply_iff (s : S) (k : Ord S) [IsFunc s] [IsSeq s k] (l : Ord S) (hl : l <
 
 end IsSeq
 
--- -- not correct for general n
--- abbrev IsFunctional (φ : S → S → Prop) (n : ℕ) (f : BoundedFormula HFLang (Fin n) 2)
---     (c : Fin n → S) (_hφ : ∀ x y, φ x y ↔ f.Realize c ![x, y]) (x : S) : Prop
---     := ∃! y, φ x y
-
--- -- not correct for general n
--- def pFunc (x : S) (φ : S → S → Prop) (n : ℕ) (f : BoundedFormula HFLang (Fin n) 2)
---     (c : Fin n → S) (hφ : ∀ x y, φ x y ↔ f.Realize c ![x, y]) (h : IsFunctional φ n f c hφ x) : S
---     := h.choose
-
 abbrev IsFunctionalUnary (φ : S → S → Prop) (f : BoundedFormula HF.Lang (Fin 0) 2)
     (c : Fin 0 → S) (_hφ : ∀ x y, φ x y ↔ f.Realize c ![x, y]) (x : S) : Prop :=
     ∃! y, φ x y

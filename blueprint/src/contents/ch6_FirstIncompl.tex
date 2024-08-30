@@ -1,16 +1,12 @@
 \chapter{Gödel’s First Incompleteness Theorem}
 
-\section{The replacement function}
-
-\section{Incompleteness}
-
-In this section, we prove Gödel’s diagonal lemma followed by his first incompleteness theorem.
+In this chapter, we prove Gödel’s diagonal lemma followed by his first incompleteness theorem.
 To establish the former, we first need to construct, for every variable $x_i$, 
 a $p$-function $K$ such that for every $\mathcal{L}$-formula $\varphi(x_i)$,
 $$
 \vdash K (\ulcorner{\varphi}\urcorner) = \ulcorner{\varphi(\ulcorner {\varphi} \urcorner)}\urcorner.
 $$
-This is done by letting $K$ be the replacement function introduced in the previous section.
+This is done by letting $K$ be the replacement function, introduced in due course.
 However, to prove this property of $K$, we first need a unary $p$-function $H$
 that satisfies $H(\mu) = \ulcorner {\mu} \urcorner$ for any code $\mu$, which in turn requires
 another unary $p$-function $W$ that is the restriction of $H$ to the codes of variables.
@@ -76,9 +72,42 @@ another unary $p$-function $W$ that is the restriction of $H$ to the codes of va
     Under construction. Needs Appendix 4.
 \end{proof}
 
+\begin{lemma}[The replacement function]
+    \label{lem:Code.exists_repl}
+    \uses{def:pFunc, def:C+C.length, def:Code.Symbol, def:Code.Term, def:Code.Formula, 
+        lem:IsSigma.Relations}
+    There exists a ternary $p$-function, denoted by $\operatorname{REPL}$, such that
+    $$
+    \vdash \operatorname{REPL}(\ulcorner{x_i}\urcorner, \ulcorner{\tau}\urcorner, 
+    \ulcorner{\varphi}\urcorner) = \ulcorner{\varphi(x_i/\tau)}\urcorner
+    $$
+    for every variable $x_i$, term $\tau$ and $\mathcal{L}$-formula $\varphi$, where
+    $\varphi(x_i/\tau)$ results from replacing each free occurrence of $x_i$ in $\varphi$ by $\tau$.
+\end{lemma}
+
+\begin{proof}
+    As the defining $\mathcal{L}$-formula $\varphi(v,t,y,y^\prime)$ for $\operatorname{REPL}$ 
+    choose:
+    \begin{equation*}
+        \begin{split}
+    & [(\exists!z)\operatorname{RepVarTermForm}(v,t,y,z) \land 
+    \operatorname{RepVarTermForm}(v,t,y,y^\prime)] \lor \\
+    & [\not (\exists!z)\operatorname{RepVarTermForm}(v,t,y,z) \land y^\prime = 0].
+        \end{split}
+    \end{equation*}
+    Then it is clear that $(\exists!y^\prime)\varphi(v,t,y,y^\prime)$.
+    By the meaning of the $\Sigma$-formula $\operatorname{REPL}$, as described in
+    \ref{lem:IsSigma.Relations}, the result follows.
+    For the precise details including the written-out $\Sigma$-formula $\operatorname{REPL}$,
+    the reader is referred to Chapter 3 and 5 of \cite{swierczkowski2003finite}.
+\end{proof}
+
 \begin{lemma}
     \label{lem:Code.exists_pFunc_forall_form_eq_code_form}
-    \uses{def:pFunc, def:C+C.length, def:Code.Formula, lem:Code.exists_pFunc_eq_code}
+    \lean{HF.Code.exists_pFunc_forall_form_eq_code_form}
+    \uses{def:pFunc, def:C+C.length, def:Code.Formula, lem:Code.exists_pFunc_eq_code,
+        lem:Code.exists_repl}
+    \leanok
     For every variable $x_i$, there exists a unary $p$-function $K$ such that, 
     for any $\mathcal{L}$-formula $\varphi(x_i)$,
     $$
@@ -88,7 +117,20 @@ another unary $p$-function $W$ that is the restriction of $H$ to the codes of va
 \end{lemma}
 
 \begin{proof}
-    Under construction. Needs REPL.
+    First note that the composite of $p$-functions is a $p$-function.
+    Now put
+    $$
+    K(x) = \operatorname{REPL}(\ulcorner{x_i}\urcorner, H(x), x).
+    $$
+    Let $\tau = \ulcorner{\varphi}\urcorner$.
+    Then, by \ref{lem:Code.exists_pFunc_eq_code}, $\ulcorner{\tau}\urcorner = H (\tau)$ and
+    furthermore, by \ref{lem:Code.exists_repl},
+    $$
+    \vdash \operatorname{REPL}(\ulcorner{x_i}\urcorner, H(\ulcorner{\varphi}\urcorner), 
+    \ulcorner{\varphi}\urcorner) = \ulcorner{\varphi(\ulcorner {\varphi} \urcorner)}\urcorner,
+    $$
+    i.e. $\vdash K (\ulcorner{\varphi}\urcorner)=
+    \ulcorner{\varphi(\ulcorner {\varphi} \urcorner)}\urcorner$.
 \end{proof}
 
 \begin{theorem}[Gödel's Diagonal Lemma]
@@ -104,13 +146,14 @@ another unary $p$-function $W$ that is the restriction of $H$ to the codes of va
 \end{theorem}
 
 \begin{proof}
-    Substitute $K(x_i)$ (see Lemma \ref{lem:Code.exists_pFunc_forall_form_eq_code_form}) 
-    for $x_i$ in $\alpha(x_i)$, and denote by $\beta(x_i)$ the resulting $\mathcal{L}$-formula.
+    Substitute $K(x_i)$ for $x_i$ in $\alpha(x_i)$, 
+    and denote by $\beta(x_i)$ the resulting $\mathcal{L}$-formula.
     Thus,
     $$
     \vdash \beta(x_i) \leftrightarrow \alpha(K(x_i)),
     $$
     and if we substitute $\ulcorner{\beta}\urcorner$ for $x_i$, 
+    by Lemma \ref{lem:Code.exists_pFunc_forall_form_eq_code_form},
     $$
     \vdash \beta(\ulcorner{\beta}\urcorner) \leftrightarrow 
     \alpha(\ulcorner{\beta(\ulcorner{\beta}\urcorner)}\urcorner).

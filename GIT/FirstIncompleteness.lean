@@ -6,6 +6,15 @@ suppress_compilation
 
 namespace HF
 
+namespace Code
+
+lemma exists_pFunc_forall_form_eq_code_form :
+    ∃ (ψ : Lang.BoundedFormula (Fin 1) 1), ∀ (φ : Lang.Formula (Fin 1)),
+    ⊢ (∃' ((&0 =' ((Code.Formula (subst φ ![(Code.Formula φ).1])).1).relabel .inl) ⊓
+    subst ψ ![(Code.Formula φ).1]) : Lang.Sentence) := sorry
+
+end Code
+
 theorem diagonal (α : Lang.Formula (Fin 1)) : ∃ (δ : Lang.Sentence),
     ⊢ δ ⇔ (subst α ![(Code.Formula δ).1]) := sorry
 

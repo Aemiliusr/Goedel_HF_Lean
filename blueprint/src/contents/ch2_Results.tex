@@ -827,3 +827,138 @@ distinguished freely occurring variable $z$ such that $x$ and $y$ are substituta
     Say the \textit{p}-function $F$ in Theorem \ref{thm:Ord.exists_pFuncRecursive} is
     \textit{defined recursively on ordinals}.
 \end{definition}
+
+\section{The rank function}
+
+\begin{definition}
+    \label{def:Ord.R}
+    \uses{def:Ord.pFuncRecursive}
+    Let $R(x)$ denote the $p$-function defined recursively on ordinals by
+    $$
+    R(x) = \begin{cases}
+        \varnothing & \text{if } x = \varnothing, \\
+        P(R(\operatorname{pred}(x))) & \text{otherwise}.
+    \end{cases}
+    $$
+\end{definition}
+
+\begin{lemma}
+    \label{lem:Ord.R.sSubset_of_lt+Ord.R.isTrans}
+    \uses{def:Subset+SSubset, def:Ord.lt+Ord.le, 
+        thm:IsOrd.exists_max_of_set+IsOrd.exists_min_of_set, def:Ord.R}
+    For all ordinals $m,n$ :
+    \begin{enumerate}
+        \item $n < m \rightarrow R(n) \subset R(m)$.
+        \item $R(m)$ is transitive.
+    \end{enumerate}
+\end{lemma}
+
+\begin{proof}
+    \begin{enumerate}
+        \item Clearly $R(\varnothing) = \varnothing \subset R(m)$ for all $m>\varnothing$.
+        Now if, for some $m$, there exists some $n<m$ but $R(n) \subseteq R(m)$ fails,
+        then by Theorem \ref{thm:IsOrd.exists_max_of_set+IsOrd.exists_min_of_set} there is a
+        smallest $n$ with that property.
+        As $n>\varnothing$, it follows that $\operatorname{pred}(n)<\operatorname{pred}(m)$, and thus 
+        $R(\operatorname{pred}(n)) \subset R(\operatorname{pred}(m))$.
+        But, by Definition \ref{def:Ord.R}, this implies $R(n) \subset R(m)$, a contradiction.
+        
+        \item Clearly $R(\varnothing) = \varnothing$ is transitive.
+        Now, if $m\neq \varnothing$, then $\operatorname{pred}(m)<m$ and thus 
+        $$
+        x \in R(m) \rightarrow x \subseteq R(\operatorname{pred}(m)) \subset R(m),
+        $$
+        by Definition \ref{def:Ord.R} and Lemma \ref{lem:Ord.R.sSubset_of_lt+Ord.R.isTrans}.1.
+    \end{enumerate}
+\end{proof}
+
+\begin{theorem}
+    \label{thm:forall_exists_ord_mem_R}
+    \uses{ax:induction_axiom, def:Ord.R, lem:Ord.R.sSubset_of_lt+Ord.R.isTrans}
+    $\exists n [\operatorname{Ord}(n) \land x \in R(n)]$.
+\end{theorem}
+
+\begin{proof}
+    Let $\alpha (x)$ be the $\mathcal{L}$-formula 
+    $\exists n [\operatorname{Ord}(n) \land x \in R(n)]$.
+    We apply Axiom \ref{ax:induction_axiom}.
+    \begin{itemize}
+        \item For the base case — $\alpha (\varnothing)$ — the required ordinal is 
+        $\operatorname{succ}(\varnothing)$, as $\varnothing \in P(R(\varnothing)) = P(\varnothing)
+        = \{\varnothing\}$.
+        \item For the induction step 
+        — $\forall y[\alpha(x) \land \alpha(y) \rightarrow \alpha(x \lhd y)]$ — 
+        pick $y$ arbitrarily and assume $\alpha(x) \land \alpha(y)$, i.e. $x \in R(n)$, 
+        $y \in R(m)$ for some ordinals $m,n$. 
+        Then, by Lemma \ref{lem:Ord.R.sSubset_of_lt+Ord.R.isTrans}.2,
+        $$
+        x \lhd y = x \cup \{y\} \subseteq R(n) \cup R(\operatorname{succ}(m)).
+        $$
+        So, by Lemma \ref{lem:Ord.R.sSubset_of_lt+Ord.R.isTrans}.1, 
+        for $k=\max \{\operatorname{succ}(m), n\}$, $x\lhd y \subseteq R(k)$, and thus
+        $x \lhd y \in R(\operatorname{succ}(k))$.
+    \end{itemize}
+\end{proof}
+
+\begin{definition}[Rank function]
+    \label{def:rank}
+    \uses{def:Ord.R}
+    Let $\operatorname{rank}(x)$ denote the least ordinal $n$ such that 
+    $x \in R(\operatorname{succ}(n))$, i.e. $x \subseteq R(n)$.
+\end{definition}
+
+\begin{theorem}
+    \label{thm:rank.lt_of_mem}
+    \uses{def:Ord.R, def:rank}
+    $x \in y \rightarrow \operatorname{rank}(x) < \operatorname{rank}(y)$.
+\end{theorem}
+
+\begin{proof}
+    Let $x \in y$ and suppose $\operatorname{rank}(y)=n$.
+    Then $y \subseteq R(n)$, and thus $x \in R(n)$.
+    It follows that $n \neq \varnothing$ and $x \subseteq R(\operatorname{pred}(n))$.
+    Hence, $\operatorname{rank}(x) \leq \operatorname{pred}(n) < n$.
+\end{proof}
+
+\begin{definition}[Transitive closure]
+    \label{def:cl}
+    \uses{def:inter+sInter,lem:Ord.R.sSubset_of_lt+Ord.R.isTrans, thm:forall_exists_ord_mem_R}
+    The \textit{transitive closure} of $x$, denoted by $\operatorname{cl}(x)$, is the minimal 
+    transitive set $y$ such that $x \subseteq y$.
+\end{definition}
+
+\begin{theorem}
+    \label{thm:rank_eq_rank_cl}
+    \uses{ax:induction_axiom, lem:Ord.R.sSubset_of_lt+Ord.R.isTrans, thm:rank.lt_of_mem, def:cl}
+    $\operatorname{rank}(x) = \operatorname{rank}(\operatorname{cl}(x))$.
+\end{theorem}
+
+\begin{proof}
+    Under construction.
+\end{proof}
+
+\begin{definition}[Restriction]
+    \label{def:IsFunc.restr+pFunc.restr}
+    \uses{thm:repl_scheme, def:IsFunc+IsFunc.dom}
+    Let $f$ be a function and $z \subseteq \operatorname{dom}(f)$.
+    Then the function $\{y \in f : \exists (u \in z) \exists v (y = \langle u,v \rangle)\}$
+    will be denoted by $f \upharpoonright z$ and called the \textit{restriction} of $f$ to $z$.
+
+    Similarly, if $F$ is a \textit{p}-function, then $F \upharpoonright z$ denotes the 
+    restriction of $F$ to $z$.
+\end{definition}
+
+\begin{theorem}[Recursion on rank]
+    \label{thm:rank.exists_pFuncRecursive}
+    \uses{thm:found_prop, def:pFunc, thm:rank.lt_of_mem, thm:rank_eq_rank_cl, def:cl, 
+        def:IsFunc.restr+pFunc.restr}
+    For every binary $p$-function $G(x,y)$, there exists a unary $p$-function $F$ such that
+    $$
+    F(x) = G(x, F \upharpoonright \operatorname{cl}(x)).
+    $$
+\end{theorem}
+
+\begin{proof}
+    Under construction.
+\end{proof}
+
