@@ -929,12 +929,47 @@ distinguished freely occurring variable $z$ such that $x$ and $y$ are substituta
 
 \begin{theorem}
     \label{thm:rank_eq_rank_cl}
-    \uses{ax:induction_axiom, lem:Ord.R.sSubset_of_lt+Ord.R.isTrans, thm:rank.lt_of_mem, def:cl}
+    \uses{ax:induction_axiom, lem:Ord.R.sSubset_of_lt+Ord.R.isTrans, def:rank, 
+        thm:rank.lt_of_mem, def:cl}
     $\operatorname{rank}(x) = \operatorname{rank}(\operatorname{cl}(x))$.
 \end{theorem}
 
 \begin{proof}
-    Under construction.
+    First observe that:
+    \begin{enumerate}
+        \item $u \subseteq v \rightarrow \operatorname{rank}(u) \leq \operatorname{rank}(v)$ 
+        (see Definition \ref{def:rank}).
+        \item $\operatorname{rank}(u \cup v) = \max 
+        \{\operatorname{rank}(u), \operatorname{rank}(v)\}$
+        (see Lemma \ref{lem:Ord.R.sSubset_of_lt+Ord.R.isTrans}).
+        \item $\operatorname{rank}(\{w\}) = \operatorname{succ}(\operatorname{rank}(w))$
+        (see Definition \ref{def:rank}).
+    \end{enumerate}
+    Now, let $\alpha (x)$ be the $\mathcal{L}$-formula 
+    $\operatorname{rank}(x) = \operatorname{rank}(\operatorname{cl}(x))$.
+    We apply Axiom \ref{ax:induction_axiom}.
+    \begin{itemize}
+        \item The base case — $\alpha (\varnothing)$ — is direct as 
+        $\operatorname{cl}(\varnothing) = \varnothing$.
+        \item For the induction step 
+        — $\forall y[\alpha(x) \land \alpha(y) \rightarrow \alpha(x \lhd y)]$ — 
+        pick $y$ arbitrarily and assume $\alpha(x) \land \alpha(y)$, i.e. that for some
+        ordinals $m,n$ we have 
+        $\operatorname{rank}(x) = \operatorname{rank}(\operatorname{cl}(x)) = n$ and
+        $\operatorname{rank}(y) = \operatorname{rank}(\operatorname{cl}(y)) = m$.
+        Then both sides on the inclusion
+        $$
+        x \lhd y = x \cup \{y\} \subseteq \operatorname{cl}(x) \cup \operatorname{cl}(y) \cup \{y\}
+        $$
+        have rank $\max \{n,\operatorname{succ}(m)\}$ (see 2. and 3. above).
+        Since the right hand side is transitive, it follows that
+        $$
+        x \lhd y \subseteq \operatorname{cl}(x \lhd y) \subseteq 
+        \operatorname{cl}(x) \cup \operatorname{cl}(y) \cup \{y\},
+        $$
+        and thus, by 1. above, 
+        $\operatorname{rank}(x \lhd y) = \operatorname{rank}(\operatorname{cl}(x \lhd y))$.
+    \end{itemize}
 \end{proof}
 
 \begin{definition}[Restriction]
@@ -959,6 +994,7 @@ distinguished freely occurring variable $z$ such that $x$ and $y$ are substituta
 \end{theorem}
 
 \begin{proof}
-    Under construction.
+    For the proof — which is extensive — the reader is referred to 
+    Appendix 4 of \cite{swierczkowski2003finite}, where it is presented in detail.
 \end{proof}
 

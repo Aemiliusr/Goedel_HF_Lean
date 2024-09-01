@@ -28,7 +28,7 @@ Constant terms are the simplest objects in the language that are naturally assoc
 making them the ideal choice for codes.
 
 However, we want the mapping from objects in the language to their codes to be one-to-one.
-Therefore we restrict the codes to a certain family of constant terms, denoted by $\Gamma$.
+Therefore, we restrict the codes to a certain family of constant terms, denoted by $\Gamma$.
 
 \begin{definition}
     \lean{HF.C.IsInΓ0, HF.C.IsInΓ, HF.Code}
@@ -51,13 +51,51 @@ Therefore we restrict the codes to a certain family of constant terms, denoted b
     \lean{HF.C.ne_of_isInΓ_and_distinct}
     \label{thm:C.ne_of_isInΓ_and_distinct}
     \leanok
-    \uses{def:C+C.length, def:IsInΓ0+IsInΓ+Code}
+    \uses{lem:mem_singleton+...+pair_inj, cor:mem_irrefl, def:succ, 
+        def:C+C.length, cor:C.ne_of_not_eq, def:IsInΓ0+IsInΓ+Code}
     Let $\sigma, \tau \in \Gamma$ be distinct constant terms, i.e. they are different strings of
     symbols. Then $\vdash \sigma \neq \tau$.
 \end{theorem}
 
 \begin{proof}
-    Under construction.
+    Say two constant terms $\sigma, \tau$ are \textit{identified} if $\vdash \sigma = \tau$.
+    By Corollary \ref{cor:C.ne_of_not_eq}, 
+    either $\vdash \sigma = \tau$ or $\vdash \sigma \neq \tau$.
+    It suffices to show that distinct constant terms in $\Gamma$ are never identified.
+    Let $\sigma,\tau$ be distinct constant terms in $\Gamma$.
+    We consider three cases:
+
+    \textit{Case 1.} $\sigma, \tau \in \Gamma_0$. 
+    Suppose, without loss of generality, that $\tau$ is longer than $\sigma$ 
+    (see Definition \ref{def:C+C.length}).
+    Then $\tau$ is obtained from $\sigma$ by several applications of the successor operation
+    (see Definition \ref{def:succ}).
+    But then $\vdash \sigma \in \tau$, and by Corollary \ref{cor:mem_irrefl},
+    $\sigma$ and $\tau$ are not identified.
+
+    \textit{Case 2.} $\sigma \in \Gamma_0$ and $\tau \in \Gamma \setminus \Gamma_0$.
+    We either have $\vdash \sigma = \varnothing$ or $\vdash \varnothing \in \sigma$.
+    On the other hand, $\tau$ is an ordered pair.
+    It is easily verified that every ordered pair is not equal to $\varnothing$ and does not contain
+    $\varnothing$. Hence, $\sigma$ and $\tau$ are not identified.
+
+    \textit{Case 3.} $\sigma, \tau \in \Gamma \setminus \Gamma_0$.
+    We proceed by induction on the length of $\sigma$ to show that 
+    $\sigma$ and $\tau$ are not identified.
+    The inductive assumption is that the desired implication holds if $\sigma, \tau$ are replaced by
+    $\sigma^\prime, \tau^\prime$ where $\sigma^\prime$ is shorter than $\sigma$.
+    Suppose $\sigma = \langle \sigma^\prime, \sigma^{\prime\prime} \rangle$ and 
+    $\tau = \langle \tau^\prime, \tau^{\prime\prime} \rangle$.
+    As $\sigma,\tau$ are distinct, either $\sigma^\prime$ and $\tau^\prime$ are distinct or
+    $\sigma^{\prime\prime}$ and $\tau^{\prime\prime}$ are distinct.
+    Assume, without loss of generality, that $\sigma^\prime$ and $\tau^\prime$ are distinct.
+    If $\sigma^\prime$ or $\tau^\prime$ is in $\Gamma_0$, then by Case 1 or Case 2,
+    $\sigma^\prime$ and $\tau^\prime$ are not identified.
+    Otherwise, if $\sigma^\prime, \tau^\prime \in \Gamma \setminus \Gamma_0$, then by the inductive
+    assumption, $\sigma^\prime$ and $\tau^\prime$ are not identified.
+    It follows that $\not\vdash \langle \sigma^\prime, \sigma^{\prime\prime} \rangle =
+    \langle \tau^\prime, \tau^{\prime\prime} \rangle$, and hence $\sigma$ and $\tau$ are not
+    identified.
 \end{proof}
 
 In the following definitions, $\langle \sigma, \tau, \mu \rangle$ is a shorthand for the ordered

@@ -167,14 +167,14 @@ We will start by establishing some properties of constant terms.
     \lean{HF.stdModel, HF.stdModel.struc}
     \uses{def:Lang, def:C+C.length}
     \leanok
-    Introduce the equivalence relation $\equiv$ on $\mathbb{C}$ given by
+    Introduce the equivalence relation $\approx$ on $\mathbb{C}$ given by
     $$
-    \sigma \equiv \tau \,\text{ if and only if } \vdash \sigma = \tau.
+    \sigma \approx \tau \,\text{ if and only if } \vdash \sigma = \tau.
     $$
     Then the $\mathcal{L}-$structure 
     $\mathfrak{S} = \langle\mathbb{S}, \varnothing, \in, \lhd \rangle$ is defined by the following:
     \begin{enumerate}
-        \item $\mathbb{S} = \mathbb{C}/{\equiv}$.
+        \item $\mathbb{S} = \mathbb{C}/{\approx}$.
         \item The abbreviation $\varnothing$ for $[\varnothing]$.
         \item The binary relation $\in$ on $\mathbb{S}$ defined by
                 $$[\sigma] \in [\tau] \leftrightarrow \,\vdash \sigma \in \tau.$$
@@ -187,13 +187,13 @@ We will start by establishing some properties of constant terms.
     \label{thm:stdModel.model_of_consistent}
     \lean{HF.stdModel.model_of_consistent}
     \uses{def:Lang, def:Axioms, thm:completeness, lem:notin_empty+mem_enlarge+mem_enlarge_empty, 
-        thm:exten_prop, def:stdModel}
+        thm:exten_prop, cor:C.ne_of_not_eq, cor:C.eq_of_forall_mem_iff_mem, def:stdModel}
     \leanok
     If HF is consistent, then $\mathfrak{S}$ is a model of HF.
 \end{theorem}
 
 \begin{proof}
-    We check that the axioms of HF are modeled by $\mathfrak{S}$.
+    We check that the axioms of HF are modelled by $\mathfrak{S}$.
 
     \textit{Axiom 1.} Suppose $[\sigma] \in \mathbb{S}$ is such that 
     $\mathfrak{S} \vDash [\tau] \notin [\sigma]$ for every constant term $\tau$.
@@ -205,8 +205,37 @@ We will start by establishing some properties of constant terms.
     $\vdash \tau \in \varnothing$, and the latter contradicts 
     Lemma \ref{lem:notin_empty+mem_enlarge+mem_enlarge_empty} and the assumption of consistency.
 
-    \textit{Axiom 2.} ...
-
-    \textit{Axiom 3.} ...
-
+    \textit{Axiom 2.} Theorem \ref{thm:exten_prop} holds for $\mathfrak{S}$, by 
+    Corollary \ref{cor:C.eq_of_forall_mem_iff_mem}.
+    Thus, Axiom 2 (Definition \ref{def:Axioms}.2) will be modelled by $\mathfrak{S}$ if 
+    for every $\tau,\mu,\nu \in \mathbb{C}$, 
+    $$
+    \vdash \tau \in \mu \lhd \nu \,\text{ if and only if } 
+    (\vdash \tau \in \mu \,\text{ or } \vdash \tau = \nu).
+    $$
+    First, assume $\vdash \tau \in \mu \lhd \nu$. 
+    If $\vdash \tau = \nu$, then the desired implication holds immediately.
+    If $\not\vdash \tau = \nu$, then, by Corollary \ref{cor:C.ne_of_not_eq},
+    $\vdash \tau \neq \nu$.
+    So, in this case, $\vdash \tau \in \mu \lhd \nu$ implies
+    $\vdash (\tau \in \mu \lor \tau = \nu) \land \tau \neq \nu$, and thus
+    $\vdash \tau \in \mu$. Conversely, 
+    $(\vdash \tau \in \mu \,\text{ or } \vdash \tau = \nu)$ implies
+    $\vdash (\tau \in \mu \lor \tau = \nu)$, and thus
+    $\vdash \tau \in \mu \lhd \nu$.
+    
+    \textit{Axiom 3.} For each equivalence class $a \in \mathbb{S}$, let $h(a)$ be the smallest
+    length $l(\tau)$ such that $\tau \in a$.
+    Then, for every $a \neq \varnothing$, there exist $b,c \in \mathbb{S}$ such that 
+    $a = b \lhd c$ holds true in $\mathbb{S}$, and both $h(b) < h(a)$ and $h(c) < h(a)$.
+    Given an $\mathcal{L}$-formula $\alpha(x)$ with one free variable $x$,
+    define 
+    $$
+    A_\alpha = \{a \in \mathbb{S} : \alpha (a) \text{ holds true in $\mathbb{S}$}\}.
+    $$
+    Now, assume $\varnothing \in A_\alpha$ and that $a,b \in A_\alpha$ implies 
+    $a \lhd b \in A_\alpha$ for all $a,b \in \mathbb{S}$.
+    Then, by induction on $h(c)$, it follows that $c \in A_\alpha$ for all $c \in \mathbb{S}$,
+    and thus $\alpha(c)$ holds true for all $c \in \mathbb{S}$.
+    This establishes Axiom 3.
 \end{proof}

@@ -1,5 +1,7 @@
 \chapter{Gödel’s First Incompleteness Theorem}
 
+Need text on having coding and Pf at hand.
+
 In this chapter, we prove Gödel’s diagonal lemma followed by his first incompleteness theorem.
 To establish the former, we first need to construct, for every variable $x_i$, 
 a $p$-function $K$ such that for every $\mathcal{L}$-formula $\varphi(x_i)$,
@@ -61,7 +63,8 @@ another unary $p$-function $W$ that is the restriction of $H$ to the codes of va
 
 \begin{lemma}
     \label{lem:Code.exists_pFunc_eq_code}
-    \uses{def:pFunc, def:C+C.length, def:Code.Term, lem:Code.exists_pFunc_forall_var_eq_code}
+    \uses{def:singleton+pair, def:pFunc, thm:rank.exists_pFuncRecursive, def:C+C.length, 
+    def:Code.Symbol, def:Code.Term, lem:Code.exists_pFunc_forall_var_eq_code}
     There exists a unary $p$-function $H$ such that, for any code $\mu$,
     $$
     \vdash H(\mu) = \ulcorner{\mu}\urcorner.
@@ -69,7 +72,68 @@ another unary $p$-function $W$ that is the restriction of $H$ to the codes of va
 \end{lemma}
 
 \begin{proof}
-    Under construction. Needs Appendix 4.
+    Recall the definition of an ordered pair:
+    \begin{equation*}
+        \begin{split}
+    \langle x, y \rangle & = \{\{x\}, \{x, y\}\} = 
+        \{\varnothing \lhd x, (\varnothing \lhd x) \lhd y\} \\
+        & = (\varnothing \lhd (\varnothing \lhd x)) \lhd
+        ((\varnothing \lhd x) \lhd y).
+        \end{split}
+    \end{equation*}
+    It follows that, for any terms $\sigma,\tau$,
+    \begin{equation*}
+        \begin{split}
+            \ulcorner {\langle \sigma, \tau \rangle} \urcorner & =
+            \ulcorner {(\varnothing \lhd (\varnothing \lhd x)) \lhd
+            ((\varnothing \lhd x) \lhd y)} \urcorner \\
+            & = \langle \ulcorner{\lhd}\urcorner,
+            \langle\ulcorner{\lhd}\urcorner, \varnothing,
+            \langle \ulcorner{\lhd}\urcorner, \varnothing, 
+            \ulcorner{\sigma}\urcorner \rangle  \rangle,
+            \langle \ulcorner{\lhd}\urcorner, 
+            \langle \ulcorner{\lhd}\urcorner, \varnothing, 
+            \ulcorner{\sigma}\urcorner \rangle, 
+            \ulcorner{\tau}\urcorner \rangle \rangle.
+        \end{split}
+    \end{equation*}
+    Let $t(x,y)$ be the term 
+    $\langle \ulcorner{\lhd}\urcorner,
+    \langle\ulcorner{\lhd}\urcorner, \varnothing,
+    \langle \ulcorner{\lhd}\urcorner, \varnothing, x \rangle  \rangle,
+    \langle \ulcorner{\lhd}\urcorner, 
+    \langle \ulcorner{\lhd}\urcorner, \varnothing, x \rangle, y \rangle \rangle$.
+    Then $t(\ulcorner{\sigma}\urcorner, \ulcorner{\tau}\urcorner) = 
+    \ulcorner {\langle \sigma, \tau \rangle} \urcorner$ for any terms $\sigma,\tau$.
+
+    Now define $H$ recursively on rank (see Theorem \ref{thm:rank.exists_pFuncRecursive}):
+    $$
+    H(x) = \begin{cases}
+        W(x) & \text{if $x$ is an ordinal}, \\
+        t(H(u), H(v)) & \text{if } x = \langle u, v \rangle \text{ for some } u,v, \\
+        \varnothing & \text{otherwise}.
+    \end{cases}
+    $$
+    This definition makes sense as no ordered pair is an ordinal 
+    ($\varnothing \in x$ for every non-zero ordinal $x$, whereas 
+    $\varnothing \notin \langle u, v\rangle$ for all $u,v$), and
+    $x = \langle u, v \rangle$ implies $u,v \in \operatorname{cl}(x)$.
+
+    Suppose $\mu \in \Gamma$, i.e. $\mu$ is a code. 
+    If $\mu=\varnothing$ or $\mu$ is the code of a variable,
+    then $H(\mu) = W(\mu) = \ulcorner{\mu}\urcorner$ by 
+    Lemma \ref{lem:Code.exists_pFunc_forall_var_eq_code}.
+    All other terms $\mu \in \Gamma$ are built from $\varnothing$ and codes of variables by
+    forming ordered pairs.
+    Since for $\mu = \langle \sigma, \tau \rangle$ the terms $\sigma,\tau$ are shorter than $\mu$
+    (see Definition \ref{def:C+C.length}), we may proceed by induction on the length of $\mu$.
+    Assume that $H(\sigma) = \ulcorner{\sigma}\urcorner$ and $H(\tau) = \ulcorner{\tau}\urcorner$.
+    Then, by the definition of $t(x,y)$,
+    $$
+    \ulcorner{\mu}\urcorner = \ulcorner {\langle \sigma, \tau \rangle} \urcorner =
+    t(\ulcorner{\sigma}\urcorner, \ulcorner{\tau}\urcorner) = t(H(\sigma), H(\tau)) = H(\mu),
+    $$
+    Q.E.D.
 \end{proof}
 
 \begin{lemma}[The replacement function]
