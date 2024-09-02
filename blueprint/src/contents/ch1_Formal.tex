@@ -163,8 +163,8 @@ However, in practice, working directly within this formal calculus is cumbersome
 tedious and require hundreds of lines of code.
 To streamline the process of obtaining theorems of HF in Lean, 
 we aim to convert semantic proofs into proofs within the HF syntactic system. 
-This is possible by applying Gödel's completeness theorem, which applies to any first-order theory.
-How does mechanism is put into practice is discussed in Chapter 2.
+This is possible by employing Gödel's completeness theorem, which applies to any first-order theory.
+How this mechanism is put into practice is discussed in Chapter 2.
 
 \section{Semantics}
 
@@ -175,7 +175,7 @@ without relying on any external concepts like semantic notions.
 
 However, while we do explain what it means to be a model to introduce the standard model of 
 HF in Chapter 3, we also present the semantic results of soundness and completeness. 
-This is done solely because these results are useful in the process of converting semantic proofs 
+This is done solely because these results are helpful in the process of converting semantic proofs 
 into syntactic proofs in Lean, as discussed earlier.
 Regarding all proofs presented in the coming chapters, we follow 
 \cite{swierczkowski2003finite} — who does not introduce Gödel's completeness theorem — 
@@ -208,13 +208,13 @@ the reader is referred to  \cite{shoenfield1967mathematical}.
     Then $\vdash \varphi$ if and only if $\vDash \varphi$.
 \end{theorem}
 
-In other words, the theorems of HF are precisely the $\mathcal{L}$-formulas that are valid in HF.
+In other words, the theorems of HF are precisely the $\mathcal{L}$-formulas valid in HF.
 Thus, to prove $\vdash \varphi$ for any $\mathcal{L}$-formula $\varphi$, it suffices to show that for an 
 arbitrary model of HF, $\mathcal{S}$, we have $\mathcal{S} \vDash \varphi$.
 This is the conversion process we previously discussed.
 
 In Lean 3, the completeness theorem for first-order logic was proven as part of the Flypitch project
 by \cite{han2020formal}.
-However, there is no proof available in the math library of Lean 4.
+However, no proof is available in the math library of Lean 4.
 For now, we make use of the extraneous concepts of soundness and completeness 
 by accepting the statement using the {\ttfamily \small sorry} identifier. 

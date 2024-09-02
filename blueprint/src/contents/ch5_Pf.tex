@@ -21,7 +21,7 @@ are in place.
 
 By soundness, we have that $\vdash \varphi$ implies 
 $\mathfrak{S} \vDash \varphi$ for any $\mathcal{L}$-formula $\varphi$.
-However, the converse does not hold in general, with the sentence in Gödel's first incompleteness
+However, the converse does not generally hold, with the sentence in Gödel's first incompleteness
 theorem as an example.
 Fortunately, there is a substantial class of sentences for which being modelled by $\mathfrak{S}$
 is equivalent to being a theorem of HF.
@@ -208,23 +208,23 @@ In order to establish this, we need the class of $\Sigma_{\lhd}$-formulas.
 
 \section{The formula Pf}
 
-In this section, we summarise the the more detailed work required to construct the 
+In this section, we summarise the more detailed work required to construct the 
 $\Sigma$-formula $\operatorname{Pf}(x)$.
 Ultimately, we want the latter to \textit{mean} that $x$ codes an $\mathcal{L}$-formula 
 that is a theorem of HF.
-Here, by 'to mean' we imply the equivalence between $\vdash \operatorname{Pf}(x)$ and
+Here, by 'to mean', we imply the equivalence between $\vdash \operatorname{Pf}(x)$ and
 $x$ coding a theorem of HF.
 
 The remaining work of establishing $\operatorname{Pf}(x)$ essentially boils down to verifying 
 that all fundamental relationships between variables, terms, and formulas that 
 underlie a proof in HF can be expressed by a $\Sigma$-formula that only involves codes as arguments.
-By the latter we mean that the $\Sigma$-formula is expressed in such a way that the arguments 
+By the latter, we mean that the $\Sigma$-formula is expressed in such a way that the arguments 
 necessarily be codes if the $\Sigma$-formula is a theorem of HF.
 In the following definitions, 
 we will present the abbreviations and the \textit{meanings} of all these relevant 
 $\Sigma$-formulas, which are sub-formulas of $\operatorname{Pf}(x)$.
 For the corresponding written-out $\Sigma$-formulas themselves, the reader is
-referred to Chapter 3 and 4 of \cite{swierczkowski2003finite}, where they are described in detail.
+referred to Chapters 3 and 4 of \cite{swierczkowski2003finite}, where they are described in detail.
 
 For the sake of readability, the definitions of the relevant $\Sigma$-formulas are presented
 as lemmas.
@@ -330,7 +330,7 @@ as lemmas.
 With these $\Sigma$-formulas in place, 
 we can now construct the provability formula $\operatorname{Pf}(x)$.
 To that end, we need eight other $\Sigma$-formulas that express arguments being 
-a code of an axiom or a deduction rule, which directly yield $\operatorname{Pf}(x)$.
+a code of an axiom or a deduction rule, directly yielding $\operatorname{Pf}(x)$.
 
 \begin{lemma}[The formula Pf]
     \label{lem:IsSigma.Ax+...+IsSigma.Pf}

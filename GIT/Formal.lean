@@ -149,7 +149,7 @@ inductive prf : Set (Lang.BoundedFormula α n) → Lang.BoundedFormula α n → 
 | Spec : φ ∈ Spec.Theory → prf T φ
 | Eq : φ ∈ Equality.Theory → prf T φ
 | MP (ψ : Lang.BoundedFormula α n) (h1 : prf T (ψ ⟹ φ)) (h2 : prf T ψ) : prf T φ
--- Substition: from φ deduce φ (x/t) for any term t that is substitutable for x in φ
+-- Substitution: from φ deduce φ (x/t) for any term t that is substitutable for x in φ
 -- ∃-introduction: from φ → ψ deduce ∃ x φ → ψ provided x is not free in ψ
 
 prefix:51 "⊢" => prf {}

@@ -13,23 +13,23 @@ This encoding is useful because properties of formulas in the language
 — such as being a theorem or not — 
 can be analysed by examining the properties of their corresponding Gödel numbers. 
 This approach leads to the formulation of a formula that effectively says, 
-"formula $\varphi$ is provable within the system", 
+'formula $\varphi$ is provable within the system', 
 which applies to any formula $\varphi$ in the language.
 
 For HF, we adopt a similar strategy by encoding symbols, terms, and formulas 
 as constant terms within the language itself. Why choose constant terms?
 Firstly, we want to apply set-theoretical formulas to these codes, 
-so it is important that each code corresponds naturally to a set. 
+so each code must correspond naturally to a set. 
 Additionally, as demonstrated in the proof of Gödel’s Diagonal Lemma (discussed in Chapter 6), 
 we must be able to encode a code itself. 
 This means assigning a code to the code $\ulcorner{\varphi}\urcorner$ of an 
 $\mathcal{L}$-formula $\varphi$. 
 To achieve this, the codes must be objects within the language $\mathcal{L}$. 
-Constant terms are the simplest objects in the language that are naturally associated with sets, 
+Constant terms are the simplest objects in the language naturally associated with sets, 
 making them the ideal choice for codes.
 
 However, we want the mapping from objects in the language to their codes to be one-to-one.
-Therefore, we restrict the codes to a certain family of constant terms, denoted by $\Gamma$.
+Therefore, we restrict the codes to a certain family of constant terms denoted by $\Gamma$.
 
 \begin{definition}
     \lean{HF.C.IsInΓ0, HF.C.IsInΓ, HF.Code}
@@ -109,8 +109,8 @@ $\langle \langle \sigma, \tau, \mu \rangle, \nu \rangle$, and so on.
     \label{def:Code.Symbol}
     \leanok
     \uses{def:C.IsInΓ0+C.IsInΓ+Code}
-    We begin by assigning to each symbol of the language a unique code, denoted by
-    $\ulcorner \cdot\urcorner$
+    We begin by assigning to each symbol of the language a unique code denoted by
+    $\ulcorner \cdot\urcorner$.
     In particular, these are the following constant terms belonging to $\Gamma$:
     $$
     \begin{aligned}
@@ -137,7 +137,7 @@ $\langle \langle \sigma, \tau, \mu \rangle, \nu \rangle$, and so on.
     \label{def:Code.Term}
     \leanok
     \uses{def:C.IsInΓ0+C.IsInΓ+Code, def:Code.Symbol}
-    The terms $\varnothing$ and $x_k$ have been code already. 
+    The terms $\varnothing$ and $x_k$ have been coded already. 
     The remaining case follows the inductive definition
     $$
     \ulcorner{\sigma \lhd \tau}\urcorner = 

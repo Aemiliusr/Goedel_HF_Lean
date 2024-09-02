@@ -1,13 +1,13 @@
 \chapter{Gödel’s First Incompleteness Theorem}
 
 With the coding system and the provability formula in place, 
-we are now ready to prove Gödel’s first incompleteness theorem.
+we can now prove Gödel’s first incompleteness theorem.
 The only ingredient missing is the existence of self-referential sentences, 
 which is exactly what Gödel’s diagonal lemma provides.
 The latter essentially states that for any $\mathcal{L}$-formula $\alpha$ with one free variable,
 there exists a sentence $\delta$ such that $\delta$ is equivalent to $\alpha$ with the code
 of $\delta$ substituted for the free variable.
-Then, for proving Gödel’s first incompleteness theorem, we apply the diagonal lemma to the negation
+Then, to prove Gödel’s first incompleteness theorem, we apply the diagonal lemma to the negation
 of the provability formula, which implies there exists a sentence $\delta$ equivalent to the 
 sentence with meaning 'the sentence $\delta$ is not a theorem of HF'.
 This yields a contradiction if we assume $\delta$ to be provable or disprovable.
@@ -171,8 +171,8 @@ another unary $p$-function $W$ that is the restriction of $H$ to the codes of va
     Then it is clear that $(\exists!y^\prime)\varphi(v,t,y,y^\prime)$.
     By the meaning of the $\Sigma$-formula $\operatorname{REPL}$, as described in
     \ref{lem:IsSigma.Relations}, the result follows.
-    For the precise details including the written-out $\Sigma$-formula $\operatorname{REPL}$,
-    the reader is referred to Chapter 3 and 5 of \cite{swierczkowski2003finite}.
+    For the precise details, including the written-out $\Sigma$-formula $\operatorname{REPL}$,
+    the reader is referred to Chapters 3 and 5 of \cite{swierczkowski2003finite}.
 \end{proof}
 
 \begin{lemma}
@@ -190,7 +190,7 @@ another unary $p$-function $W$ that is the restriction of $H$ to the codes of va
 \end{lemma}
 
 \begin{proof}
-    First note that the composite of $p$-functions is a $p$-function.
+    First, note that the composite of $p$-functions is a $p$-function.
     Now put
     $$
     K(x) = \operatorname{REPL}(\ulcorner{x_i}\urcorner, H(x), x).
