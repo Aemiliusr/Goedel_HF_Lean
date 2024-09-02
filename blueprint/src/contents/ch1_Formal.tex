@@ -1,11 +1,28 @@
 \chapter{The First-Order Theory of Hereditarily Finite Sets}
 
-Text about formal system to first-order theory, and first-order logic in Lean.
+In this chapter, we introduce the first-order theory of hereditarily finite sets (HF).
+Following \cite{shoenfield1967mathematical}, a first-order theory is a formal system
+consisting of a first-order language, a set of non-logical axioms, and a logical calculus 
+that includes logical axioms and deduction rules.
+In fact, to specify the first-order theory of HF, it suffices to specify 
+the non-logical symbols of the language and the non-logical axioms, as everything else is
+given by the definition of a first-order theory.
+However, as we aim to formalise the notion of a formal syntactical proof within the theory of HF,
+we do present the logical axioms and deduction rules.
+Furthermore, we need a description of the logical axioms and deduction rules for 
+constructing the provability formula in Chapter 5.
+
+For the formalisation of the first-order theory of HF,
+we draw on formalised concepts from first-order logic available in 
+the model theory section of the math library of Lean 4.
+These formalised concepts, such as the notions of a first-order language,
+a first-order structure and a first-order formula, are descendants from 
+the Flypitch project by \cite{han2020formal}.
 
 \section{Language and axioms}
 
-The \textit{first-order theory of HF} is determined by the first-order language of HF, 
-the (non-logical) axioms of HF, the logical axioms, and the deduction rules.
+The \textit{first-order theory of HF} is determined by the first-order language of HF and 
+the (non-logical) axioms of HF.
 
 \begin{definition}[The language of HF]
     \label{def:Lang}
@@ -24,10 +41,10 @@ It follows that any \textit{term} of $\mathcal{L}$ arises in the following way:
 any variable is a term, any constant symbol is a term, and if $\tau_1, \tau_2$ are terms, then so is
 $\tau_1 \lhd \tau_2$.
 Furthermore, any \textit{$\mathcal{L}$-formula} arises in the following way:
-any atomic formula is an $\mathcal{L}$-formula, and if $\phi, \psi$ are $\mathcal{L}$-formulas, 
-then so are $\neg \phi$, $\phi \lor \psi$, and $\exists x \phi$.
-Again, $\phi \land \psi$, $\phi \rightarrow \psi$, $\phi \leftrightarrow \psi$ and
-$\forall x \phi$ are treated as definitions.
+any atomic formula is an $\mathcal{L}$-formula, and if $\varphi, \psi$ are $\mathcal{L}$-formulas, 
+then so are $\neg \varphi$, $\varphi \lor \psi$, and $\exists x \varphi$.
+Again, $\varphi \land \psi$, $\varphi \rightarrow \psi$, $\varphi \leftrightarrow \psi$ and
+$\forall x \varphi$ are treated as definitions.
 
 The axioms of HF consist of two axioms and one scheme. 
 Informally, the first axiom defines $\varnothing$ as the
@@ -130,10 +147,10 @@ These descriptions naturally lead to the notion of formal proof.
     \lean{HF.prf}
     \uses{def:Lang, def:Axioms, def:Bool.Axioms, def:Spec.Axiom, 
         def:Equality.Axioms, def:prf.MP+prf.Subst+prf.ExIntro}
-    An $\mathcal{L}$-formula is a \textit{theorem of HF}, denoted by $\vdash \phi$, 
+    An $\mathcal{L}$-formula is a \textit{theorem of HF}, denoted by $\vdash \varphi$, 
     if there is a finite sequence of $\mathcal{L}$-formulas — each of which is an axiom of HF, 
     a logical axiom, or is deduced from previous formulas in the sequence by a deduction rule —
-    terminating with $\phi$.
+    terminating with $\varphi$.
 \end{definition}
 
 Following the approach outlined by \cite{paulson2014machine}, 
@@ -145,27 +162,38 @@ However, in practice, working directly within this formal calculus is cumbersome
 \cite{paulson2014machine} experienced that even the simplest formal proofs can become extremely 
 tedious and require hundreds of lines of code.
 To streamline the process of obtaining theorems of HF in Lean, 
-we aim to convert semantic proofs (i.e., using only Lean's native logic and not the proof predicate) 
-into proofs within the HF syntactic system. 
+we aim to convert semantic proofs into proofs within the HF syntactic system. 
 This is possible by applying Gödel's completeness theorem, which applies to any first-order theory.
+How does mechanism is put into practice is discussed in Chapter 2.
 
 \section{Semantics}
 
-Need text on use of semantic notions.
+Apart from drawing on the concept of a standard model, as introduced in Chapter 3, 
+Gödel's incompleteness theorems are fundamentally syntactical in nature. 
+They focus solely on what can be proven within the confines of the formal system itself, 
+without relying on any external concepts like semantic notions.
+
+However, while we do explain what it means to be a model to introduce the standard model of 
+HF in Chapter 3, we also present the semantic results of soundness and completeness. 
+This is done solely because these results are useful in the process of converting semantic proofs 
+into syntactic proofs in Lean, as discussed earlier.
+Regarding all proofs presented in the coming chapters, we follow 
+\cite{swierczkowski2003finite} — who does not introduce Gödel's completeness theorem — 
+in terms of referring to semantic notions.
 
 \begin{definition}
     \label{def:models+Model+valid}
     \lean{HF.models, HF.Model, HF.valid}
     \uses{def:Lang, def:Axioms}
     \leanok
-    Suppose $\mathcal{S}$ is an $\mathcal{L}$-structure and $\phi$ is an $\mathcal{L}$-formula.
-    If every valuation in $\mathcal{S}$ satisfies $\phi$, 
-    say $\mathcal{S}$ is a \textit{model} of $\phi$, denoted by $\mathcal{S} \vDash \phi$.
+    Suppose $\mathcal{S}$ is an $\mathcal{L}$-structure and $\varphi$ is an $\mathcal{L}$-formula.
+    If every valuation in $\mathcal{S}$ satisfies $\varphi$, 
+    say $\mathcal{S}$ is a \textit{model} of $\varphi$, denoted by $\mathcal{S} \vDash \varphi$.
 
     If $\mathcal{S}$ is a model of every axiom of HF, say $\mathcal{S}$ is a \textit{model of HF}.
     
-    An $\mathcal{L}$-formula $\phi$ is called \textit{valid in HF} if 
-    every model of HF is a model of $\phi$, denoted by $\vDash \phi$.
+    An $\mathcal{L}$-formula $\varphi$ is called \textit{valid in HF} if 
+    every model of HF is a model of $\varphi$, denoted by $\vDash \varphi$.
 \end{definition}
 
 For a proof of the following result for an arbitrary first-order theory, 
@@ -176,17 +204,17 @@ the reader is referred to  \cite{shoenfield1967mathematical}.
     \lean{HF.completeness}
     \uses{def:Lang, def:prf, def:models+Model+valid}
     \leanok
-    Suppose $\phi$ is an $\mathcal{L}$-formula.
-    Then $\vdash \phi$ if and only if $\vDash \phi$.
+    Suppose $\varphi$ is an $\mathcal{L}$-formula.
+    Then $\vdash \varphi$ if and only if $\vDash \varphi$.
 \end{theorem}
 
-It other words, the theorems of HF are precisely the $\mathcal{L}$-formulas that are valid in HF.
-Thus, to prove $\vdash \phi$ for any $\mathcal{L}$-formula $\phi$, it suffices to show that for an 
-arbitrary model of HF, $\mathcal{S}$, we have $\mathcal{S} \vDash \phi$.
+In other words, the theorems of HF are precisely the $\mathcal{L}$-formulas that are valid in HF.
+Thus, to prove $\vdash \varphi$ for any $\mathcal{L}$-formula $\varphi$, it suffices to show that for an 
+arbitrary model of HF, $\mathcal{S}$, we have $\mathcal{S} \vDash \varphi$.
 This is the conversion process we previously discussed.
 
 In Lean 3, the completeness theorem for first-order logic was proven as part of the Flypitch project
 by \cite{han2020formal}.
 However, there is no proof available in the math library of Lean 4.
-For now, we make use of soundness and completeness by accepting the statement 
-using the {\ttfamily \small sorry} identifier. 
+For now, we make use of the extraneous concepts of soundness and completeness 
+by accepting the statement using the {\ttfamily \small sorry} identifier. 

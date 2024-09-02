@@ -1,9 +1,18 @@
 \chapter{Gödel’s First Incompleteness Theorem}
 
-Need text on having coding and Pf at hand.
+With the coding system and the provability formula in place, 
+we are now ready to prove Gödel’s first incompleteness theorem.
+The only ingredient missing is the existence of self-referential sentences, 
+which is exactly what Gödel’s diagonal lemma provides.
+The latter essentially states that for any $\mathcal{L}$-formula $\alpha$ with one free variable,
+there exists a sentence $\delta$ such that $\delta$ is equivalent to $\alpha$ with the code
+of $\delta$ substituted for the free variable.
+Then, for proving Gödel’s first incompleteness theorem, we apply the diagonal lemma to the negation
+of the provability formula, which implies there exists a sentence $\delta$ equivalent to the 
+sentence with meaning 'the sentence $\delta$ is not a theorem of HF'.
+This yields a contradiction if we assume $\delta$ to be provable or disprovable.
 
-In this chapter, we prove Gödel’s diagonal lemma followed by his first incompleteness theorem.
-To establish the former, we first need to construct, for every variable $x_i$, 
+To establish Gödel’s diagonal lemma, we first need to construct, for every variable $x_i$, 
 a $p$-function $K$ such that for every $\mathcal{L}$-formula $\varphi(x_i)$,
 $$
 \vdash K (\ulcorner{\varphi}\urcorner) = \ulcorner{\varphi(\ulcorner {\varphi} \urcorner)}\urcorner.
@@ -202,10 +211,10 @@ another unary $p$-function $W$ that is the restriction of $H$ to the codes of va
     \lean{HF.diagonal}
     \uses{lem:Code.exists_pFunc_forall_form_eq_code_form}
     \leanok
-    For any $\mathcal{L}$-formula $\alpha(x_i)$, there exists an $\mathcal{L}$-formula 
-    $\delta$ such that 
+    For any $\mathcal{L}$-formula $\alpha$ with one free variable, 
+    there exists a sentence $\delta$ such that 
     $$
-    \vdash \alpha \leftrightarrow \alpha(\ulcorner{\delta}\urcorner).
+    \vdash \delta \leftrightarrow \alpha(\ulcorner{\delta}\urcorner).
     $$
 \end{theorem}
 
@@ -222,7 +231,7 @@ another unary $p$-function $W$ that is the restriction of $H$ to the codes of va
     \vdash \beta(\ulcorner{\beta}\urcorner) \leftrightarrow 
     \alpha(\ulcorner{\beta(\ulcorner{\beta}\urcorner)}\urcorner).
     $$
-    Thus $\delta = \beta(\ulcorner{\beta}\urcorner)$ satisfies the required property.
+    Thus, $\delta = \beta(\ulcorner{\beta}\urcorner)$ satisfies the required property.
 \end{proof}
 
 \begin{theorem}[Gödel's First Incompleteness Theorem]
