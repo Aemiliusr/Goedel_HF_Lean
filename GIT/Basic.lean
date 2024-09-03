@@ -131,14 +131,14 @@ constructor <;> intros h1 h2 h3 z <;> specialize h1 h2 <;> apply h1 <;> intros x
     Fin.coe_fin_one, Fin.zero_eta] at *; exact hx) (hy)
 
 lemma empty (S) [Model S] : ∀ (z : S), z = ∅ ↔ ∀ (x : S), x ∉ z := by
-  rename_i inst; rcases inst with ⟨struc, model⟩
+  rename_i inst; rcases inst with ⟨_, _, model⟩
   specialize model Axiom1
   simp only [HF.Theory, Set.iUnion_singleton_eq_range, Set.mem_union, Set.mem_insert_iff,
     Set.mem_singleton_iff, true_or, Set.mem_range, Fin.forall_fin_zero_pi, true_implies] at model
   rwa [empty_aux S, models_iff_realize_of_sentence]
 
 lemma enlarge (S) [Model S] : ∀ (x y z : S), z = x ◁ y ↔ ∀ (u : S), u ∈ z ↔ u ∈ x ∨ u = y := by
-  rename_i inst; rcases inst with ⟨struc, model⟩
+  rename_i inst; rcases inst with ⟨_, _, model⟩
   specialize model Axiom2
   simp only [HF.Theory, Set.iUnion_singleton_eq_range, Set.mem_union, Set.mem_insert_iff,
     Set.mem_singleton_iff, or_true, Set.mem_range,
@@ -151,7 +151,7 @@ lemma induction (S) [Model S] : ∀ (α : S → Prop), α ∅ → (∀ (x y : S)
   intros f h1 h2 n φ v hP
   revert h2 h1
   rw [induction_aux S v φ f hP]
-  rename_i inst; rcases inst with ⟨struc, _, model⟩
+  rename_i inst; rcases inst with ⟨_, _, _, model⟩
   specialize model (Axiom3 φ)
   simp only [Scheme, Set.iUnion_singleton_eq_range, Set.mem_range, exists_apply_eq_apply,
     true_implies] at model
@@ -169,6 +169,14 @@ suppress_compilation
 variable {S : Type} [Lang.Structure S] [HFSet S]
 
 lemma notin_empty (x : S) : x ∉ (∅ : S) := by revert x; rw [← empty  ∅]
+
+example : ⊢ (∼(&0 ∈' .func ∅' Fin.elim0) : Lang.BoundedFormula Empty 1) := by
+  rw [completeness]
+  intros S _ v xs
+  simp only [Fin.isValue, Function.comp_apply, realize_not, realize_rel, mem_rel,
+    Matrix.cons_val_zero, Term.realize_var, Sum.elim_inr, Matrix.cons_val_one, Matrix.head_cons,
+    Term.realize_func, empty_fun]
+  exact notin_empty (xs 0)
 
 @[simp] lemma in_empty_iff_false (x : S) : x ∈ (∅ : S) ↔ False := by
   refine ⟨by exact notin_empty x, by simp⟩

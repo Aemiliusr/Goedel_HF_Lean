@@ -96,7 +96,7 @@ The \textit{logical axioms} are the following $\mathcal{L}$-formulas:
 
 \begin{definition}[Specialisation axiom]
     \label{def:Spec.Axiom}
-    \lean{HF.Spec.Axiom}
+    \lean{HF.Prf.spec}
     \uses{def:Lang}
     \leanok
     For any $\mathcal{L}$-formula $\varphi$ and every $x_i$:
@@ -124,9 +124,10 @@ The \textit{logical axioms} are the following $\mathcal{L}$-formulas:
 The \textit{deduction rules} are as follows:
 
 \begin{definition}[Deduction rules]
-    \label{def:prf.MP+prf.Subst+prf.ExIntro}
-    \lean{HF.prf.MP}
+    \label{def:Prf.mp+Prf.subst+Prf.exists_intro}
+    \lean{HF.Prf.mp, HF.Prf.subst, HF.Prf.exists_intro}
     \uses{def:Lang}
+    \leanok
     For any $\mathcal{L}$-formulas $\varphi, \psi$:
     \begin{description}
         \item \textit{Modus Ponens}: 
@@ -143,10 +144,11 @@ The \textit{deduction rules} are as follows:
 These descriptions naturally lead to the notion of formal proof.
 
 \begin{definition}[Theorem of HF]
-    \label{def:prf}
-    \lean{HF.prf}
+    \label{def:Prf}
+    \lean{HF.Prf}
     \uses{def:Lang, def:Axioms, def:Bool.Axioms, def:Spec.Axiom, 
-        def:Equality.Axioms, def:prf.MP+prf.Subst+prf.ExIntro}
+        def:Equality.Axioms, def:Prf.mp+Prf.subst+Prf.exists_intro}
+    \leanok
     An $\mathcal{L}$-formula is a \textit{theorem of HF}, denoted by $\vdash \varphi$, 
     if there is a finite sequence of $\mathcal{L}$-formulas — each of which is an axiom of HF, 
     a logical axiom, or is deduced from previous formulas in the sequence by a deduction rule —
@@ -201,8 +203,8 @@ the reader is referred to  \cite{shoenfield1967mathematical}.
 
 \begin{theorem}[Soundness and completeness]
     \label{thm:completeness}
-    \lean{HF.completeness}
-    \uses{def:Lang, def:prf, def:models+Model+valid}
+    \lean{HF.soundness, HF.completeness}
+    \uses{def:Lang, def:Prf, def:models+Model+valid}
     \leanok
     Suppose $\varphi$ is an $\mathcal{L}$-formula.
     Then $\vdash \varphi$ if and only if $\vDash \varphi$.
@@ -213,8 +215,10 @@ Thus, to prove $\vdash \varphi$ for any $\mathcal{L}$-formula $\varphi$, it suff
 arbitrary model of HF, $\mathcal{S}$, we have $\mathcal{S} \vDash \varphi$.
 This is the conversion process we previously discussed.
 
-In Lean 3, the completeness theorem for first-order logic was proven as part of the Flypitch project
-by \cite{han2020formal}.
+The soundness direction of Theorem \ref{thm:completeness} is formalised readily
+by induction on the length of a proof.
+Regarding the converse; in Lean 3, the completeness theorem for first-order logic was proven 
+as part of the Flypitch project by \cite{han2020formal}.
 However, no proof is available in the math library of Lean 4.
-For now, we make use of the extraneous concepts of soundness and completeness 
+For now, we make use of the extraneous concept of completeness 
 by accepting the statement using the {\ttfamily \small sorry} identifier. 

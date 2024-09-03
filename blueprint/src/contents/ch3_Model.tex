@@ -33,7 +33,7 @@ We will start by establishing some properties of constant terms.
     \lean{HF.C.exists_finset_shorter_and_mem_iff_iSup}
     \label{lem:C.exists_finset_shorter_and_mem_iff_iSup}
     \leanok
-    \uses{def:prf, thm:completeness, lem:notin_empty+mem_enlarge+mem_enlarge_empty, def:C+C.length}
+    \uses{def:Prf, thm:completeness, lem:notin_empty+mem_enlarge+mem_enlarge_empty, def:C+C.length}
     For every non-empty $\tau \in \mathbb{C}$, there are finitely many 
     $\tau_1, \ldots, \tau_m \in \mathbb{C}$, all shorter than $\tau$, such that
     $$
@@ -74,7 +74,7 @@ We will start by establishing some properties of constant terms.
     \lean{HF.C.exists_mem_and_notin_of_not_eq}
     \label{lem:C.exists_mem_and_notin_of_not_eq}
     \leanok
-    \uses{def:prf, thm:completeness, thm:exten_prop, def:C+C.length, 
+    \uses{def:Prf, thm:completeness, thm:exten_prop, def:C+C.length, 
         lem:C.exists_finset_shorter_and_mem_iff_iSup}
     Let $\sigma, \tau \in \mathbb{C}$ be such that $\not\vdash \sigma = \tau$. 
     Then, for some $\nu \in \mathbb{C}$, one of the two possibilities occurs:
@@ -132,7 +132,7 @@ We will start by establishing some properties of constant terms.
     \lean{HF.C.ne_of_not_eq}
     \label{cor:C.ne_of_not_eq}
     \leanok
-    \uses{def:prf, thm:completeness, thm:exten_prop, def:C+C.length, 
+    \uses{def:Prf, thm:completeness, thm:exten_prop, def:C+C.length, 
         lem:C.exists_mem_and_notin_of_not_eq}
     For every $\sigma, \tau \in \mathbb{C}$, $\not\vdash \sigma = \tau$ implies 
     $\vdash \sigma \neq \tau$.
@@ -147,7 +147,7 @@ We will start by establishing some properties of constant terms.
 \begin{corollary}
     \lean{HF.C.eq_of_forall_mem_iff_mem}
     \label{cor:C.eq_of_forall_mem_iff_mem}
-    \uses{def:prf, def:C+C.length, lem:C.exists_mem_and_notin_of_not_eq}
+    \uses{def:Prf, def:C+C.length, lem:C.exists_mem_and_notin_of_not_eq}
     \leanok
     If $\sigma, \tau \in \mathbb{C}$ are such that $\vdash \nu \in \sigma$ if and only if
     $\vdash \nu \in \tau$ for every $\nu \in \mathbb{C}$, and HF is consistent, 

@@ -2,7 +2,7 @@ import Mathlib.Tactic
 import Mathlib.ModelTheory.Syntax
 import Mathlib.ModelTheory.Semantics
 
-open FirstOrder Language
+open FirstOrder Language BoundedFormula
 
 /-!
 # The language and logical calculus of the theory of hereditarily finite sets
@@ -107,18 +107,6 @@ def Theory : Set (Lang.BoundedFormula α n) :=
 
 end Bool
 
-namespace Spec
-
--- not 100% sure about this one
-/-- Specialization axiom: For every formula φ and every xᵢ : φ → ∃ xᵢ φ -/
-def Axiom (φ : Lang.BoundedFormula α (n+1)) : Lang.BoundedFormula α n :=
-  (∀' φ) ⟹ (∃' φ)
-
-def Theory : Set (Lang.BoundedFormula α n) :=
-  ⋃ (φ : Lang.BoundedFormula α (n+1)), {Axiom φ}
-
-end Spec
-
 namespace Equality
 
 /-- Equality axiom 1: x = x -/
@@ -140,19 +128,20 @@ def Theory :  Lang.Theory := {Axiom1, Axiom2, Axiom3, Axiom4}
 
 end Equality
 
--- missing substitution and ∃-intro deduction rules
-inductive prf : Set (Lang.BoundedFormula α n) → Lang.BoundedFormula α n → Prop
-| Hyp : φ ∈ T → prf T φ
-| Ax : φ ∈ Theory → prf T φ
-| Induc : φ ∈ Scheme → prf T φ
-| Bool : φ ∈ Bool.Theory → prf T φ
-| Spec : φ ∈ Spec.Theory → prf T φ
-| Eq : φ ∈ Equality.Theory → prf T φ
-| MP (ψ : Lang.BoundedFormula α n) (h1 : prf T (ψ ⟹ φ)) (h2 : prf T ψ) : prf T φ
--- Substitution: from φ deduce φ (x/t) for any term t that is substitutable for x in φ
--- ∃-introduction: from φ → ψ deduce ∃ x φ → ψ provided x is not free in ψ
+inductive Prf (T : {α : Type} → {n : ℕ} → Set (Lang.BoundedFormula α n)) :
+    {α : Type} → {n : ℕ} → Lang.BoundedFormula α n → Prop
+| hyp : φ ∈ T → Prf T φ
+| ax : φ ∈ Theory → Prf T φ
+| induc : φ ∈ Scheme → Prf T φ
+| bool : φ ∈ Bool.Theory → Prf T φ
+| eq : φ ∈ Equality.Theory → Prf T φ
+| spec (φ : Lang.BoundedFormula α (n + 1)) : Prf T φ → Prf T (∃' φ)
+| mp (φ ψ : Lang.BoundedFormula α n) : Prf T (ψ ⟹ φ) → Prf T ψ → Prf T φ
+| subst (φ : Lang.BoundedFormula α n) (f : α → Lang.Term β) : Prf T φ → Prf T (φ.subst f)
+| exists_intro (φ : Lang.BoundedFormula α (n + 1)) (ψ : Lang.BoundedFormula α n) :
+    Prf T (φ ⟹ ψ.liftAt 1 n) → Prf T (∃' φ ⟹ ψ)
 
-prefix:51 "⊢" => prf {}
+prefix:51 "⊢" => Prf {}
 
 abbrev models (S : Type) [Lang.Structure S] (φ : Lang.BoundedFormula α n) : Prop :=
   ∀ (v : α → S) (xs : Fin n → S), φ.Realize v xs
@@ -172,6 +161,7 @@ lemma neg_models_iff_models_neg_of_sentence (S : Type) [Lang.Structure S] (φ : 
   exact Iff.symm (Sentence.realize_not S)
 
 class Model (S : Type) where
+  non_empty : Nonempty S
   struc : Lang.Structure S
   realize_of_mem_theory : ∀ (φ : Lang.Sentence), φ ∈ Theory → S ⊧ φ
   realize_of_mem_scheme : ∀ (φ : Lang.Formula α), φ ∈ Scheme → S ⊧ φ
@@ -182,8 +172,124 @@ abbrev valid (φ : Lang.BoundedFormula α n) : Prop := ∀ (S : Type) [Model S],
 
 prefix:51 " ⊧ " => valid
 
-theorem completeness (φ : Lang.BoundedFormula α n) :
-  ⊢ φ ↔ ⊧ φ := by
+namespace soundness
+
+lemma ax (h : φ ∈ Theory) : ⊧ φ := by
+  intros _ inst v xs
+  rcases inst with ⟨_, _, rel1, _⟩
+  exact rel1 φ h v xs
+
+lemma induc (h : φ ∈ Scheme) : ⊧ φ := by
+  intros _ inst v xs
+  rcases inst with ⟨_, _, _, rel2⟩
+  exact rel2 φ h v xs
+
+lemma bool (h : φ ∈ Bool.Theory) : ⊧ φ := by
+  rcases h with ⟨⟨⟨ax1 | ax2⟩ | ax3⟩ | ax4⟩ | ax5
+  · simp only [Set.iUnion_singleton_eq_range, Set.mem_range] at ax1
+    rcases ax1 with ⟨φ, rfl⟩
+    unfold Bool.Axiom1
+    intros _ inst v xs
+    simp
+  · simp only [Set.iUnion_singleton_eq_range, Set.mem_iUnion, Set.mem_range] at ax2
+    rcases ax2 with ⟨φ, μ, rfl⟩
+    unfold Bool.Axiom2
+    intros _ inst v xs
+    simp_all
+  · simp only [Set.iUnion_singleton_eq_range, Set.mem_range] at ax3
+    rcases ax3 with ⟨φ, rfl⟩
+    unfold Bool.Axiom3
+    intros _ inst v xs
+    simp
+  · simp only [Set.iUnion_singleton_eq_range, Set.mem_iUnion, Set.mem_range] at ax4
+    rcases ax4 with ⟨φ, ψ, μ, rfl⟩
+    unfold Bool.Axiom4
+    intros _ inst v xs
+    aesop
+  · simp only [Set.iUnion_singleton_eq_range, Set.mem_iUnion, Set.mem_range] at ax5
+    rcases ax5 with ⟨φ, ψ, μ, rfl⟩
+    unfold Bool.Axiom5
+    intros _ inst v xs
+    aesop
+
+lemma eq (h : φ ∈ Equality.Theory) : ⊧ φ := by
+  rcases h with ax1 | ax2 | ax3 | ax4
+  · unfold Equality.Axiom1 at ax1
+    intros _ inst v xs
+    simp_all
+  · unfold Equality.Axiom2 at ax2
+    intros _ inst v xs
+    simp_all
+  · unfold Equality.Axiom3 at ax3
+    intros _ inst v xs
+    subst φ
+    intros x y z w
+    simp only [Nat.reduceAdd, Fin.isValue, Function.comp_apply, realize_imp, realize_inf,
+      realize_bdEqual, Term.realize_var, Sum.elim_inr, Fin.snoc, Fin.val_zero, Nat.ofNat_pos,
+      ↓reduceDIte, Fin.castSucc_castLT, Fin.coe_castLT, zero_lt_one, Nat.zero_eq, Fin.coe_fin_one,
+      lt_self_iff_false, cast_eq, Fin.val_one, Nat.one_lt_ofNat, Fin.val_two, Nat.lt_succ_self,
+      show (3 : Fin 4).1 = 3 by rfl, realize_rel, and_imp]
+    rintro rfl rfl h
+    convert h using 1
+    ext i
+    fin_cases i <;> rfl
+  · simp only [Set.mem_singleton_iff, Equality.Axiom4] at ax4
+    intros _ inst v xs
+    subst φ
+    intros x y z w
+    simp only [Nat.reduceAdd, Fin.isValue, Function.comp_apply, realize_imp, realize_inf,
+      realize_bdEqual, Term.realize_var, Sum.elim_inr, Fin.snoc, Fin.val_zero, Nat.ofNat_pos,
+      ↓reduceDIte, Fin.castSucc_castLT, Fin.coe_castLT, zero_lt_one, Nat.zero_eq, Fin.coe_fin_one,
+      lt_self_iff_false, cast_eq, Fin.val_one, Nat.one_lt_ofNat, Fin.val_two, Nat.lt_succ_self,
+      show (3 : Fin 4).1 = 3 by rfl, Term.realize_func, and_imp]
+    rintro rfl rfl
+    congr
+    ext i
+    fin_cases i <;> rfl
+
+lemma spec (φ : Lang.BoundedFormula α (n +1)) (h : ⊧ φ) : ⊧ ∃'φ := by
+  intros S inst _ _
+  simp_all
+  rcases inst with ⟨_, _, _, _⟩
+  exact (exists_const S).mpr trivial
+
+lemma mp (φ ψ : Lang.BoundedFormula α n) (h1 : ⊧ (ψ ⟹ φ)) (h2 : ⊧ ψ) : ⊧ φ := by
+  intros S inst v xs
+  specialize h1 S v xs; specialize h2 S v xs
+  simp_all
+
+lemma subst (φ : Lang.BoundedFormula α n) (f : α → Lang.Term β) (h : ⊧ φ) : ⊧ φ.subst f := by
+  intros S inst v xs
+  simp_all
+
+lemma exists_intro (φ : Lang.BoundedFormula α (n + 1)) (ψ : Lang.BoundedFormula α n)
+    (h : ⊧ (φ ⟹ ψ.liftAt 1 n)) : ⊧ ∃'φ ⟹ ψ := by
+  intros S inst v xs
+  simp_all only [realize_imp, realize_ex, Nat.succ_eq_add_one, forall_exists_index]
+  intro x hφ
+  specialize h S v (Fin.snoc xs x)
+  simp_all only [realize_imp, le_refl, realize_liftAt, Fin.is_lt, Fin.addNat_one, ite_true,
+    true_implies]
+  convert h using 1
+  change xs = Fin.snoc xs x ∘ fun i => Fin.castSucc i
+  simp [Fin.snoc_castSucc]
+
+end soundness
+
+lemma soundness (φ : Lang.BoundedFormula α n) (h : ⊢ φ) : ⊧ φ := by
+  induction h with
+| hyp h => simp_all
+| ax h => exact soundness.ax h
+| induc h => exact soundness.induc h
+| bool h => exact soundness.bool h
+| eq h => exact soundness.eq h
+| spec φ _ h => exact soundness.spec φ h
+| mp φ ψ _ _ h1 h2 => exact soundness.mp φ ψ h1 h2
+| subst φ f _ h => exact soundness.subst φ f h
+| exists_intro φ ψ _ h => exact soundness.exists_intro φ ψ h
+
+theorem completeness (φ : Lang.BoundedFormula α n) : ⊢ φ ↔ ⊧ φ := by
+  refine ⟨soundness φ, ?_⟩
   sorry
 
 lemma prf_iff_prf_of_prf_iff (φ ψ : Lang.BoundedFormula α n) (iff: ⊢ φ ⇔ ψ) : (⊢ φ ↔ ⊢ ψ) := by

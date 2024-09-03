@@ -15,7 +15,7 @@ inductive IsInSSigma : Lang.BoundedFormula α n → Prop where
     IsInSSigma (∀' ((&n ∈' .var i) ⟹ φ))
 
 abbrev IsSigma (φ : Lang.BoundedFormula α n) : Prop :=
-  ∃ (ψ : Lang.BoundedFormula α n), IsInSSigma ψ ∧ prf {} (φ ⇔ ψ)
+  ∃ (ψ : Lang.BoundedFormula α n), IsInSSigma ψ ∧ ⊢ (φ ⇔ ψ)
 
 lemma subset_isSigma :
     IsSigma (∀' ((&2 ∈' &0) ⟹ (&2 ∈' &1)) : Lang.BoundedFormula Empty 2) := by

@@ -241,7 +241,7 @@ lemma ax1_aux (cons : ¬(∃ (φ : Lang.Sentence), ⊢ φ ∧ ⊢ ∼φ)) :
   · rintro rfl
     intros τ h
     rw [mem_iff, empty_out_relabel_eq_of_consistent cons] at h
-    have : prf (α := Empty) (n := 0) {} (∼(((τ.out).relabel .inl) ∈' .func ∅' Fin.elim0)) :=
+    have : ⊢ (∼(((τ.out).relabel .inl) ∈' .func ∅' Fin.elim0) : Lang.Sentence) :=
       by rw [completeness]; intros _ _ _; simp [Formula.Realize]
     apply cons
     use (((τ.out).relabel .inl) ∈' .func ∅' Fin.elim0)
@@ -261,6 +261,7 @@ lemma ax3_aux (ψ : Lang.BoundedFormula α 1) : stdModel ⊧ Axiom3 ψ := by sor
 
 instance model_of_consistent (cons : ¬(∃ (φ : Lang.Sentence), ⊢ φ ∧ ⊢ ∼φ)) :
     Model stdModel where
+  non_empty := by use ∅
   struc := inferInstance
   realize_of_mem_theory := by
     intros φ ax v xs

@@ -336,7 +336,7 @@ a code of an axiom or a deduction rule, directly yielding $\operatorname{Pf}(x)$
     \label{lem:IsSigma.Ax+...+IsSigma.Pf}
     \lean{HF.IsSigma.Pf}
     \uses{def:Lang, def:Axioms, def:Bool.Axioms, def:Spec.Axiom, def:Equality.Axioms,
-        def:prf.MP+prf.Subst+prf.ExIntro, def:Code.Formula, 
+        def:Prf.mp+Prf.subst+Prf.exists_intro, def:Code.Formula, 
         def:IsSigma, lem:IsSigma.Relations}
     There exist eight $\Sigma$-formulas, solely involving codes as arguments, that, together with
     the $\Sigma$-formulas in Lemma \ref{lem:IsSigma.Relations}, are sub-formulas of
@@ -361,7 +361,7 @@ a code of an axiom or a deduction rule, directly yielding $\operatorname{Pf}(x)$
         Means: If $x,y,y^\prime$ are codes of $\mathcal{L}$-formulas, 
         then $y^\prime$ codes an $\mathcal{L}$-formula which follows from the $\mathcal{L}$-formulas
         coded by $x$ and $y$ by an application of the Modus Ponens rule 
-        (see Definition \ref{def:prf.MP+prf.Subst+prf.ExIntro}).
+        (see Definition \ref{def:Prf.mp+Prf.subst+Prf.exists_intro}).
         \item $\operatorname{Subst}(y,y^\prime)$\\
         Means: $y,y^\prime$ are codes of $\mathcal{L}$-formulas and
         the $\mathcal{L}$-formula coded by $y^\prime$ is obtained from that coded by $y$ by
