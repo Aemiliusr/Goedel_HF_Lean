@@ -5,24 +5,47 @@ import Mathlib.ModelTheory.Semantics
 open FirstOrder Language BoundedFormula
 
 /-!
-# The language and logical calculus of the theory of hereditarily finite sets
+# The First-Order Theory of Hereditarily Finite Sets
 
 In this file, parts of Sections 1 and 4 of S. Swierczkowski: 'Finite Sets and Gödel’s Incompleteness
-Theorems' are formalised. It systematically presents the language and logical calculus of the
-theory of hereditarily finite sets.
+Theorems' are formalised. It involves the language, non-logical axioms and logical calculus of the
+theory of hereditarily finite sets. Furthermore, the necessary semantic notions are defined.
 
-## Main results
+## Main definitions
+* `HF.Lang` : the first-order language of HF.
+* `HF.Theory` : the first two (non-logical) axioms of HF.
+* `HF.Scheme` : the induction scheme of HF, i.e. the third (non-logical) axiom of HF.
+* `HF.Bool.Theory` : the (logical) Boolean axioms.
+* `HF.Equality.Theory` : the (logical) axioms of equality.
+* `HF.Prf` : the formal notion of a deduction/proof in HF.
+* `HF.models` : the semantic notion of a structure modelling a formula.
+* `HF.Model` : the semantic notion of a model of HF, i.e. a non-empty structure that models all
+  axioms of HF.
+* `HF.valid` : the semantic notion of a formula being valid in HF, i.e. being modelled by all
+  models of HF.
 
-- `...`: ...
+## Main statements
+* `HF.soundness` : soundness of HF, stating that every theorem of HF is valid.
+* `HF.completeness` : completeness and soundess of HF, stating that a formula is a theorem of HF if
+  and only if it is valid in HF.
 
-## Notation
+## Notations
+* `∅'` : empty set, see `HF.Lang` and `HF.Axiom1`.
+* `◁'` : enlarging, see `HF.Lang` and `HF.Axiom2`.
+* `∈'` : membership, see `HF.Lang`.
+* `⊢` : formal proof in HF, see `HF.Prf`.
+* `⊧` : models or valid in HF, see `HF.models` and `HF.valid`.
 
-- `◁` : enlarging, see `HF.Axiom2`.
+## Implementation notes
+* The formal notion of a proof in HF, `HF.Prf`, is an inductively defined predicate that formalises
+  a deduction from a set of formulas in the language of HF. A deduction from an empty set of
+  formulas yields a theorem of HF.
+* The (logical) specialisation axiom is included as a deduction rule, `HF.Prf.spec`.
+* The statement `HF.completeness` involves both soundness and completeness.
 
 ## References
-
-S. Swierczkowski. Finite Sets and Gödel’s Incompleteness Theorems. Dissertationes
-mathematicae. IM PAN, 2003. URL https://books.google.co.uk/books?id=5BQZAQAAIAAJ.
+* S. Swierczkowski. Finite Sets and Gödel’s Incompleteness Theorems. Dissertationes
+  mathematicae. IM PAN, 2003. URL https://books.google.co.uk/books?id=5BQZAQAAIAAJ.
 -/
 
 namespace HF
@@ -45,35 +68,40 @@ def Lang : Language.{0, 0} where
 /-- Empty set: constant symbol. -/
 abbrev Lang.emptySetSymbol : Lang.Functions 0 := PUnit.unit
 
+/-- Empty set: constant symbol. -/
 notation "∅'" => Lang.emptySetSymbol
 
 /-- Enlargement: 2-ary function symbol. -/
 abbrev Lang.enlargementSymbol : Lang.Functions 2 := PUnit.unit
 
+/-- Enlargement: 2-ary function symbol. -/
 notation " ◁' " => Lang.enlargementSymbol
 
 /-- Membership: 2-ary relation symbol. -/
 abbrev Lang.membershipSymbol : Lang.Relations 2 := PUnit.unit
 
+/-- Membership: 2-ary relation symbol. -/
 notation t " ∈' " s => Lang.membershipSymbol.boundedFormula ![t, s]
 
-/-- HF1: z = ∅ ↔ ∀ x, ¬(x ∈ z) -/
+/-- Axiom 1: z = ∅ ↔ ∀ x, ¬(x ∈ z) -/
 def Axiom1 : Lang.Sentence :=
   ∀' ((&0 =' (.func ∅' Fin.elim0)) ⇔ ∀' ∼(&1 ∈' &0))
 
-/-- HF2: z = x ◁ y ↔ ∀ u, u ∈ z ↔ u ∈ x ∨ u = y -/
+/-- Axiom 2: z = x ◁ y ↔ ∀ u, u ∈ z ↔ u ∈ x ∨ u = y -/
 def Axiom2 : Lang.Sentence :=
   ∀' ∀' ∀' ((&0 =' .func ◁' ![&1, &2]) ⇔ (∀' ((&3 ∈' &0) ⇔ ((&3 ∈' &1) ⊔ (&3 =' &2)))))
 
-/-- HF3: (α(∅) ∧ ∀ x y, α(x) → α(y) → α(x ◁ y)) → ∀ x α(x) -/
+/-- Axiom 3: (α(∅) ∧ ∀ x y, α(x) → α(y) → α(x ◁ y)) → ∀ x α(x) -/
 def Axiom3 (φ : Lang.BoundedFormula (α : Type) 1) : Lang.Formula α :=
   ((∀' ((&0 =' .func ∅' Fin.elim0) ⟹ φ))
   ⊓ (∀' ∀' ((φ.liftAt 1 1 ⊓ (φ.liftAt 1 0))
   ⟹ (∀' ((&2 =' .func ◁' ![&0, &1]) ⟹ φ.liftAt 2 0)))))
   ⟹ ∀' φ
 
+/-- The first two (non-logical) axioms of HF. -/
 def Theory : Lang.Theory := {Axiom1, Axiom2}
 
+/-- The induction scheme of HF, i.e. the third (non-logical) axiom of HF. -/
 def Scheme : Set (Lang.Formula α) :=
   ⋃ (φ : Lang.BoundedFormula α 1), {Axiom3 φ}
 
@@ -96,6 +124,7 @@ def Axiom4 (φ ψ μ : Lang.BoundedFormula α n) : Lang.BoundedFormula α n :=
 def Axiom5 (φ ψ μ : Lang.BoundedFormula α n) : Lang.BoundedFormula α n :=
   ((φ ⊔ ψ) ⊓ (∼φ ⊔ μ)) ⟹ (ψ ⊔ μ)
 
+/-- The (logical) Boolean axioms. -/
 def Theory : Set (Lang.BoundedFormula α n) :=
   (⋃ (φ : Lang.BoundedFormula α n), {Axiom1 φ}) ∪
   (⋃ (φ : Lang.BoundedFormula α n), (⋃ (ψ : Lang.BoundedFormula α n), {Axiom2 φ ψ})) ∪
@@ -124,10 +153,12 @@ def Axiom3 : Lang.Sentence :=
 def Axiom4 : Lang.Sentence :=
   ∀' ∀' ∀' ∀' (((&0 =' &1) ⊓ (&2 =' &3)) ⟹ (.func ◁' ![&0, &2] =' .func ◁' ![&1, &3]))
 
+/-- The (logical) axioms of equality. -/
 def Theory :  Lang.Theory := {Axiom1, Axiom2, Axiom3, Axiom4}
 
 end Equality
 
+/-- The formal notion of a deduction/proof in HF. -/
 inductive Prf (T : {α : Type} → {n : ℕ} → Set (Lang.BoundedFormula α n)) :
     {α : Type} → {n : ℕ} → Lang.BoundedFormula α n → Prop
 | hyp : φ ∈ T → Prf T φ
@@ -141,11 +172,14 @@ inductive Prf (T : {α : Type} → {n : ℕ} → Set (Lang.BoundedFormula α n))
 | exists_intro (φ : Lang.BoundedFormula α (n + 1)) (ψ : Lang.BoundedFormula α n) :
     Prf T (φ ⟹ ψ.liftAt 1 n) → Prf T (∃' φ ⟹ ψ)
 
+/-- The formal notion of a proof in HF. -/
 prefix:51 "⊢" => Prf {}
 
+/-- The semantic notion of a structure modelling a formula. -/
 abbrev models (S : Type) [Lang.Structure S] (φ : Lang.BoundedFormula α n) : Prop :=
   ∀ (v : α → S) (xs : Fin n → S), φ.Realize v xs
 
+/-- The semantic notion of a structure modelling a formula. -/
 infixl:51 " ⊧ " => models
 
 lemma models_iff_realize_of_sentence (S : Type) [Lang.Structure S] (φ : Lang.Sentence) :
@@ -160,16 +194,22 @@ lemma neg_models_iff_models_neg_of_sentence (S : Type) [Lang.Structure S] (φ : 
   simp_rw [← models_iff_realize_of_sentence]
   exact Iff.symm (Sentence.realize_not S)
 
+/--
+The semantic notion of a model of HF, i.e. a non-empty structure that models all axioms of HF.
+-/
 class Model (S : Type) where
   non_empty : Nonempty S
+  /-- A model is a structure. -/
   struc : Lang.Structure S
   realize_of_mem_theory : ∀ (φ : Lang.Sentence), φ ∈ Theory → S ⊧ φ
   realize_of_mem_scheme : ∀ (φ : Lang.Formula α), φ ∈ Scheme → S ⊧ φ
 
 instance (S : Type) [Model S] : Lang.Structure S := Model.struc
 
+/-- The semantic notion of a formula being valid in HF, i.e. being modelled by all models of HF. -/
 abbrev valid (φ : Lang.BoundedFormula α n) : Prop := ∀ (S : Type) [Model S], S ⊧ φ
 
+/-- The semantic notion of a formula being valid in HF, i.e. being modelled by all models of HF. -/
 prefix:51 " ⊧ " => valid
 
 namespace soundness
@@ -276,6 +316,7 @@ lemma exists_intro (φ : Lang.BoundedFormula α (n + 1)) (ψ : Lang.BoundedFormu
 
 end soundness
 
+/-- Soundness of HF, stating that every theorem of HF is valid. -/
 lemma soundness (φ : Lang.BoundedFormula α n) (h : ⊢ φ) : ⊧ φ := by
   induction h with
 | hyp h => simp_all
@@ -288,6 +329,10 @@ lemma soundness (φ : Lang.BoundedFormula α n) (h : ⊢ φ) : ⊧ φ := by
 | subst φ f _ h => exact soundness.subst φ f h
 | exists_intro φ ψ _ h => exact soundness.exists_intro φ ψ h
 
+/--
+Completeness and soundess of HF, stating that a formula is a theorem of HF if and only if it is
+valid in HF.
+-/
 theorem completeness (φ : Lang.BoundedFormula α n) : ⊢ φ ↔ ⊧ φ := by
   refine ⟨soundness φ, ?_⟩
   sorry
