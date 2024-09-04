@@ -16,10 +16,10 @@ they generated a considerable amount of surprise within the mathematical communi
 To understand why, it is important to consider their impact on Hilbert's program, 
 a foundational project proposed by David Hilbert in the early 1920s. 
 Hilbert aimed to provide a secure basis for all of mathematics by establishing a 
-finite, complete and consistent set of axioms for every mathematical theory. 
+finite, complete and consistent set of axioms from which all mathematical truths could be derived. 
 This initiative also led to the emergence of formal languages and first-order logic. 
-However, Gödel's theorems demonstrated that such a program was unachievable 
-for key mathematical theories, including Peano arithmetic (PA).
+However, Gödel's theorems demonstrated that such a complete and consistent set of axioms 
+was unattainable.
 
 As previously mentioned, Gödel's incompleteness theorems apply to any formal system 
 that is consistent and complex enough to describe the basic arithmetic of natural numbers. 
@@ -133,8 +133,22 @@ Chapters 3 and 4 define the standard model of HF and the coding system respectiv
 Finally, Chapter 5 constructs the provability formula and Chapter 6
 proves Gödel's diagonal lemma and his first incompleteness theorem.
 
+Note that the presentation of mathematical results in this work closely follows the presentation of  
+\cite{swierczkowski2003finite}, because the purpose of this work is to formalise 
+the contents of the latter exactly.
+The detailed presentation of these results is necessary, 
+as the blueprint serves as a guide for the formalisation process, 
+contributing to possible future efforts completing this process of proving
+Gödel's incompleteness theorems in Lean.
 
+\section*{Acknowledgements}
 
-
+Primarily, I would like to express my gratitude to my supervisor, Professor Kevin Buzzard, 
+for his continuous support, guidance, and enthusiasm for the Lean theorem prover, 
+which have been invaluable to this project.
+I also thank Jujian Zhang for his collaboration on parts of the formalisation process and 
+Professor David Evans for sharing his expertise in mathematical logic. 
+Finally, I extend my thanks to the Lean community — especially Floris van Doorn, Sky Wilshaw and 
+Bhavik Mehta — for their help and support.
 
 
