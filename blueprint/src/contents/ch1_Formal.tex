@@ -38,8 +38,8 @@ the (non-logical) axioms of HF.
 \end{definition}
 
 It follows that any \textit{term} of $\mathcal{L}$ arises in the following way:
-any variable is a term, any constant symbol is a term, and if $\tau_1, \tau_2$ are terms, then so is
-$\tau_1 \lhd \tau_2$.
+any variable is a term, any constant symbol is a term, and if $\sigma, \tau$ are terms, then so is
+$\sigma \lhd \tau$.
 Furthermore, any \textit{$\mathcal{L}$-formula} arises in the following way:
 any atomic formula is an $\mathcal{L}$-formula, and if $\varphi, \psi$ are $\mathcal{L}$-formulas, 
 then so are $\neg \varphi$, $\varphi \lor \psi$, and $\exists x \varphi$.
@@ -175,7 +175,7 @@ Gödel's incompleteness theorems are fundamentally syntactical in nature.
 They focus solely on what can be proven within the confines of the formal system itself, 
 without relying on any external concepts like semantic notions.
 
-However, while we do explain what it means to be a model to introduce the standard model of 
+However, while we do explain what it means to be a model for introducing the standard model of 
 HF in Chapter 3, we also present the semantic results of soundness and completeness. 
 This is done solely because these results are helpful in the process of converting semantic proofs 
 into syntactic proofs in Lean, as discussed earlier.
