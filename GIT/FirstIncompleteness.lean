@@ -1,5 +1,33 @@
 import GIT.Pf
 
+/-!
+# Gödel's first incompleteness theorem
+
+In this file, Sections 5 and 6  of S. Swierczkowski: 'Finite Sets and Gödel’s Incompleteness
+Theorems' are formalised. It finalises the proof of the first incompleteness theorem.
+
+## Main statements
+* `HF.diagonal` : Gödel's diagonal lemma.
+* `HF.first_incompleteness` : Gödel's first incompleteness theorem.
+
+## Implementation notes
+* In `HF.Code.exists_pFunc_forall_form_eq_code_form`, the existence of a p-function is stated as
+  the existence of the corresponding functional.
+
+## References
+* S. Swierczkowski. Finite Sets and Gödel’s Incompleteness Theorems. Dissertationes
+  mathematicae. IM PAN, 2003. URL https://books.google.co.uk/books?id=5BQZAQAAIAAJ.
+
+## TO DO
+* Formalise recursion on rank, i.e. Appendix 4 of S. Swierczkowski: 'Finite Sets and Gödel’s
+  Incompleteness Theorems'.
+* Formalise the replacement function, i.e. Section 5 of S. Swierczkowski: 'Finite Sets and Gödel’s
+  Incompleteness Theorems'.
+* Formalise the auxiliary lemmas of Gödel's diagonal lemma, i.e. prove
+  `HF.Code.exists_pFunc_forall_form_eq_code_form`.
+* Prove `HF.diagonal`.
+-/
+
 open FirstOrder Language BoundedFormula
 
 suppress_compilation
@@ -15,9 +43,11 @@ lemma exists_pFunc_forall_form_eq_code_form :
 
 end Code
 
+/-- Gödel's diagonal lemma. -/
 theorem diagonal (α : Lang.Formula (Fin 1)) : ∃ (δ : Lang.Sentence),
     ⊢ δ ⇔ (subst α ![(Code.Formula δ).1]) := sorry
 
+/-- Gödel's first incompleteness theorem. -/
 theorem first_incompleteness (cons : ¬(∃ (φ : Lang.Sentence), ⊢ φ ∧ ⊢ ∼φ)) :
     ∃ (δ : Lang.Sentence), (¬ ⊢ δ) ∧ (¬ ⊢ ∼δ) ∧ stdModel ⊧ δ := by
   obtain ⟨δ, hδ⟩ := diagonal ∼IsSigma.Pf

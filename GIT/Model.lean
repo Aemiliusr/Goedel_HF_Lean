@@ -1,15 +1,49 @@
 import GIT.Basic
 
+/-!
+# The standard model of HF
+
+In this file, the sixth appendix of S. Swierczkowski: 'Finite Sets and Gödel’s Incompleteness
+Theorems' is formalised. It systematically presents results on constant terms and the standard
+model of HF.
+
+## Main definitions
+* `HF.C` : The type of constant terms.
+* `HF.C.length` : The length of a constant term, i.e. the number of occurrences of `◁`.
+* `HF.C.Equiv` : Equivalence relation on constant terms.
+* `HF.stdModel` : The standard model of HF.
+
+## Main statements
+* `HF.C.setoid` : `≈` is an equivalence relation on constant terms.
+* `HF.stdModel.struc` : The standard model of HF is a first-order structure.
+* `HF.stdModel.model_of_consistent` : The standard model of HF is a model of HF, if HF is
+  consistent.
+
+## Notations
+* `≈` : Equivalence relation on constant terms, see `HF.C.Equiv`.
+
+## References
+* S. Swierczkowski. Finite Sets and Gödel’s Incompleteness Theorems. Dissertationes
+  mathematicae. IM PAN, 2003. URL https://books.google.co.uk/books?id=5BQZAQAAIAAJ.
+
+## TO DO
+* Prove `HF.C.exists_mem_and_notin_of_not_eq`.
+* Complete the proof of `HF.stdModel.model_of_consistent`.
+* Fix the errors in `HF.stdModel.sound` and `HF.stdModel.models_iff_of_prf_iff`.
+-/
+
 open FirstOrder Language BoundedFormula Classical
 
 suppress_compilation
 
 namespace HF
 
+/-- The type of constant terms. -/
 abbrev C := Lang.Term Empty
 
 namespace C
 
+/-- Recursion on length of constant terms. -/
 @[elab_as_elim]
 def rec {motive : C → Type} (h0 : motive (.func ∅' Fin.elim0))
   (h2 : ∀ {σ} {τ}, motive σ → motive τ → motive (.func ◁' ![σ, τ])) : ∀ σ, motive σ
@@ -20,8 +54,9 @@ def rec {motive : C → Type} (h0 : motive (.func ∅' Fin.elim0))
     ext i
     fin_cases i <;> rfl
 
+/-- Induction on length of constant terms. -/
 @[elab_as_elim]
-theorem ind {motive : C → Prop} (h0 : motive (.func ∅' Fin.elim0))
+lemma ind {motive : C → Prop} (h0 : motive (.func ∅' Fin.elim0))
   (h2 : ∀ {σ} {τ}, motive σ → motive τ → motive (.func ◁' ![σ, τ])) : ∀ σ, motive σ
 | .var x => by cases x
 | @Term.func _ _ 0 f ts => by convert h0
@@ -46,6 +81,7 @@ lemma realize_eq_of_eq (σ τ : C) (S : Type) [Model S] (v : Empty → S)
   simp [Formula.Realize] at h
   exact h
 
+/-- The length of a constant term, i.e. the number of occurrences of `◁`. -/
 def length : C → ℕ := rec (0) (fun lσ lτ ↦ lσ + lτ + 1)
 
 lemma length_empty : length (.func ∅' Fin.elim0) = 0 := rfl
@@ -116,6 +152,7 @@ lemma eq_of_forall_mem_iff_mem (σ τ : C) (cons : ¬ ∃ (φ : Lang.Sentence), 
     apply cons
     use (μ.relabel .inl ∈' σ.relabel .inl)
 
+/-- Equivalence relation on constant terms. -/
 def Equiv : C → C → Prop
   | σ, τ => ⊢ (σ.relabel .inl =' τ.relabel .inl : Lang.Sentence)
 
@@ -148,6 +185,7 @@ lemma trans (σ τ ν : C) : σ ≈ τ → τ ≈ ν → σ ≈ ν := by
 
 end Equiv
 
+/-- `≈` is an equivalence relation on constant terms. -/
 instance setoid : Setoid C :=
   ⟨Equiv,
     ⟨Equiv.refl, (by intro σ τ; exact Equiv.symm σ τ), (by intro σ τ ν; exact Equiv.trans σ τ ν)⟩⟩
@@ -156,10 +194,12 @@ end C
 
 open C Equiv
 
+/-- The standard model of HF. -/
 abbrev stdModel : Type := Quotient setoid
 
 namespace stdModel
 
+/-- The standard model of HF is a first-order structure. -/
 instance struc : Lang.Structure stdModel where
   funMap {n} _ h := match n with
   | 0 => Quotient.mk setoid (.func ∅' Fin.elim0)
@@ -259,6 +299,7 @@ lemma ax2_aux : stdModel ⊧ Axiom2 := by sorry
 
 lemma ax3_aux (ψ : Lang.BoundedFormula α 1) : stdModel ⊧ Axiom3 ψ := by sorry
 
+/-- The standard model of HF is a model of HF, if HF is consistent. -/
 instance model_of_consistent (cons : ¬(∃ (φ : Lang.Sentence), ⊢ φ ∧ ⊢ ∼φ)) :
     Model stdModel where
   non_empty := by use ∅

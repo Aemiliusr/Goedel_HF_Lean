@@ -2,39 +2,37 @@ import Mathlib.Tactic
 import Mathlib.ModelTheory.Syntax
 import Mathlib.ModelTheory.Semantics
 
-open FirstOrder Language BoundedFormula
-
 /-!
-# The First-Order Theory of Hereditarily Finite Sets
+# The first-order theory of hereditarily finite sets
 
 In this file, parts of Sections 1 and 4 of S. Swierczkowski: 'Finite Sets and Gödel’s Incompleteness
 Theorems' are formalised. It involves the language, non-logical axioms and logical calculus of the
 theory of hereditarily finite sets. Furthermore, the necessary semantic notions are defined.
 
 ## Main definitions
-* `HF.Lang` : the first-order language of HF.
-* `HF.Theory` : the first two (non-logical) axioms of HF.
-* `HF.Scheme` : the induction scheme of HF, i.e. the third (non-logical) axiom of HF.
-* `HF.Bool.Theory` : the (logical) Boolean axioms.
-* `HF.Equality.Theory` : the (logical) axioms of equality.
-* `HF.Prf` : the formal notion of a deduction/proof in HF.
-* `HF.models` : the semantic notion of a structure modelling a formula.
-* `HF.Model` : the semantic notion of a model of HF, i.e. a non-empty structure that models all
-  axioms of HF.
-* `HF.valid` : the semantic notion of a formula being valid in HF, i.e. being modelled by all
+* `HF.Lang` : The first-order language of HF.
+* `HF.Theory` : The first two (non-logical) axioms of HF.
+* `HF.Scheme` : The induction scheme of HF, i.e. the third (non-logical) axiom of HF.
+* `HF.Bool.Theory` : The (logical) Boolean axioms.
+* `HF.Equality.Theory` : The (logical) axioms of equality.
+* `HF.Prf` : The formal notion of a deduction/proof in HF.
+* `HF.models` : The semantic notion of a structure modelling a formula.
+* `HF.Model` : The semantic notion of a model of HF, i.e. a non-empty first-order structure that
+  models all axioms of HF.
+* `HF.valid` : The semantic notion of a formula being valid in HF, i.e. being modelled by all
   models of HF.
 
 ## Main statements
-* `HF.soundness` : soundness of HF, stating that every theorem of HF is valid.
-* `HF.completeness` : completeness and soundess of HF, stating that a formula is a theorem of HF if
+* `HF.soundness` : Soundness of HF, stating that every theorem of HF is valid.
+* `HF.completeness` : Completeness and soundess of HF, stating that a formula is a theorem of HF if
   and only if it is valid in HF.
 
 ## Notations
-* `∅'` : empty set, see `HF.Lang` and `HF.Axiom1`.
-* `◁'` : enlarging, see `HF.Lang` and `HF.Axiom2`.
-* `∈'` : membership, see `HF.Lang`.
-* `⊢` : formal proof in HF, see `HF.Prf`.
-* `⊧` : models or valid in HF, see `HF.models` and `HF.valid`.
+* `∅'` : Empty set, see `HF.Lang` and `HF.Axiom1`.
+* `◁'` : Enlarging, see `HF.Lang` and `HF.Axiom2`.
+* `∈'` : Membership, see `HF.Lang`.
+* `⊢` : Formal proof in HF, see `HF.Prf`.
+* `⊧` : Models or valid in HF, see `HF.models` and `HF.valid`.
 
 ## Implementation notes
 * The formal notion of a proof in HF, `HF.Prf`, is an inductively defined predicate that formalises
@@ -47,6 +45,8 @@ theory of hereditarily finite sets. Furthermore, the necessary semantic notions 
 * S. Swierczkowski. Finite Sets and Gödel’s Incompleteness Theorems. Dissertationes
   mathematicae. IM PAN, 2003. URL https://books.google.co.uk/books?id=5BQZAQAAIAAJ.
 -/
+
+open FirstOrder Language BoundedFormula
 
 namespace HF
 

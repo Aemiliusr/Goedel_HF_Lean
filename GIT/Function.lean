@@ -1,7 +1,5 @@
 import GIT.Ordinal
 
-open FirstOrder Language BoundedFormula Classical HF
-
 /-!
 # Appendix 3: P-functions
 
@@ -9,21 +7,31 @@ In this file, the third appendix of S. Swierczkowski: 'Finite Sets and Gödel’
 Theorems' is formalised. It systematically presents the theory on (p-)functions and recursion
 on ordinals for hereditarily finite sets.
 
-## Main results
-
-- `...`: ...
-
-## Notation
-
-- `◁` : enlarging, see `HFSet.enlarge`.
-- `<` : less than (membership for the ordinal subtype), see `HFSet.Ord.lt`.
-- `≤` : less than or equal to (membership or equality for the ordinal subtype), see `HFSet.Ord.le`.
+## Main definitions
+* `HFSet.IsFunc`: The set is a function, i.e. each element of the set is an ordered pair and it
+  assigns exactly one output to each input. Here 'input' and 'output' correspond to the first and
+  second argument of an ordered pair, respectively.
+* `HFSet.IsFunc.dom`: The domain of a function f — {u ∈ ⋃₀ (⋃₀ f) : ∃ v, pair u v ∈ f}.
+* `HFSet.IsFunc.apply`: The output of a function x given input u — the unique v such that
+  pair u v ∈ x.
+* `HFSet.IsSeq`: A sequence is a function whose domain is an ordinal.
+* `HFSet.IsSeq.apply`: The output of a sequence s.
+* `HFSet.IsFunctionalUnary`: Is a unary functional.
+* `HFSet.IsFunctionalBinary`: Is a binary functional.
+* `HFSet.IsFunctionalTernary`: Is a ternary functional.
+* `HFSet.pFuncUnary`: A unary p-function.
+* `HFSet.pFuncBinary`: A binary p-function.
+* `HFSet.pFuncTernary`: A ternary p-function.
 
 ## References
+* S. Swierczkowski. Finite Sets and Gödel’s Incompleteness Theorems. Dissertationes
+  mathematicae. IM PAN, 2003. URL https://books.google.co.uk/books?id=5BQZAQAAIAAJ.
 
-S. Swierczkowski. Finite Sets and Gödel’s Incompleteness Theorems. Dissertationes
-mathematicae. IM PAN, 2003. URL https://books.google.co.uk/books?id=5BQZAQAAIAAJ.
+## TO DO
+* Formalise recursion on ordinals.
 -/
+
+open FirstOrder Language BoundedFormula Classical HF
 
 suppress_compilation
 
@@ -68,12 +76,14 @@ lemma apply_iff (x : S) [IsFunc x] (u : S) (hu : u ∈ dom x) (v : S) :
 
 end IsFunc
 
+/-- A sequence is a function whose domain is an ordinal. -/
 class IsSeq (s : S) (k : Ord S) [IsFunc s] : Prop :=
   dom_eq_ord : IsFunc.dom s = k.1
   dom_ne_emp : k ≠ ∅
 
 namespace IsSeq
 
+/-- The output of a sequence s. -/
 def apply (s : S) (k : Ord S) [IsFunc s] [IsSeq s k] (l : Ord S) : S :=
   if hl : l < k then ((IsFunc.mem_dom s l.1).1 (by
   rename_i seq
@@ -95,28 +105,34 @@ lemma apply_iff (s : S) (k : Ord S) [IsFunc s] [IsSeq s k] (l : Ord S) (hl : l <
 
 end IsSeq
 
+/-- Is a unary functional. -/
 abbrev IsFunctionalUnary (φ : S → S → Prop) (f : BoundedFormula HF.Lang (Fin 0) 2)
     (c : Fin 0 → S) (_hφ : ∀ x y, φ x y ↔ f.Realize c ![x, y]) (x : S) : Prop :=
     ∃! y, φ x y
 
+/-- Is a binary functional. -/
 abbrev IsFunctionalBinary (φ : S → S → S → Prop) (f : BoundedFormula HF.Lang (Fin 0) 3)
     (c : Fin 0 → S) (_hφ : ∀ x x' y, φ x x' y ↔ f.Realize c ![x, x', y]) (x x' : S) : Prop :=
     ∃! y, φ x x' y
 
+/-- Is a ternary functional. -/
 abbrev IsFunctionalTernary (φ : S → S → S → S → Prop) (f : BoundedFormula HF.Lang (Fin 0) 4)
     (c : Fin 0 → S) (_hφ : ∀ x x' x'' y, φ x x' x'' y ↔ f.Realize c ![x, x', x'', y])
     (x x' x'' : S) : Prop := ∃! y, φ x x' x'' y
 
+/-- A unary p-function. -/
 def pFuncUnary (x : S) (φ : S → S → Prop) (f : BoundedFormula HF.Lang (Fin 0) 2)
     (c : Fin 0 → S) (hφ : ∀ x y, φ x y ↔ f.Realize c ![x, y])
     (h : IsFunctionalUnary φ f c hφ x) : S :=
     h.choose
 
+/-- A binary p-function. -/
 def pFuncBinary (x x' : S) (φ : S → S → S → Prop) (f : BoundedFormula HF.Lang (Fin 0) 3)
     (c : Fin 0 → S) (hφ : ∀ x x' y, φ x x' y ↔ f.Realize c ![x, x', y])
     (h : IsFunctionalBinary φ f c hφ x x') : S :=
     h.choose
 
+/-- A ternary p-function. -/
 def pFuncTernary (x x' x'' : S) (φ : S → S → S → S → Prop) (f : BoundedFormula HF.Lang (Fin 0) 4)
     (c : Fin 0 → S) (hφ : ∀ x x' x'' y, φ x x' x'' y ↔ f.Realize c ![x, x', x'', y])
     (h : IsFunctionalTernary φ f c hφ x x' x'') : S :=

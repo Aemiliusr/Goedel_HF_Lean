@@ -4,6 +4,30 @@ import Mathlib.ModelTheory.Semantics
 
 open FirstOrder Language BoundedFormula
 
+/-!
+# Reversing the variables of a term or formula
+
+In this file, we define a function that reverses all of the Fin-indexed variables of a term or
+a first-order formula. This is required for the proof of the replacement scheme.
+
+## Main definitions
+* `FirstOrder.Language.Term.reverse` : Reverses all of the Fin-indexed variables of a term.
+* `FirstOrder.Language.BoundedFormula.reverse` : Reverses all of the Fin-indexed variables of a
+  formula.
+
+## Main statements
+* `realize_reverse_of_isQF` : Similar to `FirstOrder.Language.BoundedFormula.realize_liftAt`but then
+  for `reverse`.
+
+## Implementation notes
+* A notion of `realize_reverse` is only formalised for quantifier free formulas, as the
+  quantifier-containing case caused problems.
+
+## TO DO
+* If necessary for formalising recursion on rank, formalize a notion of `realize_reverse` for
+  quantifier-containing formulas.
+-/
+
 /-- Reverses all of the Fin-indexed variables of a term. -/
 abbrev FirstOrder.Language.Term.reverse {L : Language} {α : Type u'} {n : ℕ} :
     L.Term (α ⊕ (Fin n)) → L.Term (α ⊕ (Fin n)) :=
@@ -26,6 +50,7 @@ lemma aux2 {L : Language} {α : Type u'} {m : ℕ} (f₁ f₂ : L.BoundedFormula
   · rcases H with H|H
   · exact H2
 
+/-- Similar to `FirstOrder.Language.BoundedFormula.realize_liftAt`but then for `reverse`. -/
 @[simp] lemma realize_reverse_of_isQF {L : Language} [L.Structure S] {α : Type u'} {n : ℕ}
     (φ : L.BoundedFormula α n) (hφ : φ.IsQF) {v : α → S} (xs : Fin n → S) :
     φ.reverse.Realize v xs ↔ φ.Realize v (xs ∘ @Fin.rev n) := by

@@ -1,52 +1,86 @@
 import GIT.FirstOrder_reverse
 import GIT.Formal
 
-open FirstOrder Language BoundedFormula HF
-
 /-!
-# Appendix 1: Axioms and basic results of hereditarily finite set theory
+# Basic results of hereditarily finite set theory
 
 In this file, the first appendix of S. Swierczkowski: 'Finite Sets and Gödel’s Incompleteness
-Theorems' is formalised. It systematically presents the axioms and basic results of the
+Theorems' is formalised. It systematically presents the basic results of the
 theory of hereditarily finite sets.
 
-## Main results
+## Main definitions
+* `HFSet` : Class with the axioms of HF.
+* `HFSet.pair` : Ordered pair — {{x},{x,y}}.
+* `HFSet.union` : x ∪ y. Defined through z ∈ x ∪ y ↔ (z ∈ x ∨ z ∈ y).
+* `HFSet.sUnion` : ⋃ x. Defined through z ∈ ⋃ x ↔ (∃ y ∈ x, z ∈ y).
+* `HFSet.setOfMem` : Any definable (defined through a formula φ) sublass of a set x is a set —
+  {u ∈ x : φ(u)}.
+* `HFSet.inter` : x ∩ y = {u ∈ x : u ∈ y}.
+* `HFSet.sInter` : ⋂ x = {u ∈ ⋃ x : ∀ v ∈ x, u ∈ v}.
+* `HFSet.setOfImage` : The image of any set x under any definable mapping ψ is a set –
+  {v : ∃ u ∈ x, ψ(u,v)}.
+* `HFSet.Subset` : y ⊆ x.
+* `HFSet.SSubset` : y ⊂ x.
+* `HFSet.powerset` : Power set. Defined through u ∈ powerset x ↔ u ⊆ x.
 
-- `HFSet.exten_prop`: Extensionality property.
-- `HFSet.exists_union`: Existence of the union of two sets.
-- `HFSet.exists_sUnion`: Existence of the union of a set of sets.
-- `HFSet.comp_scheme`: Comprehension scheme.
-- `HFSet.repl_scheme`: Replacement scheme.
-- `HFSet.exists_powerset`: Existence of the power set.
-- `HFSet.found_prop`: Foundation property.
+## Main statements
+* `HFSet.Model.inst` : Every model-of-HF type belongs to the HFSet class.
+* `HFSet.exten_prop`: Extensionality property.
+* `HFSet.exists_union`: Existence of the union of two sets.
+* `HFSet.exists_sUnion`: Existence of the union of a set of sets.
+* `HFSet.comp_scheme`: Comprehension scheme.
+* `HFSet.repl_scheme`: Replacement scheme.
+* `HFSet.exists_powerset`: Existence of the power set.
+* `HFSet.found_prop`: Foundation property.
+* `HFSet.mem_irrefl`: Membership is irreflexive.
 
-## Notation
+## Notations
+* `∅` : Empty set, see `instEmptyCollectionOfStructureLang` and `HFSet.empty`.
+* `◁` : Enlarging, see `enlarging` and `HFSet.enlarge`.
+* `∈` : Membership, see `instMembershipOfStructureLang`.
+* `{}` : Singleton or pair, see `HFSet.insert` and `HFSet.singleton`.
+* `⋃` : Union of two sets, see `HFSet.Union`.
+* `⋃₀` : Union of a set of sets, see `HFSet.sUnion`.
+* `∩` : Intersection of two sets, see `HFSet.Inter`.
+* `⋂₀` : Intersection of a set of sets, see `HFSet.sInter`.
+* `⊆` : Subset, see `HFSet.Subset`.
+* `⊂` : Strict subset, see `HFSet.SSubset`.
 
-- `◁` : enlarging, see `HFSet.enlarge`.
+## Implementation notes
+* Proofs are semantic but can be converted into syntactic proofs using completeness. For an example,
+  see `HFSet.notin_empty`.
+* Induction is over all formulae in the first-order language of HF rather than over all
+  predicates, see `HFSet.induction`.
 
 ## References
+* S. Swierczkowski. Finite Sets and Gödel’s Incompleteness Theorems. Dissertationes
+  mathematicae. IM PAN, 2003. URL https://books.google.co.uk/books?id=5BQZAQAAIAAJ.
 
-S. Swierczkowski. Finite Sets and Gödel’s Incompleteness Theorems. Dissertationes
-mathematicae. IM PAN, 2003. URL https://books.google.co.uk/books?id=5BQZAQAAIAAJ.
+## TO DO
+* If necessary for formalising recursion on rank, prove the replacement scheme for formulas that are
+  not quantifier free.
 -/
 
-/-- Write `∅` instead of `EmptySet`. -/
+open FirstOrder Language BoundedFormula HF
+
+/-- Declare the 0-ary function symbol for elements of the strucure class. -/
 instance (S : Type) [Lang.Structure S] : EmptyCollection S :=
   ⟨(by
   rename_i inst
   exact inst.1 (∅') Fin.elim0)⟩
 
-/-- Write `∈` instead of `Mem`. -/
+/-- Declare the 2-ary relation symbol for elements of the strucure class. -/
 instance (S : Type) [Lang.Structure S] : Membership S S := ⟨(by
     rename_i inst;
     intro x y
     exact inst.2 HF.Lang.membershipSymbol ![x, y])⟩
 
+/-- Declare the 2-ary function symbol for elements of the strucure class. -/
 abbrev enlarging {S : Type} [Lang.Structure S] (x y : S) : S := (by
   rename_i inst
   exact inst.1 (◁') ![x, y])
 
-/-- Write `◁` instead of `enlarging`. -/
+/-- Declare the 2-ary function symbol for elements of the strucure class. -/
 infixl:90 " ◁ " => enlarging
 
 @[simp]
@@ -73,8 +107,8 @@ lemma mem_rel (S : Type) (inst : Lang.Structure S) :
   rw [this]
   rfl
 
-/-- HFSet class with the axioms of HF. -/
-class HFSet (S : Type) [Lang.Structure S] where
+/-- Class with the axioms of HF. -/
+class HFSet (S : Type) [Lang.Structure S] : Prop where
   /-- Axiom 1 "for the empty set". -/
   empty (z : S) : z = ∅ ↔ ∀ x, x ∉ z
   /-- Axiom 2 "for enlargement". -/
@@ -157,6 +191,7 @@ lemma induction (S) [Model S] : ∀ (α : S → Prop), α ∅ → (∀ (x y : S)
     true_implies] at model
   apply model v
 
+/-- Every model of HF type belongs to the HFSet class. -/
 instance (S) [Model S] : HFSet S where
   empty := empty S
   enlarge := enlarge S
@@ -170,6 +205,7 @@ variable {S : Type} [Lang.Structure S] [HFSet S]
 
 lemma notin_empty (x : S) : x ∉ (∅ : S) := by revert x; rw [← empty  ∅]
 
+/-- Example of how we can convert semantic proofs into syntactic proofs using completeness. -/
 example : ⊢ (∼(&0 ∈' .func ∅' Fin.elim0) : Lang.BoundedFormula Empty 1) := by
   rw [completeness]
   intros S _ v xs
@@ -191,6 +227,7 @@ lemma ne_empty_iff_exists_mem (x : S) : x ≠ ∅ ↔ ∃ y, y ∈ x := by
 
 lemma mem_enlarge_empty (z y : S) : z ∈ ∅ ◁ y ↔ z = y := by simp
 
+/-- Extensionality property. -/
 theorem exten_prop (z : S) (x : S) : x = z ↔ ∀ u, u ∈ x ↔ u ∈ z := by
   induction x using induction with
   | base =>
@@ -270,6 +307,7 @@ lemma pair_eq (x y : S) : pair x y = (∅ ◁ (∅ ◁ x)) ◁ ((∅ ◁ x) ◁ 
   · rcases h1' with ⟨u_eq_x, u_eq_y⟩
     rw [← u_eq_x, ← u_eq_y, duplic_pair_eq_single, pair_eq_singleton_iff] at h2'; simp_all
 
+/-- Existence of the union of two sets. -/
 theorem exists_union (x y : S) : ∃(z : S), ∀(u : S), (u ∈ z ↔ (u ∈ x ∨ u ∈ y))  := by
   induction x using induction with
   | base => use y; simp
@@ -296,6 +334,7 @@ instance : Union S := ⟨union⟩
   revert u
   exact (exists_union x y).choose_spec
 
+/-- Existence of the union of a set of sets. -/
 theorem exists_sUnion (x : S) : ∃(z : S), ∀(u : S), (u ∈ z ↔ (∃ y ∈ x, u ∈ y))  := by
   induction x using induction with
   | base => use ∅; simp
@@ -322,6 +361,7 @@ prefix:110 "⋃₀" => sUnion
   revert u
   exact (exists_sUnion x).choose_spec
 
+/-- Comprehension scheme. -/
 theorem comp_scheme (x : S) (φ : S → Prop) {n} (f : BoundedFormula HF.Lang (Fin n) 1)
     (c : Fin n → S) (hφ : ∀ x, φ x ↔ f.Realize c ![x]) :
     ∃ (z : S), ∀ (u : S), (u ∈ z ↔ u ∈ x ∧ φ u) := by
@@ -386,6 +426,7 @@ lemma inter_enlarge (x y : S) : (x ◁ y) ∩ x = x := by
   intro u a
   simp_all only [true_or]
 
+/-- Replacement scheme. Only proven for f being quantifier free; this might suffice. -/
 theorem repl_scheme (x : S) {n} (ψ : S → S → Prop)
     (f : BoundedFormula HF.Lang (Fin n) 2)  (qf : f.IsQF)
     (c : Fin n → S) (hψ : ∀ x y, ψ x y ↔ f.Realize c ![x, y]) :
@@ -487,6 +528,7 @@ lemma exists_powerset_aux (u x y Px : S) (hPx : ∀ (u : S), u ∈ Px ↔ u ⊆ 
   · left; rw [hPx]
     intros v hv; specialize hu v hv; aesop
 
+/-- Existence of the power set. -/
 theorem exists_powerset (x : S) : ∃ (z : S), ∀ (u : S), u ∈ z ↔ u ⊆ x := by
   induction x using induction with
   | base => use {∅}; simp [exten_prop]
@@ -544,11 +586,13 @@ lemma found_prop_aux (x z : S) (h : ∀ w ∈ z, w ∩ z ≠ ∅) : x ∉ z ∧ 
       realize_ex, realize_inf, realize_not]
     rfl
 
+/-- Foundation property. -/
 theorem found_prop (z : S) : z ≠ ∅ → ∃ w, w ∈ z ∧ w ∩ z = ∅ := by
   rw [not_imp_comm, not_exists, exten_prop]
   intro h; simp only [not_and] at h
   intro u; simp_all [found_prop_aux u z h]
 
+/-- Membership is irreflexive. -/
 instance mem_irrefl : IsIrrefl S (· ∈ ·) where
   irrefl := by
     intro x

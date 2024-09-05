@@ -1,32 +1,35 @@
 import GIT.Basic
 
-open FirstOrder Language BoundedFormula Classical HF
-
 /-!
 # Appendix 2: Ordinals
 
 In this file, the second appendix of S. Swierczkowski: 'Finite Sets and Gödel’s Incompleteness
 Theorems' is formalised. It systematically presents the theory on hereditarily finite ordinals.
 
-## Main results
+## Main definitions
+* `HFSet.IsTran` : The set is transitive.
+* `HFSet.IsOrd` : The set is an ordinal.
+* `HFSet.succ` : The successor of a set.
+* `HFSet.pred` : The predecessor of a non-empty ordinal.
+* `HFSet.Ord` : The ordinal subtype.
 
-- `HFSet.IsOrd.comparability`: Comparability of ordinals.
-- `HFSet.IsOrd.exists_max_of_set` : Existence of a largest element of a set of ordinals.
-- `HFSet.IsOrd.exists_min_of_set` : Existence of a smallest element of a set of ordinals.
-- `HFSet.Ord.le_totalOrder`: Total order on ordinals by `≤`.
-- `HFSet.Ord.lt_sTotalOrder`: Strict total order on ordinals by `<`.
+## Main statements
+* `HFSet.IsOrd.comparability`: Comparability of ordinals.
+* `HFSet.IsOrd.exists_max_of_set` : Existence of a largest element of a set of ordinals.
+* `HFSet.IsOrd.exists_min_of_set` : Existence of a smallest element of a set of ordinals.
+* `HFSet.Ord.le_totalOrder`: Total order on ordinals by `≤`.
+* `HFSet.Ord.lt_sTotalOrder`: Strict total order on ordinals by `<`.
 
-## Notation
-
-- `◁` : enlarging, see `HFSet.enlarge`.
-- `<` : less than (membership for the ordinal subtype), see `HFSet.Ord.lt`.
-- `≤` : less than or equal to (membership or equality for the ordinal subtype), see `HFSet.Ord.le`.
+## Notations
+* `<` : Less than (membership for the ordinal subtype), see `HFSet.Ord.lt`.
+* `≤` : Less than or equal to (membership or equality for the ordinal subtype), see `HFSet.Ord.le`.
 
 ## References
-
-S. Swierczkowski. Finite Sets and Gödel’s Incompleteness Theorems. Dissertationes
-mathematicae. IM PAN, 2003. URL https://books.google.co.uk/books?id=5BQZAQAAIAAJ.
+* S. Swierczkowski. Finite Sets and Gödel’s Incompleteness Theorems. Dissertationes
+  mathematicae. IM PAN, 2003. URL https://books.google.co.uk/books?id=5BQZAQAAIAAJ.
 -/
+
+open FirstOrder Language BoundedFormula Classical HF
 
 suppress_compilation
 
@@ -184,6 +187,7 @@ lemma comparability_aux3 (k0 l0 : S) (ord_l0 : IsOrd l0)
     assumption
   · assumption
 
+/-- Comparability of ordinals. -/
 theorem comparability (k l : S) (ord_k : IsOrd k) (ord_l : IsOrd l) :
     k ∈ l ∨ k = l ∨ l ∈ k := by
   revert k l
@@ -281,6 +285,7 @@ lemma exists_max_of_set_aux (x y : S) (set_of_ord : ∀ k ∈ x ◁ y, IsOrd k)
     have compar := comparability y max_x ord_y ord_max_x
     simp_all
 
+/-- Existence of a largest element of a set of ordinals. -/
 theorem exists_max_of_set (x : S) (set_of_ord : ∀ k ∈ x, IsOrd k) (ne_emp : x ≠ ∅) :
     ∃ l ∈ x, ∀ k ∈ x, (k ∈ l ∨ k = l) := by
   induction x using induction with
@@ -328,6 +333,7 @@ lemma exists_min_of_set_aux (x y : S) (set_of_ord : ∀ k ∈ x ◁ y, IsOrd k)
     have compar := comparability min_x y ord_min_x ord_y
     simp_all
 
+/-- Existence of a smallest element of a set of ordinals. -/
 theorem exists_min_of_set (x : S) (set_of_ord : ∀ k ∈ x, IsOrd k) (ne_emp : x ≠ ∅) :
     ∃ l ∈ x, ∀ k ∈ x, (l ∈ k ∨ l = k) := by
   induction x using induction with
@@ -528,6 +534,7 @@ lemma le_total (k l : Ord S) : k ≤ l ∨ l ≤ k := by
     | inl h => simp_all only [in_itself_iff_false, or_true, or_self]
     | inr h_2 => simp_all only [true_or, or_true]
 
+/-- Total order on ordinals by `≤`. -/
 instance le_totalOrder : LinearOrder (Ord S) where
   le := fun k l => k ≤ l
   le_refl := by simp [le_iff]
@@ -536,6 +543,7 @@ instance le_totalOrder : LinearOrder (Ord S) where
   le_total := le_total
   decidableLE := inferInstance
 
+/-- Strict total order on ordinals by `<`. -/
 instance lt_sTotalOrder : IsStrictTotalOrder (Ord S) (· < ·) where
   trichotomous := comparability
   irrefl := fun a ↦ gt_irrefl a
