@@ -1,7 +1,7 @@
 import GIT.Basic
 
 /-!
-# Appendix 2: Ordinals
+# Ordinals
 
 In this file, the second appendix of S. Swierczkowski: 'Finite Sets and Gödel’s Incompleteness
 Theorems' is formalised. It systematically presents the theory on hereditarily finite ordinals.

@@ -1,7 +1,7 @@
 import GIT.Ordinal
 
 /-!
-# Appendix 3: P-functions
+# P-functions
 
 In this file, the third appendix of S. Swierczkowski: 'Finite Sets and Gödel’s Incompleteness
 Theorems' is formalised. It systematically presents the theory on (p-)functions and recursion

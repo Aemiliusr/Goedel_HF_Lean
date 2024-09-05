@@ -4,7 +4,7 @@
 Gödel’s incompleteness theorems are two of the most significant findings in mathematical logic. 
 These theorems, proved by \cite{godel1931formal},
 address the boundaries of what can be proven within formal systems. 
-The first incompleteness theorem asserts that in any consistent formal system, 
+The first incompleteness theorem asserts that in any consistent formal system
 capable of performing basic arithmetic, 
 there will always exist certain statements in the system's language that can neither be proved
 nor disproved within that system. 
@@ -23,13 +23,13 @@ was unattainable.
 
 As previously mentioned, Gödel's incompleteness theorems apply to any formal system 
 that is consistent and complex enough to describe the basic arithmetic of natural numbers. 
-A formal system is a deductive framework made up of a specific set of axioms and deduction rules, 
+A formal system is a deductive framework comprising a specific set of axioms and deduction rules, 
 which govern how new theorems can be logically derived from those axioms.
 The incompleteness theorems focus on what can be formally proven within these systems, that is,
 solely using the axioms and the deduction rules of the system.
 This is a crucial distinction, as it does not concern what can be "informally" proven
 in an absolute sense.
-For instance, one should not confuse the first incompleteness theorems with the idea that
+For instance, one should not confuse the first incompleteness theorem with the idea that
 there are mathematical truths that cannot be proven at all.
 However, these truths may not be provable using today's standard mathematical methods, 
 because Gödel's first incompleteness theorem also applies to the most powerful axiomatic systems 
@@ -54,16 +54,16 @@ To pick up on a point previously mentioned, the axiomatic system of ZF,
 together with the axiom of choice, is the common foundation of mathematics.
 Thus, proving Gödel's first incompleteness theorem for HF is significant in the sense that
 it shows that even a system that is rich enough to derive a substantial portion of mathematics 
-is still incomplete, if it were to be consistent.
+is still incomplete, if it were consistent.
 
-Furthermore, we choose HF for proving Gödel's incompleteness theorems as 
+Furthermore, we choose HF to prove Gödel's incompleteness theorems as 
 the development of a meta-theory — a crucial step in the proof of the 
 first incompleteness theorem — is more straightforward in HF than in PA.
 As described by \cite{swierczkowski2003finite}, terms and formulas can be encoded directly 
-using standard set-theoretical objects, without needing to rely on prime factorisation or 
+using standard set-theoretical objects without needing to rely on prime factorisation or 
 the Chinese remainder theorem.
 To illustrate the ease of the encoding, it is worth mentioning that 
-even encoding proofs does not require any additional machinery, whereas for PA there is no natural
+even encoding proofs does not require any additional machinery, whereas, for PA, there is no natural
 way to encode a sequence of codes as one code.
 For HF, a sequence of codes of formulas that corresponds to a proof, 
 i.e. a sequence of finite sets, is again a finite set and thus can directly serve as a code.
@@ -77,15 +77,15 @@ holds the same significance as proving it for the other.
 In this thesis, we aim to formalise Gödel's first incompleteness theorem for the first-order theory of
 hereditarily finite sets in the Lean theorem prover. 
 That is, we present all the results required to prove the first
-incompleteness theorem, and formalise as much of the proof as possible within the constraints of 
-time. We adopt a similar approach to \cite{paulson2014machine}, where the author formalises the 
+incompleteness theorem and formalise as much of the proof as possible within time constraints. 
+We adopt a similar approach to \cite{paulson2014machine}, where the author formalises the 
 developments of \cite{swierczkowski2003finite} in Isabelle.
 Formalising the first incompleteness theorem directly leads to the second incompleteness theorem
 by readily following the remaining sections of \cite{swierczkowski2003finite}.
 At this moment, we are not aware of any existing formalisation of both Gödel's incompleteness 
 theorems in Lean.
 
-Before we make the distinction between what has been formalised and what has not,
+Before we distinguish between what has been formalised and what has not,
 we will first provide an overview of the proof of Gödel's first incompleteness theorem for HF.
 The proof by contradiction is divided into three parts.
 First, all symbols, terms, and formulas in the language are encoded as constant terms within the
@@ -99,13 +99,13 @@ The provability formula is a condition applicable to the code of a formula $\var
 in the language of HF that is satisfied if and only if $\varphi$ is a theorem of HF.
 So, in essence, the provability formula states 'formula $\varphi$ is provable within the system'.
 Finally, using both the coding system and the provability formula, 
-the third part of the proof involves constructing a formula that is self-referential and 
+the third part of the proof involves constructing a self-referential formula that
 essentially states 'I am not provable within the system'. This is established through 
 Gödel's diagonal lemma, which finds its roots in Cantor's diagonal argument.
 It is then straightforward to observe this formula can neither be proved nor disproved.
 
-Before coming to the formalisation of the coding system and the provability formula, naturally,
-as a first step, the first-order theory of hereditarily finite sets has to be formalised.
+Before coming to the formalisation of the coding system and the provability formula, naturally, 
+the first-order theory of hereditarily finite sets has to be formalised as a first step.
 It includes defining the language of HF, the axioms of HF, the notion of a formal proof in HF,
 and the notion of a model of HF — this has been completed by drawing on the work of
 \cite{han2020formal}.
@@ -115,9 +115,9 @@ This part of the work has been mostly completed,
 except for the section dealing with the rank function.
 Furthermore, constructing the provability formula requires specifying the standard model of HF.
 In Lean, the standard model of HF has been defined, but two proofs in the associated chapter
-are still missing.
+still need to be included.
 The coding system has been fully formalised, but the proof of the encoding being one-to-one
-is missing. However, the proof of the first incompleteness theorem seems to be independent of the
+is missing. However, the proof of the first incompleteness theorem seems independent of the
 latter.
 The main body of the construction of the provability formula has not been formalised yet,
 and the same holds for Gödel's diagonal lemma.
@@ -131,16 +131,16 @@ Chapter 1 provides a detailed introduction to the first-order theory of heredita
 including both syntactical and semantic notions.
 Chapter 2 presents the results preliminary to the main steps of the proof of Gödel's first
 incompleteness theorem.
-Chapters 3 and 4 define the standard model of HF and the coding system respectively.
+Chapters 3 and 4 define the standard model of HF and the coding system, respectively.
 Finally, Chapter 5 constructs the provability formula and Chapter 6
 proves Gödel's diagonal lemma and his first incompleteness theorem.
 
 Note that the presentation of mathematical results in this work closely follows the presentation of  
 \cite{swierczkowski2003finite}, because the purpose of this work is to formalise 
 the contents of the latter exactly.
-The detailed presentation of these results is necessary, 
+A detailed presentation of these results is necessary, 
 as the blueprint serves as a guide for the formalisation process, 
-contributing to possible future efforts completing this process of proving
+contributing to possible future efforts in completing this process of proving
 Gödel's incompleteness theorems in Lean.\\\\
 
 \noindent{\Large \textbf {Acknowledgements}}\\
